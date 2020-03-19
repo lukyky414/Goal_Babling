@@ -1,0 +1,5 @@
+#fichier cache de python
+__pycache__/*
+
+#Mon script pour demarrer le programme (clear; python main.py)
+start.sh
