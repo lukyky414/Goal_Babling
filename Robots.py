@@ -1,5 +1,8 @@
 import sys
+from math import pi, cos, sin
+import random
 import numpy as np
+from OpenGL.GL import glRotatef, glMatrixMode, glLoadMatrixf, glGetFloatv, GL_MODELVIEW, GL_MODELVIEW_MATRIX
 
 class Arm2D():
     """A simple 2d Robotic Arm"""
@@ -13,6 +16,9 @@ class Arm2D():
         self.posture = [(0.0, 0.0)] * (dim+1)
         self.end_point = (0.0, 0.0)
 
+    def random_angle(self):
+        return [random.uniform(-self.limit, self.limit) for _ in range(self.dim)]
+
     def execute(self, angles):
         """Return the position of the end of the arm.
         `angle` is an array of size `Arm2D.dim`"""
@@ -20,7 +26,7 @@ class Arm2D():
         if len(angles) != self.dim:
             print("Arm2D.execute: len(angles) ({}) does not match Arm2D.dim ({})".format(len(angles), self.dim), file=sys.stderr)
             sys.exit(1)
-        
+
 
         # Position actuelle
         x, y = 0, 0
@@ -52,25 +58,11 @@ class Arm2D():
 
 class Articulation3D():
 
-    def __init__(self, size, axe, angle_min=0, angle_max=360, loop=False):
-        """`size` is the size of the arm provide in an (X, Y, Z) tuple
-        `axe` is the axe around wich the articulation rotate (X, Y & Z coefficient of rotation)
-        `angle_min` & `angle_max` are the maximum angle that can be reached
-        `loop` define if the motor can execute multiple 360 roation (angle will be consider mod 360)"""
+    def __init__(self, origin, axe, angle_min=0, angle_max=360):
+        """`origin` is the position and the rotation of this articulation provided in an ( (x, y, z), (r, p, y)). rpy in rad
+        `axe` is the vector around wich the articulation rotate
+        `angle_min` & `angle_max` are the maximum angle that can be reached in °"""
 
-        #Vérification des paramètres
-        if len(size) != 3:
-            print("Articulation3D.__init__: `size` need 3 coordinate. Got {}".format(len(size)), file=sys.stderr)
-            sys.exit(1)
-        self.size = size
-        if len(axe) != 3:
-            print("Articulation3D.__init__: `axe` need 3 coefficient. Got {}".format(len(axe)), file=sys.stderr)
-            sys.exit(1)
-        elif axe[0] < 0 or axe[0] > 1 or axe[1] < 0 or axe[1] > 1 or axe[2] < 0 or axe[2] > 1:
-            print("Articulation3D.__init__: `axe` coefficient wrong. ({},{},{}). Suspected coefficient between 0 and 1.".format(axe[0], axe[1], axe[2]), file=sys.stderr)
-            sys.exit(1)
-        
-        #Attribution des valeurs
         #Normalisation du vecteur axe
         x, y, z = axe
         taille = np.sqrt(x**2 + y**2 + z**2)
@@ -78,26 +70,53 @@ class Articulation3D():
 
         self.angle_min = angle_min
         self.angle_max = angle_max
-        self.loop = loop
 
-        x, y, z = size
-        self.translation = np.array(
+        #deduction de la matrice de rotation de cette partie
+        pos_x, pos_y, pos_z = origin[0]
+
+        rot_x = np.array(
             (
-                ( 1, 0, 0, x),
-                ( 0, 1, 0, y),
-                ( 0, 0, 1, z),
-                ( 0, 0, 0, 1)
+                (1, 0, 0, 0),
+                (0, cos(origin[1][0]), -sin(origin[1][0]), 0),
+                (0, sin(origin[1][0]), cos(origin[1][0]), 0),
+                (0, 0, 0, 1)
             )
         )
-    
+        rot_y = np.array(
+            (
+                (cos(origin[1][1]), 0, sin(origin[1][1]), 0),
+                (0, 1, 0, 0),
+                (-sin(origin[1][1]), 0, cos(origin[1][1]), 0),
+                (0, 0, 0, 1)
+            )
+        )
+        rot_z = np.array(
+            (
+                (cos(origin[1][2]), -sin(origin[1][2]), 0, 0),
+                (sin(origin[1][2]), cos(origin[1][2]), 0, 0),
+                (0, 0, 1, 0),
+                (0, 0, 0, 1)
+            )
+        )
+
+        translation = np.array(
+            (
+                (1, 0, 0, pos_x),
+                (0, 1, 0, pos_y),
+                (0, 0, 1, pos_z),
+                (0, 0, 0, 1)
+            )
+        )
+
+        self.matrix = translation.dot(rot_x).dot(rot_y).dot(rot_z)
+
+
     def execute(self, base_pos, angle):
         """Return the position (Rotation Matrix) at the end of the articulation.
         `base_pos` is the position (Rotation Matrix) at the base of the articulation
         `angle` is the angle this articulation will turn (around its `Articulation3D.axe`) within the limit defined."""
 
-        if self.loop:
-            angle = angle % 360
-        elif angle < self.angle_min:
+        if angle < self.angle_min:
             print("Articulation3D.execute: angle is out of bound. min:{} < angle:{}".format(self.angle_min, angle), file=sys.stderr)
             angle = self.angle_min
         elif angle > self.angle_max:
@@ -122,21 +141,22 @@ class Articulation3D():
             )
         )
 
-        transformation = rot.dot(self.translation)
+        return base_pos.dot(self.matrix).dot(rot)
 
-        return base_pos.dot(transformation)
-        
 class Arm3D():
     """A 3D model of a Robotic Arm"""
 
-    def __init__(self, articulations):
-        """`articulations` must be type of Articulation3D. Size is not limited."""
+    def __init__(self, articulations, end_joint=(0, 0, 0)):
+        """`articulations` must be type of Articulation3D. Size is not limited.
+        `end_joint` is the final vector after the last Articulation for the calculation of the end_point."""
+
         if len(articulations) <= 0:
             print("Arm3D.__init__: The robot must have at least one articulation.", file=sys.stderr)
             sys.exit(1)
         if type(articulations[0]) != Articulation3D:
             print("Arm3D.__init__: `articulations` must be a list of Articulation3D", file=sys.stderr)
             sys.exit(1)
+
         self.articulations = articulations
         self.base_pos = np.array(
             (
@@ -146,9 +166,21 @@ class Arm3D():
                 (0, 0, 0, 1)
             )
         )
-        self.posture = [(0,0,0)] * (len(articulations)+1)
-        self.end_point = (0,0,0)
-    
+        self.posture = [(0, 0, 0)] * (len(articulations)+1)
+        self.end_point = (0, 0, 0)
+        self.dim = len(articulations)
+        self.end_joint = np.array(
+            (
+                (1, 0, 0, end_joint[0]),
+                (0, 1, 0, end_joint[1]),
+                (0, 0, 1, end_joint[2]),
+                (0, 0, 0, 1)
+            )
+        )
+
+    def random_angle(self):
+        return [random.uniform(a.angle_min, a.angle_max) for a in self.articulations]
+
     def execute(self, angle):
         """Return the position of the end of the arm.
         `angle` is an array of the same size of `Arm3D.articulations`"""
@@ -164,7 +196,10 @@ class Arm3D():
         for section, angle in zip(self.articulations, angle):
             pos = section.execute(base_pos=pos, angle=angle)
             self.posture.append((pos[0][3], pos[1][3], pos[2][3]))
-        
+
+        pos = pos.dot(self.end_joint)
+        self.posture.append((pos[0][3], pos[1][3], pos[2][3]))
+
         self.end_point = (pos[0][3], pos[1][3], pos[2][3])
 
         return (pos[0][3], pos[1][3], pos[2][3])

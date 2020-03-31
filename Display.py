@@ -85,40 +85,6 @@ def draw2Drobot(robot, draw_arm=False, arm_color=(0, 0, 0), end_joint_color=(0, 
     glVertex3f(robot.end_point[0], robot.end_point[1], 0.0)
     glEnd()
 
-def motor_babling_2d(robot, step=5000, draw_circle=True, draw_arm=False, size_x=600, size_y=600, arm_color=(0, 0, 0), end_joint_color=(0, 0, 150), background_color=(255, 255, 255), circle_color=(0, 0, 0)):
-    """Affiche un robot avec un motor babling pendant `step` étapes.
-    De base n'affiche que la position finale de ce robot"""
-    init_display(size_x=size_x, size_y=size_y, background_color=background_color, is_2d=True)
-
-    if draw_circle:
-        drawCircle(circle_color=circle_color)
-
-    batch = step/10
-
-    for i in range(step):
-        if i%batch == 0:
-            print('[', end='')
-            for j in range(10):
-                if j/10 < i/step:
-                    print('#', end='')
-                else:
-                    print('_', end='')
-            print(']', end='\r')
-            closing_event()
-
-        robot.execute([random.uniform(-robot.limit, robot.limit) for _ in range(robot.dim)])
-
-        draw2Drobot(robot, draw_arm=draw_arm, arm_color=arm_color, end_joint_color=end_joint_color)
-        
-    
-    pygame.display.flip()
-
-    print("done        ")
-
-    while True:
-        closing_event()
-        pygame.time.wait(10)
-
 def draw_one_2d_robot(robot, draw_circle=True, draw_arm=True, size_x=600, size_y=600, arm_color=(0, 0, 0), end_joint_color=(0, 0, 150), background_color=(255, 255, 255), circle_color=(0, 0, 0)):
     init_display(size_x, size_y, background_color=background_color, is_2d=True)
 
@@ -150,30 +116,16 @@ def draw3Drobot(robot, draw_arm=False, arm_color=(0, 0, 0), end_joint_color=(0, 
     glEnd()
 
 def draw_one_3d_robot(robot, draw_arm=True, size_x=600, size_y=600, arm_color=(0, 0, 0), end_joint_color=(0, 0, 150), background_color=(255, 255, 255)):
-    init_display(size_x, size_y, background_color=background_color)
+    init_display(size_x=size_x, size_y=size_y, background_color=background_color)
 
     my_mouse = MouseController()
 
     while True:
         my_mouse.control()
 
-        #glRotatef(1, 3, 1, 1)
-
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
-        glBegin(GL_LINES)
-        glColor3f(0, 0, 255)
-        glVertex3f(0, 0, 0)
-        glVertex3f(1, 0, 0)
-
-        glColor3f(0, 255, 0)
-        glVertex3f(0, 0, 0)
-        glVertex3f(0, 1, 0)
-
-        glColor3f(255, 0, 0)
-        glVertex3f(0, 0, 0)
-        glVertex3f(0, 0, 1)
-        glEnd()
+        draw_axes()
 
         draw3Drobot(robot=robot, draw_arm=draw_arm, arm_color=arm_color, end_joint_color=end_joint_color)
 
@@ -181,6 +133,28 @@ def draw_one_3d_robot(robot, draw_arm=True, size_x=600, size_y=600, arm_color=(0
 
         closing_event()
         pygame.time.wait(10)
+
+def draw_multiple_3d_robot(robot, angles, draw_arm=True, size_x=600, size_y=600, arm_color=(0, 0, 0), end_joint_color=(0, 0, 150), background_color=(255, 255, 255)):
+    init_display(size_x=size_x, size_y=size_y, background_color=background_color)
+
+    my_mouse = MouseController()
+
+    while True:
+        my_mouse.control()
+
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+
+        draw_axes()
+
+        for a in angles:
+            robot.execute(a)
+            draw3Drobot(robot=robot, draw_arm=draw_arm, arm_color=arm_color, end_joint_color=end_joint_color)
+
+        pygame.display.flip()
+
+        closing_event()
+        pygame.time.wait(10)
+
 
 class MouseController():
 
@@ -230,3 +204,43 @@ class MouseController():
         if pygame.mouse.get_pressed()[0]:
             self.isPressed = True
             self.last_x, self.last_y = pygame.mouse.get_pos()
+
+def draw_cloud(points, size_x=600, size_y=600, point_color=(0, 0, 150), background_color=(255, 255, 255)):
+    init_display(size_x=size_x, size_y=size_y, background_color=background_color)
+
+    my_mouse = MouseController()
+
+    while True:
+        my_mouse.control()
+
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+
+        draw_axes()
+
+        glBegin(GL_POINTS)
+        glColor3f(point_color[0], point_color[1], point_color[2])
+
+        for p in points:
+            glVertex3f(p[0], p[1], p[2])
+
+        glEnd()
+
+        pygame.display.flip()
+
+        closing_event()
+        pygame.time.wait(10)
+
+def draw_axes():
+    glBegin(GL_LINES)
+    glColor3f(0, 0, 255)
+    glVertex3f(0, 0, 0)
+    glVertex3f(1, 0, 0)
+
+    glColor3f(0, 255, 0)
+    glVertex3f(0, 0, 0)
+    glVertex3f(0, 1, 0)
+
+    glColor3f(255, 0, 0)
+    glVertex3f(0, 0, 0)
+    glVertex3f(0, 0, 1)
+    glEnd()
