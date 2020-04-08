@@ -9,6 +9,13 @@ import numpy as np
 import pygame as pg
 #import pygame.locals as pgl
 
+_PRINT_HELP_ = False
+
+if _PRINT_HELP_:
+    print("Left Click - Rotate")
+    print("Right Click - Translate")
+    print("Wheel Up & Down - Zoom in & out")
+
 def display_robot(robot, postures=None, end_point_color=(0, 0, 255), posture_color=(0, 0, 0), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(255, 255, 255)):
     """Dessine un nuage de point 3d.
     `robot` - Le robot de type `my_robot.Robot`
@@ -111,6 +118,24 @@ def _draw_axes():
     gl.glVertex3f(0, 0, 1)
     gl.glEnd()
 
+    gl.glPushAttrib(gl.GL_ENABLE_BIT)
+    gl.glLineStipple(1, 0xaaaa)
+    gl.glEnable(gl.GL_LINE_STIPPLE)
+    gl.glBegin(gl.GL_LINES)
+    gl.glColor3f(0, 0, 255)
+    gl.glVertex3f(0, 0, 0)
+    gl.glVertex3f(-1, 0, 0)
+
+    gl.glColor3f(0, 255, 0)
+    gl.glVertex3f(0, 0, 0)
+    gl.glVertex3f(0, -1, 0)
+
+    gl.glColor3f(255, 0, 0)
+    gl.glVertex3f(0, 0, 0)
+    gl.glVertex3f(0, 0, -1)
+    gl.glEnd()
+    gl.glPopAttrib()
+
 def _draw_circle():
     gl.glBegin(gl.GL_LINE_LOOP)
     gl.glColor(0, 0, 0)
@@ -123,7 +148,8 @@ def _draw_circle():
 
 class _StaticVars:
     is_running = True
-    mouse_pressed = False
+    mouse_left_pressed = False
+    mouse_right_pressed = False
     mouse_last_x = 0
     mouse_last_y = 0
     mouse_x_axe = np.array(
@@ -176,21 +202,49 @@ def _mouse_event(event):
     if event.type == pg.MOUSEBUTTONDOWN:
         # Left Click
         if event.button == 1:
-            _StaticVars.mouse_pressed = True
+            _StaticVars.mouse_left_pressed = True
+            _StaticVars.mouse_last_x, _StaticVars.mouse_last_y = pg.mouse.get_pos()
+
+        elif event.button == 3:
+            _StaticVars.mouse_right_pressed = True
             _StaticVars.mouse_last_x, _StaticVars.mouse_last_y = pg.mouse.get_pos()
 
         # Wheel Up
         elif event.button == 4:
             gl.glScalef(1.5, 1.5, 1.5)
 
+        # Wheel Down
         elif event.button == 5:
             gl.glScalef(0.6, 0.6, 0.6)
 
-    elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
-        _StaticVars.mouse_pressed = False
+    elif event.type == pg.MOUSEBUTTONUP:
+        if event.button == 1:
+            _StaticVars.mouse_left_pressed = False
+
+        elif event.button == 3:
+            _StaticVars.mouse_right_pressed = False
+
+_depl_factor = 1/120
 
 def _mouse_handler():
-    if _StaticVars.mouse_pressed:
+    if _StaticVars.mouse_right_pressed:
+        # Position actuelle de la souris
+        curr_x, curr_y = pg.mouse.get_pos()
+
+        # Deplacement relatif a la derniere position
+        depl_x, depl_y = (curr_x-_StaticVars.mouse_last_x)*_depl_factor, (curr_y-_StaticVars.mouse_last_y)*_depl_factor
+
+        # Effectuer une rotation autour de ces axes (et non autour de l'axe monde).
+        # Deplacer la souris horizontalement (x) fait tourner le monde sur l'axe vertical (y) et vice-versa.
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glTranslatef(depl_x, -depl_y, 0)
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+
+        # Mise a jour de la derniere position
+        _StaticVars.mouse_last_x = curr_x
+        _StaticVars.mouse_last_y = curr_y
+
+    elif _StaticVars.mouse_left_pressed:
         # Position actuelle de la souris
         curr_x, curr_y = pg.mouse.get_pos()
 

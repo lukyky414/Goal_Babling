@@ -3,6 +3,7 @@
 import random
 import my_robot
 import my_display
+import my_learning
 
 SEED = 0
 random.seed(SEED)
@@ -58,6 +59,11 @@ POPPY = my_robot.Robot3d(articulations=[
     )
 ])
 
-print(POPPY.end_point)
+def main_func():
+    """Fonction principale pour eviter les erreurs pylint"""
+    pos, _ = my_learning.Motor_Babling(POPPY, steps=10000)
 
-my_display.display_robot(robot=POPPY)
+    my_display.draw_points_cloud(points=pos)
+
+if __name__ == "__main__":
+    main_func()

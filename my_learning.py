@@ -1,6 +1,11 @@
+"""Fichier contenant les fonctions utiles à un apprentissage.
+Principalement Motor Babling et Goal Babling."""
+
 import random
 
 def Motor_Babling(robot, steps=5000):
+    """Execute un motor babling: positions aleatoires sur chacune des sections du robot.
+    Retourne une deux listes: les positions obtenues, les angles utilisés pour atteindre ces positions."""
 
     #Taille de barre de chargement
     nb_batch = 10
@@ -25,7 +30,7 @@ def Motor_Babling(robot, steps=5000):
                     print(" ", end='')
             print("]", end='\r')
 
-        curr_angles = robot.random_angle()
+        curr_angles = robot.random_angles()
 
         angles.append(curr_angles)
 

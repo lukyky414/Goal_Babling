@@ -4,3 +4,6 @@ __pycache__/*
 #Mon script pour demarrer le programme (clear; python main.py)
 start.sh
 .vscode/*
+
+#Les fichiers pdf en rapport avec ce stage
+pdf/*

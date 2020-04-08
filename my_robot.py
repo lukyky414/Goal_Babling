@@ -79,7 +79,7 @@ class Robot3d(Robot):
         self.execute(angles=[0]*self.dim)
 
     def random_angles(self):
-        return [random.uniform(a.angle_min, a.angle_max) for a in self._articulations]
+        return [random.uniform(a.limit[0], a.limit[1]) for a in self._articulations]
 
     def execute(self, angles):
 
@@ -108,7 +108,7 @@ class Robot3d(Robot):
 class Articulation():
     """Classe representant une section d'un Robot3d.
     Permet de separer les calculs"""
-    _limit = (0, 0)
+    limit = (0, 0)
     _matrix = np.array((
         (0, 0, 0, 0),
         (0, 0, 0, 0),
@@ -126,7 +126,7 @@ class Articulation():
         taille = np.sqrt(axe_x**2 + axe_y**2 + axe_z**2)
         self.axe = (axe_x/taille, axe_y/taille, axe_z/taille)
 
-        self._limit = limit
+        self.limit = limit
 
         # Differente matric pour executer les rotation autour des axes x, y et z pour r(raw), p(pitch) et y(yaw) respectivement.
         rot_x = np.array(
@@ -174,10 +174,10 @@ class Articulation():
         `base_pos` est la position en matrice de rotation de la base de l'articulation.
         `angle` est l'angle execute par cette articulation dans les limites predefinies."""
 
-        if angle < self._limit[0]:
-            angle = self._limit[0]
-        elif angle > self._limit[1]:
-            angle = self._limit[1]
+        if angle < self.limit[0]:
+            angle = self.limit[0]
+        elif angle > self.limit[1]:
+            angle = self.limit[1]
 
         angle = angle * math.pi / 180
 
