@@ -1,32 +1,62 @@
-"""Fichier display contenant les fonctions d'affichage pour un robot.
-Pour empecher le prompt de pygame, faire "export PYGAME_HIDE_SUPPORT_PROMPT=hide" """
-
+"""Pour empecher le prompt de pygame, faire "export PYGAME_HIDE_SUPPORT_PROMPT=hide" """
 
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
-#import OpenGL.GLUT as glut
 import numpy as np
 import pygame as pg
-#import pygame.locals as pgl
+import my_robot
+from ikpy.chain import Chain
 
-_PRINT_HELP_ = False
+_PRINT_HELP_ = True
 
 if _PRINT_HELP_:
     print("Left Click - Rotate")
     print("Right Click - Translate")
     print("Wheel Up & Down - Zoom in & out")
 
-def display_robot(robot, postures=None, end_point_color=(0, 0, 255), posture_color=(0, 0, 0), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(255, 255, 255)):
+def animation(robot: Chain):
+    """Creer une animation avec le robot, en faisant tourner un a un les moteurs dans les limites de ceux-ci"""
+    
+    _init_display(size=(600,600), background_color=(1, 1, 1), z_up = True)
+
+    angle = 0.0
+    angles = [0 for _ in range(len(robot.links)-1)]
+
+    i = 0
+
+    while _StaticVars.is_running:
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
+        _draw_axes()
+
+        angle = angle + 0.01
+
+        if angle > robot.links[i+1].bounds[1]:
+            angles[i] = 0
+            i = (i+1) % 5
+            angle = robot.links[i+1].bounds[0]
+
+        angles[i] = angle
+
+        posture = my_robot.get_posture(robot=robot, angles=angles)
+
+        print("{} - {}     ".format(i, angle), end='\r')
+        _draw_one_robot(posture=posture, end_point_color=(0, 0, 1), posture_color=(0, 0, 0), joint_color=(0, 1, 0.3), highlight=i)
+
+        pg.display.flip()
+        _event_handler()
+        pg.time.wait(10)
+
+def display_robot(posture: list, end_point_color=(0, 0, 1), posture_color=(0, 0, 0), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1), joint_color=(0, 1, 0.5)):
     """Dessine un nuage de point 3d.
-    `robot` - Le robot de type `my_robot.Robot`
-    `postures` - Liste de liste d'angle à faire executer au robot pour afficher differentes postures. Default `None`
-    `end_point_color` - la couleur du dernier point du robot en (r, g, b) [0-255]. Default `(0, 0, 255)`
-    `posture_color` - la couleur des sections du robot en (r, g, b) [0-255]. Default `(0, 0, 0)`
+    `posture` - Liste de points 3D definissant la posture du robot. Une liste de liste affichera plusieurs robots
+    `end_point_color` - la couleur du dernier point du robot en (r, g, b) [0-1]. Default `(0, 0, 1)`
+    `posture_color` - la couleur des sections du robot en (r, g, b) [0-1]. Default `(0, 0, 0)`
     `circle` - booleen pour l'affichage d'un cercle autour de l'axe Z de rayon 1. Default `False`
     `axes` - booleen pour l'affichage des axes. Default `True`
     `z_up` - booleen pour forcer l'axe Z vers le haut. Default `True`
     `size` - taille de la fenetre en (x, y). Default `(600, 600)`
-    `background_color` - couleur du fond en (r, g, b) [0-255]. Default `(255, 255, 255)`"""
+    `background_color` - couleur du fond en (r, g, b) [0-1]. Default `(1, 1, 1)`
+    `joint_color` - couleur des moteurs en (r, g, b) [0-1]. Default `(0, 1, 0.5)`"""
 
     _init_display(size, background_color, z_up)
 
@@ -39,46 +69,54 @@ def display_robot(robot, postures=None, end_point_color=(0, 0, 255), posture_col
         if circle:
             _draw_circle()
 
-        if postures is not None:
-            for angles in postures:
-                robot.execute(angles)
-                _draw_one_robot(robot=robot, end_point_color=end_point_color, draw_posture=True, posture_color=posture_color)
+        if isinstance(posture[0], list):
+            for r in posture:
+                _draw_one_robot(posture=r, end_point_color=end_point_color, posture_color=posture_color, joint_color=joint_color)
         else:
-            _draw_one_robot(robot=robot, end_point_color=end_point_color, draw_posture=True, posture_color=posture_color)
+            _draw_one_robot(posture=posture, end_point_color=end_point_color, posture_color=posture_color, joint_color=joint_color)
 
         pg.display.flip()
         _event_handler()
         pg.time.wait(10)
 
-def _draw_one_robot(robot, end_point_color, draw_posture, posture_color):
+def _draw_one_robot(posture, end_point_color, posture_color, joint_color, highlight_color=(1, 0, 0), highlight=None):
+    # Chaque section est representee par un segment
+    gl.glBegin(gl.GL_LINE_STRIP)
+    gl.glColor3f(posture_color[0], posture_color[1], posture_color[2])
 
-    if draw_posture:
-        # Chaque section est representee par un segment
-        gl.glBegin(gl.GL_LINE_STRIP)
-        gl.glColor3f(posture_color[0], posture_color[1], posture_color[2])
-
-        for section in robot.posture:
-            gl.glVertex3f(section[0], section[1], section[2])
-
-        gl.glEnd()
-
-    # Dessiner la position du robot
-    gl.glBegin(gl.GL_POINTS)
-    gl.glColor3f(end_point_color[0], end_point_color[1], end_point_color[2])
-
-    gl.glVertex3f(robot.end_point[0], robot.end_point[1], robot.end_point[2])
+    for section in posture:
+        gl.glVertex3f(section[0], section[1], section[2])
 
     gl.glEnd()
 
-def draw_points_cloud(points, point_color=(0, 0, 255), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(255, 255, 255)):
+
+    # Chaque moteur est represente par une sphere
+    for i in range(len(posture)):
+        # Si on veux mettre en valeur un joint
+        if highlight is not None and i == highlight+1:
+            gl.glColor3f(highlight_color[0], highlight_color[1], highlight_color[2])
+        else:
+            # Mettre en valeur le end_point
+            if i == len(posture)-1:
+                gl.glColor3f(end_point_color[0], end_point_color[1], end_point_color[2])
+            # Simple joint
+            else:
+                gl.glColor3f(joint_color[0], joint_color[1], joint_color[2])
+        gl.glPushMatrix()
+        gl.glTranslatef(posture[i][0], posture[i][1], posture[i][2])
+        glu.gluSphere(glu.gluNewQuadric(), 0.003, 16, 16)
+        gl.glPopMatrix()
+
+
+def draw_points_cloud(points: list, point_color=(0, 0, 1), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1)):
     """Dessine un nuage de point 3d.
     `points` - les coordonnees des points en (x, y, z).
-    `point_color` - la couleur de ces points en (r, g, b) [0-255]. Default `(0, 0, 255)`
+    `point_color` - la couleur de ces points en (r, g, b) [0-1]. Default `(0, 0, 1)`
     `circle` - booleen pour l'affichage d'un cercle autour de l'axe Z de rayon 1. Default `False`
     `axes` - booleen pour l'affichage des axes. Default `True`
     `z_up` - booleen pour forcer l'axe Z vers le haut. Default `True`
     `size` - taille de la fenetre en (x, y). Default `(600, 600)`
-    `background_color` - couleur du fond en (r, g, b) [0-255]. Default `(255, 255, 255)`"""
+    `background_color` - couleur du fond en (r, g, b) [0-1]. Default `(1, 1, 1)`"""
 
     _init_display(size, background_color, z_up)
 
@@ -105,32 +143,35 @@ def draw_points_cloud(points, point_color=(0, 0, 255), circle=False, axes=True, 
 
 def _draw_axes():
     gl.glBegin(gl.GL_LINES)
-    gl.glColor3f(0, 0, 255)
+    # X
+    gl.glColor3f(1, 0, 0)
     gl.glVertex3f(0, 0, 0)
     gl.glVertex3f(1, 0, 0)
-
-    gl.glColor3f(0, 255, 0)
+    # Y
+    gl.glColor3f(0, 0, 1)
     gl.glVertex3f(0, 0, 0)
     gl.glVertex3f(0, 1, 0)
-
-    gl.glColor3f(255, 0, 0)
+    # Z
+    gl.glColor3f(0, 1, 0)
     gl.glVertex3f(0, 0, 0)
     gl.glVertex3f(0, 0, 1)
     gl.glEnd()
 
     gl.glPushAttrib(gl.GL_ENABLE_BIT)
+    # Pointilles
     gl.glLineStipple(1, 0xaaaa)
     gl.glEnable(gl.GL_LINE_STIPPLE)
     gl.glBegin(gl.GL_LINES)
-    gl.glColor3f(0, 0, 255)
+    # -X
+    gl.glColor3f(1, 0, 0)
     gl.glVertex3f(0, 0, 0)
     gl.glVertex3f(-1, 0, 0)
-
-    gl.glColor3f(0, 255, 0)
+    # -Y
+    gl.glColor3f(0, 0, 1)
     gl.glVertex3f(0, 0, 0)
     gl.glVertex3f(0, -1, 0)
-
-    gl.glColor3f(255, 0, 0)
+    #-Z
+    gl.glColor3f(0, 1, 0)
     gl.glVertex3f(0, 0, 0)
     gl.glVertex3f(0, 0, -1)
     gl.glEnd()
@@ -140,8 +181,10 @@ def _draw_circle():
     gl.glBegin(gl.GL_LINE_LOOP)
     gl.glColor(0, 0, 0)
 
-    for i in range(16):
-        angle = float(i) * 2.0 * np.pi / 16
+    SEGMENTS = 64
+
+    for i in range(SEGMENTS):
+        angle = float(i) * 2.0 * np.pi / SEGMENTS
         gl.glVertex3f(np.cos(angle), np.sin(angle), 0.0)
 
     gl.glEnd()
@@ -179,9 +222,13 @@ def _init_display(size, background_color, z_up):
     # Reculer le point de vue pour voir la scène
     gl.glTranslatef(0.0, 0.0, -3)
 
+    # De base, Z est un axe de profondeur (il viens vers la camera) et Y est vertical.
     if z_up:
-        gl.glRotatef(-90, 1, 0, 0)
-        gl.glRotatef(180, 0, 0, 1)
+        gl.glRotatef(-90, 1, 0, 0) # Mettre Z vers le haut, mais du coup Y est "loin"
+        gl.glRotatef(180, 0, 0, 1) # Mettre Y vers la camera
+
+    # Avoir le X (rouge) qui part à droite
+    gl.glScalef(-1, 1, 1)
 
     # Couleur de fond
     gl.glClearColor(background_color[0], background_color[1], background_color[2], 1.0)
@@ -262,8 +309,8 @@ def _mouse_handler():
 
         # Effectuer une rotation autour de ces axes (et non autour de l'axe monde).
         # Deplacer la souris horizontalement (x) fait tourner le monde sur l'axe vertical (y) et vice-versa.
-        gl.glRotatef(depl_x, curr_y_axes[3][0], curr_y_axes[3][1], curr_y_axes[3][2])
-        gl.glRotatef(depl_y, curr_x_axes[3][0], curr_x_axes[3][1], curr_x_axes[3][2])
+        gl.glRotatef(-depl_x, curr_y_axes[3][0], curr_y_axes[3][1], curr_y_axes[3][2])
+        gl.glRotatef(-depl_y, curr_x_axes[3][0], curr_x_axes[3][1], curr_x_axes[3][2])
 
         # Mise a jour de la derniere position
         _StaticVars.mouse_last_x = curr_x
