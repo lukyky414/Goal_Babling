@@ -7,7 +7,7 @@ import pygame as pg
 import my_robot
 from ikpy.chain import Chain
 
-_PRINT_HELP_ = True
+_PRINT_HELP_ = False
 
 if _PRINT_HELP_:
     print("Left Click - Rotate")

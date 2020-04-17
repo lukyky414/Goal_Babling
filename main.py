@@ -11,7 +11,7 @@ random.seed(SEED)
 my_ikpy = Chain.from_urdf_file("./poppy_from_ikpy.urdf")
 my_poppy = Chain.from_urdf_file("./poppy_from_poppy-ergo-jr.urdf")
 
-my_display.animation(robot=my_poppy)
+# my_display.animation(robot=my_poppy)
 
 
 # angles = my_robot.get_random_posture_angles(robot=my_poppy)
@@ -22,6 +22,7 @@ my_display.animation(robot=my_poppy)
 
 # my_display.display_robot(robot=posture)
 
-# points, _ = my_learning.Motor_Babling(robot=my_poppy)
 
-# my_display.draw_points_cloud(points=points)
+points, _ = my_learning.Goal_Babling(robot=my_poppy, total_steps=8000)
+
+my_display.draw_points_cloud(points=points)

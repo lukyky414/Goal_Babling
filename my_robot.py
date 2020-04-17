@@ -56,14 +56,17 @@ def randomize_posture(robot: Chain, angles: list):
 
     res = []
 
-    for motor, angle in zip(robot.links, angles):
+    links = robot.links.copy()
+    links.pop(0)
+
+    for motor, angle in zip(links, angles):
         res.append(
             random.uniform(
                 max(
-                    motor.bounds[0], angle - disturb
+                    motor.bounds[0], (angle - disturb)
                 ),
                 min(
-                    motor.bouns[1], angle + disturb
+                    motor.bounds[1], (angle + disturb)
                 )
             )
         )
