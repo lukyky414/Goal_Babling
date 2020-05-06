@@ -1,3 +1,4 @@
+from __future__ import print_function
 """Pour empecher le prompt de pygame, faire "export PYGAME_HIDE_SUPPORT_PROMPT=hide" """
 
 import OpenGL.GL as gl
@@ -14,7 +15,7 @@ if _PRINT_HELP_:
     print("Right Click - Translate")
     print("Wheel Up & Down - Zoom in & out")
 
-def animation(robot: Chain):
+def animation(robot):
     """Creer une animation avec le robot, en faisant tourner un a un les moteurs dans les limites de ceux-ci"""
     
     _init_display(size=(600,600), background_color=(1, 1, 1), z_up = True)
@@ -46,7 +47,7 @@ def animation(robot: Chain):
         _event_handler()
         pg.time.wait(10)
 
-def display_robot(posture: list, end_point_color=(0, 0, 1), posture_color=(0, 0, 0), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1), joint_color=(0, 1, 0.5)):
+def display_robot(posture, end_point_color=(0, 0, 1), posture_color=(0, 0, 0), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1), joint_color=(0, 1, 0.5)):
     """Dessine un nuage de point 3d.
     `posture` - Liste de points 3D definissant la posture du robot. Une liste de liste affichera plusieurs robots
     `end_point_color` - la couleur du dernier point du robot en (r, g, b) [0-1]. Default `(0, 0, 1)`
@@ -108,7 +109,7 @@ def _draw_one_robot(posture, end_point_color, posture_color, joint_color, highli
         gl.glPopMatrix()
 
 
-def draw_points_cloud(points: list, point_color=(0, 0, 1), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1)):
+def draw_points_cloud(points, point_color=(0, 0, 1), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1)):
     """Dessine un nuage de point 3d.
     `points` - les coordonnees des points en (x, y, z).
     `point_color` - la couleur de ces points en (r, g, b) [0-1]. Default `(0, 0, 1)`
@@ -216,10 +217,10 @@ def _init_display(size, background_color, z_up):
     pg.init()
     pg.display.set_mode(size, pg.OPENGL)
 
-    # Perspective de vue du modèle: fov, ratio, near & far clipping plane
+    # Perspective de vue du modele: fov, ratio, near & far clipping plane
     glu.gluPerspective(45, (size[0]/size[1]), 0.1, 50.0)
 
-    # Reculer le point de vue pour voir la scène
+    # Reculer le point de vue pour voir la scene
     gl.glTranslatef(0.0, 0.0, -3)
 
     # De base, Z est un axe de profondeur (il viens vers la camera) et Y est vertical.
@@ -227,7 +228,7 @@ def _init_display(size, background_color, z_up):
         gl.glRotatef(-90, 1, 0, 0) # Mettre Z vers le haut, mais du coup Y est "loin"
         gl.glRotatef(180, 0, 0, 1) # Mettre Y vers la camera
 
-    # Avoir le X (rouge) qui part à droite
+    # Avoir le X (rouge) qui part a droite
     gl.glScalef(-1, 1, 1)
 
     # Couleur de fond
@@ -281,11 +282,17 @@ def _mouse_handler():
         # Deplacement relatif a la derniere position
         depl_x, depl_y = (curr_x-_StaticVars.mouse_last_x)*_depl_factor, (curr_y-_StaticVars.mouse_last_y)*_depl_factor
 
-        # Effectuer une rotation autour de ces axes (et non autour de l'axe monde).
-        # Deplacer la souris horizontalement (x) fait tourner le monde sur l'axe vertical (y) et vice-versa.
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glTranslatef(depl_x, -depl_y, 0)
-        gl.glMatrixMode(gl.GL_MODELVIEW)
+        # Recuperer la matrice du modelview inverse
+        matrix = np.linalg.inv(gl.glGetFloatv(gl.GL_MODELVIEW_MATRIX))
+        # Ignorer les facteurs de zoom
+        matrix[3] = (0, 0, 0, 1)
+
+        # Recuperer l'orientation des axes x et y
+        curr_y_axes = _StaticVars.mouse_y_axe.dot(matrix)
+        curr_x_axes = _StaticVars.mouse_x_axe.dot(matrix)
+
+        gl.glTranslatef(curr_x_axes[3][0]*depl_x, curr_x_axes[3][1]*depl_x, curr_x_axes[3][2]*depl_x)
+        gl.glTranslatef(curr_y_axes[3][0]*(-depl_y), curr_y_axes[3][1]*(-depl_y), curr_y_axes[3][2]*(-depl_y))
 
         # Mise a jour de la derniere position
         _StaticVars.mouse_last_x = curr_x

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import random
 import my_display
 import my_robot
@@ -23,6 +24,6 @@ my_poppy = Chain.from_urdf_file("./poppy_from_poppy-ergo-jr.urdf")
 # my_display.display_robot(robot=posture)
 
 
-points, _ = my_learning.Goal_Babling(robot=my_poppy, total_steps=8000)
+points, _ = my_learning.Goal_Babling(robot=my_poppy, total_steps=50000)
 
 my_display.draw_points_cloud(points=points)

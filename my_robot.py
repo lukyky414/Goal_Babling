@@ -1,8 +1,9 @@
+from __future__ import print_function
 from ikpy.chain import Chain
 import sys
 import random
 
-def get_position(robot: Chain, angles: list):
+def get_position(robot, angles):
     """Retourne la position du `end_point` du `robot` en executant les `angles` donnes"""
 
     # Le premier `link` du robot est inutile. Il sert juste de base et une rotation ne change rien au reste.
@@ -10,14 +11,14 @@ def get_position(robot: Chain, angles: list):
         print("Nombre d'angle {} ne correspond pas a la taille du robot {}".format(len(angles), len(robot.links)-1), file=sys.stderr)
         exit(1)
     
-    new_angles = angles.copy()
+    new_angles = angles[:]
     new_angles.insert(0, 0.0)
 
     matrix = robot.forward_kinematics(joints=new_angles)
 
     return (matrix[0][3], matrix[1][3], matrix[2][3])
 
-def get_posture(robot: Chain, angles: list):
+def get_posture(robot, angles):
     """Retourne la posture (position de chacune des sections) du `robot` en executant les `angles` donnes"""
 
     # Le premier `link` du robot est inutile. Il sert juste de base et une rotation ne change rien au reste.
@@ -25,7 +26,7 @@ def get_posture(robot: Chain, angles: list):
         print("Nombre d'angle {} ne correspond pas a la taille du robot {}".format(len(angles), len(robot.links)-1), file=sys.stderr)
         exit(1)
 
-    new_angles = angles.copy()
+    new_angles = angles[:]
     new_angles.insert(0, 0.0)
 
     matrixes = robot.forward_kinematics(joints=new_angles, full_kinematics=True)
@@ -37,7 +38,7 @@ def get_posture(robot: Chain, angles: list):
 
     return res
 
-def get_random_posture_angles(robot: Chain):
+def get_random_posture_angles(robot):
     """Retourne une liste d'angle aleatoire executable par le `robot`"""
 
     res = []
@@ -48,7 +49,7 @@ def get_random_posture_angles(robot: Chain):
 
     return res
 
-def randomize_posture(robot: Chain, angles: list):
+def randomize_posture(robot, angles):
     """Change aleatoirement la posture du robot dans les limites des moteurs"""
 
     # Perturbation de 15 deg
@@ -56,7 +57,7 @@ def randomize_posture(robot: Chain, angles: list):
 
     res = []
 
-    links = robot.links.copy()
+    links = robot.links[:]
     links.pop(0)
 
     for motor, angle in zip(links, angles):

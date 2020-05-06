@@ -1,16 +1,17 @@
+from __future__ import print_function
 import random
 import my_robot
 from ikpy.chain import Chain
-# import learners
+from rtree import index
 
-def Motor_Babling(robot: Chain, steps=5000):
+def Motor_Babling(robot, steps=5000):
     """Execute un motor babling: positions aleatoires sur chacune des sections du robot.
-    Retourne une deux listes: les positions obtenues, les angles utilisés pour atteindre ces positions."""
+    Retourne une deux listes: les positions obtenues, les angles utilises pour atteindre ces positions."""
 
     #Taille de barre de chargement
     nb_batch = 10
 
-    #arrondis à l'inferieur
+    #arrondis a l'inferieur
     batch_size = int(steps / nb_batch)
     if batch_size == 0:
         batch_size = 1
@@ -23,7 +24,7 @@ def Motor_Babling(robot: Chain, steps=5000):
         #affichage barre de chargement
         if i%batch_size == 0:
             print("[", end='')
-            for j in range(nb_batch):
+            for j in range(nb_batch-1):
                 if j < i/batch_size:
                     print("#", end='')
                 else:
@@ -48,7 +49,7 @@ def Motor_Babling(robot: Chain, steps=5000):
 
     return points, angles
 
-def Goal_Babling(robot: Chain, motor_babling_steps=5000, total_steps=10000):
+def Goal_Babling(robot, motor_babling_steps=5000, total_steps=10000):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     
     print("Motor Babling:")
@@ -57,10 +58,18 @@ def Goal_Babling(robot: Chain, motor_babling_steps=5000, total_steps=10000):
 
     print("Goal Babling:")
 
+    p = index.Property()
+    p.dimension = 3
+    neighbors = index.Rtree(properties=p)
+
+    for i in range(len(points)):
+        neighbors.insert(id=i, coordinates=points[i], obj=angles[i])
+    nb_neighbor = len(points)
+
     #Taille de barre de chargement
     nb_batch = 20
 
-    #arrondis à l'inferieur
+    #arrondis a l'inferieur
     batch_size = int((total_steps-motor_babling_steps) / nb_batch)
     if batch_size == 0:
         batch_size = 1
@@ -69,7 +78,7 @@ def Goal_Babling(robot: Chain, motor_babling_steps=5000, total_steps=10000):
         #affichage barre de chargement
         if i%batch_size == 0:
             print("[", end='')
-            for j in range(nb_batch):
+            for j in range(nb_batch-1):
                 if j < i/batch_size:
                     print("#", end='')
                 else:
@@ -82,35 +91,29 @@ def Goal_Babling(robot: Chain, motor_babling_steps=5000, total_steps=10000):
             random.uniform(-robot._length, robot._length)
         ]
 
-        nearest = nearest_neighbor_posture(goal, points, angles)
+        # Methode lente
+        # nearest_posture = nearest_neighbor_posture(goal, points, angles)
 
-        posture = my_robot.randomize_posture(robot, nearest)
+        nearest_posture = list(neighbors.nearest(goal, num_results=1, objects='raw'))[0]
 
-        angles.append(posture)
-        points.append(my_robot.get_position(robot=robot, angles=posture))
+        new_posture = my_robot.randomize_posture(robot, nearest_posture)
+        new_point = my_robot.get_position(robot=robot, angles=nearest_posture)
+
+        neighbors.insert(nb_neighbor, new_point, new_posture)
+        nb_neighbor = nb_neighbor+1
+
+        angles.append(new_posture)
+        points.append(new_point)
+    print("done                      ")
     
     return points, angles
 
 def dist(a, b):
     return sum((a_i-b_i)**2 for a_i, b_i in zip(a, b))
 
-# _nn_set = learners.NNSet()
 
-def nearest_neighbor_posture(goal: list, points: list, angles: list):
+def nearest_neighbor_posture(goal, points, angles):
     """Trouve le points le plus proche du goal et retourne la posture associee"""
-
-    # global _nn_set
-    # history = zip(points, angles)
-    
-    # if len(points) < len(_nn_set):
-    #     _nn_set = learners.NNSet()
-
-    # for i in range(len(_nn_set), len(points)):
-    #     _nn_set.add(angles[i], y=points[i])
-    
-    # idx = _nn_set.nn_y(goal)[1][0]
-    
-    # return angles[idx]
 
     min_dist = float('inf')
     posture = None
