@@ -6,7 +6,7 @@ import OpenGL.GLU as glu
 import numpy as np
 import pygame as pg
 import my_robot
-from ikpy.chain import Chain
+from math import pi
 
 _PRINT_HELP_ = False
 
@@ -15,13 +15,17 @@ if _PRINT_HELP_:
     print("Right Click - Translate")
     print("Wheel Up & Down - Zoom in & out")
 
-def animation(robot):
+def animation(robot : my_robot.Robot):
     """Creer une animation avec le robot, en faisant tourner un a un les moteurs dans les limites de ceux-ci"""
     
     _init_display(size=(600,600), background_color=(1, 1, 1), z_up = True)
 
-    angle = 0.0
-    angles = [0 for _ in range(len(robot.links)-1)]
+    angles = [0 for _ in range(robot.get_joint_number())]
+    limits = robot.get_bounds()
+
+    angle = limits[0][0]
+    sense = limits[0][0] < limits[0][1]
+    new_angle = False
 
     i = 0
 
@@ -29,25 +33,34 @@ def animation(robot):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
         _draw_axes()
 
-        angle = angle + 0.01
+        if sense:
+            angle = angle + 0.5
+            if angle > limits[i][1]:
+                new_angle = True
+        else:
+            angle = angle - 0.5
+            if angle < limits[i][1]:
+                new_angle = True
 
-        if angle > robot.links[i+1].bounds[1]:
+        if new_angle:
             angles[i] = 0
-            i = (i+1) % 5
-            angle = robot.links[i+1].bounds[0]
+            i = (i+1) % robot.get_joint_number()
+            angle = limits[i][0]
+            sense = limits[i][0] < limits[i][1]
+            new_angle = False
 
         angles[i] = angle
 
-        posture = my_robot.get_posture(robot=robot, angles=angles)
+        posture = my_robot.get_pos_from_matrix(matrixes=robot.get_posture(angles=angles))
 
-        print("{} - {}     ".format(i, angle), end='\r')
+        print("{} : {}     ".format(i, angle), end='\r')
         _draw_one_robot(posture=posture, end_point_color=(0, 0, 1), posture_color=(0, 0, 0), joint_color=(0, 1, 0.3), highlight=i)
 
         pg.display.flip()
         _event_handler()
         pg.time.wait(10)
 
-def display_robot(posture, end_point_color=(0, 0, 1), posture_color=(0, 0, 0), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1), joint_color=(0, 1, 0.5)):
+def display_robot(posture : list, end_point_color=(0, 0, 1), posture_color=(0, 0, 0), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1), joint_color=(0, 1, 0.5)):
     """Dessine un nuage de point 3d.
     `posture` - Liste de points 3D definissant la posture du robot. Une liste de liste affichera plusieurs robots
     `end_point_color` - la couleur du dernier point du robot en (r, g, b) [0-1]. Default `(0, 0, 1)`
@@ -80,7 +93,7 @@ def display_robot(posture, end_point_color=(0, 0, 1), posture_color=(0, 0, 0), c
         _event_handler()
         pg.time.wait(10)
 
-def _draw_one_robot(posture, end_point_color, posture_color, joint_color, highlight_color=(1, 0, 0), highlight=None):
+def _draw_one_robot(posture : list, end_point_color : tuple, posture_color : tuple, joint_color : tuple, highlight_color=(1, 0, 0), highlight=None):
     # Chaque section est representee par un segment
     gl.glBegin(gl.GL_LINE_STRIP)
     gl.glColor3f(posture_color[0], posture_color[1], posture_color[2])
@@ -109,7 +122,7 @@ def _draw_one_robot(posture, end_point_color, posture_color, joint_color, highli
         gl.glPopMatrix()
 
 
-def draw_points_cloud(points, point_color=(0, 0, 1), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1)):
+def draw_points_cloud(points : list, point_color=(0, 0, 1), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1)):
     """Dessine un nuage de point 3d.
     `points` - les coordonnees des points en (x, y, z).
     `point_color` - la couleur de ces points en (r, g, b) [0-1]. Default `(0, 0, 1)`
@@ -191,6 +204,7 @@ def _draw_circle():
     gl.glEnd()
 
 class _StaticVars:
+    transl_factor = 1/120
     is_running = True
     mouse_left_pressed = False
     mouse_right_pressed = False
@@ -213,7 +227,7 @@ class _StaticVars:
         )
     )
 
-def _init_display(size, background_color, z_up):
+def _init_display(size : tuple, background_color : tuple, z_up : bool):
     pg.init()
     pg.display.set_mode(size, pg.OPENGL)
 
@@ -257,11 +271,11 @@ def _mouse_event(event):
             _StaticVars.mouse_right_pressed = True
             _StaticVars.mouse_last_x, _StaticVars.mouse_last_y = pg.mouse.get_pos()
 
-        # Wheel Up
+        # Wheel Up = Zoom
         elif event.button == 4:
             gl.glScalef(1.5, 1.5, 1.5)
 
-        # Wheel Down
+        # Wheel Down = Dezoom
         elif event.button == 5:
             gl.glScalef(0.6, 0.6, 0.6)
 
@@ -272,34 +286,9 @@ def _mouse_event(event):
         elif event.button == 3:
             _StaticVars.mouse_right_pressed = False
 
-_depl_factor = 1/120
 
 def _mouse_handler():
-    if _StaticVars.mouse_right_pressed:
-        # Position actuelle de la souris
-        curr_x, curr_y = pg.mouse.get_pos()
-
-        # Deplacement relatif a la derniere position
-        depl_x, depl_y = (curr_x-_StaticVars.mouse_last_x)*_depl_factor, (curr_y-_StaticVars.mouse_last_y)*_depl_factor
-
-        # Recuperer la matrice du modelview inverse
-        matrix = np.linalg.inv(gl.glGetFloatv(gl.GL_MODELVIEW_MATRIX))
-        # Ignorer les facteurs de zoom
-        matrix[3] = (0, 0, 0, 1)
-
-        # Recuperer l'orientation des axes x et y
-        curr_y_axes = _StaticVars.mouse_y_axe.dot(matrix)
-        curr_x_axes = _StaticVars.mouse_x_axe.dot(matrix)
-
-        gl.glTranslatef(curr_x_axes[3][0]*depl_x, curr_x_axes[3][1]*depl_x, curr_x_axes[3][2]*depl_x)
-        gl.glTranslatef(curr_y_axes[3][0]*(-depl_y), curr_y_axes[3][1]*(-depl_y), curr_y_axes[3][2]*(-depl_y))
-
-        # Mise a jour de la derniere position
-        _StaticVars.mouse_last_x = curr_x
-        _StaticVars.mouse_last_y = curr_y
-
-    elif _StaticVars.mouse_left_pressed:
-        # Position actuelle de la souris
+    if _StaticVars.mouse_left_pressed or _StaticVars.mouse_right_pressed:# Position actuelle de la souris
         curr_x, curr_y = pg.mouse.get_pos()
 
         # Deplacement relatif a la derniere position
@@ -314,11 +303,19 @@ def _mouse_handler():
         curr_y_axes = _StaticVars.mouse_y_axe.dot(matrix)
         curr_x_axes = _StaticVars.mouse_x_axe.dot(matrix)
 
-        # Effectuer une rotation autour de ces axes (et non autour de l'axe monde).
-        # Deplacer la souris horizontalement (x) fait tourner le monde sur l'axe vertical (y) et vice-versa.
-        gl.glRotatef(-depl_x, curr_y_axes[3][0], curr_y_axes[3][1], curr_y_axes[3][2])
-        gl.glRotatef(-depl_y, curr_x_axes[3][0], curr_x_axes[3][1], curr_x_axes[3][2])
-
         # Mise a jour de la derniere position
         _StaticVars.mouse_last_x = curr_x
         _StaticVars.mouse_last_y = curr_y
+
+        if _StaticVars.mouse_right_pressed:
+            # Effectuer une translation sur le repère de la caméra.
+            # Un déplacement vertical doit être inversé.
+            gl.glTranslatef(curr_x_axes[3][0]*(depl_x*_StaticVars.transl_factor), curr_x_axes[3][1]*(depl_x*_StaticVars.transl_factor), curr_x_axes[3][2]*(depl_x*_StaticVars.transl_factor))
+            gl.glTranslatef(curr_y_axes[3][0]*(-depl_y*_StaticVars.transl_factor), curr_y_axes[3][1]*(-depl_y*_StaticVars.transl_factor), curr_y_axes[3][2]*(-depl_y*_StaticVars.transl_factor))
+
+
+        elif _StaticVars.mouse_left_pressed:
+            # Effectuer une rotation autour de ces axes (et non autour de l'axe monde).
+            # Deplacer la souris horizontalement (x) fait tourner le monde sur l'axe vertical (y) et vice-versa.
+            gl.glRotatef(-depl_x, curr_y_axes[3][0], curr_y_axes[3][1], curr_y_axes[3][2])
+            gl.glRotatef(-depl_y, curr_x_axes[3][0], curr_x_axes[3][1], curr_x_axes[3][2])
