@@ -1,4 +1,3 @@
-from __future__ import print_function
 """Pour empecher le prompt de pygame, faire "export PYGAME_HIDE_SUPPORT_PROMPT=hide" """
 
 import OpenGL.GL as gl
@@ -6,22 +5,40 @@ import OpenGL.GLU as glu
 import numpy as np
 import pygame as pg
 import my_robot
-from math import pi
+from math import pi, sqrt
+from my_robot import Robot
+import math
 
+# Quelques variables constantes pour le programme
 _PRINT_HELP_ = False
+_translation_factor = 1/120
+_size = (600, 600)
+_background_color = (0, 0, 0)
+_point_color = (0, 0, 255)
+_highlight_color = (255, 0, 0)
+_joint_color = (0, 0, 0)
+_x_axe = np.array(( (1, 0, 0, 0),
+                    (0, 1, 0, 0),
+                    (0, 0, 1, 0),
+                    (1, 0, 0, 1)))
+_y_axe = np.array(( (1, 0, 0, 0),
+                    (0, 1, 0, 0),
+                    (0, 0, 1, 0),
+                    (0, 1, 0, 1)))
 
 if _PRINT_HELP_:
     print("Left Click - Rotate")
     print("Right Click - Translate")
     print("Wheel Up & Down - Zoom in & out")
+    print("CTRL + : zoom in / CTRL - : zoom out")
 
 def animation(robot : my_robot.Robot):
     """Creer une animation avec le robot, en faisant tourner un a un les moteurs dans les limites de ceux-ci"""
     
-    _init_display(size=(600,600), background_color=(1, 1, 1), z_up = True)
+    _init_display()
 
     angles = [0 for _ in range(robot.get_joint_number())]
-    limits = robot.get_bounds()
+    limits = robot.get_angle_bounds()
 
     angle = limits[0][0]
     sense = limits[0][0] < limits[0][1]
@@ -51,55 +68,43 @@ def animation(robot : my_robot.Robot):
 
         angles[i] = angle
 
-        posture = my_robot.get_pos_from_matrix(matrixes=robot.get_posture(angles=angles))
+        posture = robot.get_posture(angles=angles)
 
         print("{} : {}     ".format(i, angle), end='\r')
-        _draw_one_robot(posture=posture, end_point_color=(0, 0, 1), posture_color=(0, 0, 0), joint_color=(0, 1, 0.3), highlight=i)
+        _draw_one_robot(posture=posture, highlight=i)
 
         pg.display.flip()
         _event_handler()
         pg.time.wait(10)
 
-def display_robot(posture : list, end_point_color=(0, 0, 1), posture_color=(0, 0, 0), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1), joint_color=(0, 1, 0.5)):
-    """Dessine un nuage de point 3d.
-    `posture` - Liste de points 3D definissant la posture du robot. Une liste de liste affichera plusieurs robots
-    `end_point_color` - la couleur du dernier point du robot en (r, g, b) [0-1]. Default `(0, 0, 1)`
-    `posture_color` - la couleur des sections du robot en (r, g, b) [0-1]. Default `(0, 0, 0)`
-    `circle` - booleen pour l'affichage d'un cercle autour de l'axe Z de rayon 1. Default `False`
-    `axes` - booleen pour l'affichage des axes. Default `True`
-    `z_up` - booleen pour forcer l'axe Z vers le haut. Default `True`
-    `size` - taille de la fenetre en (x, y). Default `(600, 600)`
-    `background_color` - couleur du fond en (r, g, b) [0-1]. Default `(1, 1, 1)`
-    `joint_color` - couleur des moteurs en (r, g, b) [0-1]. Default `(0, 1, 0.5)`"""
+def display_robot(posture : list):
+    """Dessine plusieurs bras robot 3d.
+    `posture` - Liste de points 3D definissant la posture du robot. Une liste de liste affichera plusieurs robots"""
 
-    _init_display(size, background_color, z_up)
+    _init_display()
 
     while _StaticVars.is_running:
         gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
 
-        if axes:
-            _draw_axes()
-
-        if circle:
-            _draw_circle()
+        _draw_axes()
 
         if isinstance(posture[0], list):
             for r in posture:
-                _draw_one_robot(posture=r, end_point_color=end_point_color, posture_color=posture_color, joint_color=joint_color)
+                _draw_one_robot(posture=r)
         else:
-            _draw_one_robot(posture=posture, end_point_color=end_point_color, posture_color=posture_color, joint_color=joint_color)
+            _draw_one_robot(posture=posture)
 
         pg.display.flip()
         _event_handler()
         pg.time.wait(10)
 
-def _draw_one_robot(posture : list, end_point_color : tuple, posture_color : tuple, joint_color : tuple, highlight_color=(1, 0, 0), highlight=None):
+def _draw_one_robot(posture : list, highlight=None):
     # Chaque section est representee par un segment
     gl.glBegin(gl.GL_LINE_STRIP)
-    gl.glColor3f(posture_color[0], posture_color[1], posture_color[2])
+    gl.glColor3ui(_joint_color[0], _joint_color[1], _joint_color[2])
 
     for section in posture:
-        gl.glVertex3f(section[0], section[1], section[2])
+        gl.glVertex3f(section[0][3], section[1][3], section[2][3])
 
     gl.glEnd()
 
@@ -108,46 +113,56 @@ def _draw_one_robot(posture : list, end_point_color : tuple, posture_color : tup
     for i in range(len(posture)):
         # Si on veux mettre en valeur un joint
         if highlight is not None and i == highlight+1:
-            gl.glColor3f(highlight_color[0], highlight_color[1], highlight_color[2])
+            gl.glColor3ui(_highlight_color[0], _highlight_color[1], _highlight_color[2])
         else:
-            # Mettre en valeur le end_point
-            if i == len(posture)-1:
-                gl.glColor3f(end_point_color[0], end_point_color[1], end_point_color[2])
-            # Simple joint
-            else:
-                gl.glColor3f(joint_color[0], joint_color[1], joint_color[2])
+            gl.glColor3ui(_point_color[0], _point_color[1], _point_color[2])
         gl.glPushMatrix()
-        gl.glTranslatef(posture[i][0], posture[i][1], posture[i][2])
+        gl.glTranslatef(posture[i][0][3], posture[i][1][3], posture[i][2][3])
         glu.gluSphere(glu.gluNewQuadric(), 0.003, 16, 16)
         gl.glPopMatrix()
 
+def _get_rainbow_color(fact : float):
+    """Retourne une couleur de l'arc en ciel avec un facteur."""
+    # avoir une valeur entre 0 et 1
+    fact = fact - math.floor(fact)
+    
+    if fact < 1/3:
+        return (1-(fact*3), fact*3, 0)
+    elif fact < 2/3:
+        return (0, 2-fact*3, fact*3-1)
+    else:
+        return (fact*3-2, 0, 3-fact*3)
 
-def draw_points_cloud(points : list, point_color=(0, 0, 1), circle=False, axes=True, z_up=True, size=(600, 600), background_color=(1, 1, 1)):
+def draw_points_cloud(end_points : list, robot : Robot):
     """Dessine un nuage de point 3d.
-    `points` - les coordonnees des points en (x, y, z).
-    `point_color` - la couleur de ces points en (r, g, b) [0-1]. Default `(0, 0, 1)`
-    `circle` - booleen pour l'affichage d'un cercle autour de l'axe Z de rayon 1. Default `False`
-    `axes` - booleen pour l'affichage des axes. Default `True`
-    `z_up` - booleen pour forcer l'axe Z vers le haut. Default `True`
-    `size` - taille de la fenetre en (x, y). Default `(600, 600)`
-    `background_color` - couleur du fond en (r, g, b) [0-1]. Default `(1, 1, 1)`"""
+    `points` - les coordonnees des points en (x, y, z)
+    `robot` - le robot (accès à l'information de taille)."""
 
-    _init_display(size, background_color, z_up)
+    _init_display()
+
+    # Calcul de la couleur des points avant affichage
+    points = []
+    for ep in end_points:
+        pos = ep.get_pos()
+        d = 0
+        for p in pos:
+            d += p**2
+        d = sqrt(d)
+
+        fact = d / robot.furthest
+        color = _get_rainbow_color(fact)
+        points.append((pos, color))
 
     while _StaticVars.is_running:
         gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
 
-        if axes:
-            _draw_axes()
-
-        if circle:
-            _draw_circle()
+        _draw_axes()
 
         gl.glBegin(gl.GL_POINTS)
-        gl.glColor3f(point_color[0], point_color[1], point_color[2])
+        for p in points:
+            gl.glColor3f(p[1][0], p[1][1], p[1][2])
 
-        for point in points:
-            gl.glVertex3f(point[0], point[1], point[2])
+            gl.glVertex3f(p[0][0], p[0][1], p[0][2])
 
         gl.glEnd()
 
@@ -173,7 +188,7 @@ def _draw_axes():
 
     gl.glPushAttrib(gl.GL_ENABLE_BIT)
     # Pointilles
-    gl.glLineStipple(1, 0xaaaa)
+    gl.glLineStipple(1, 0xa0a0)
     gl.glEnable(gl.GL_LINE_STIPPLE)
     gl.glBegin(gl.GL_LINES)
     # -X
@@ -191,68 +206,53 @@ def _draw_axes():
     gl.glEnd()
     gl.glPopAttrib()
 
-def _draw_circle():
-    gl.glBegin(gl.GL_LINE_LOOP)
-    gl.glColor(0, 0, 0)
-
-    SEGMENTS = 64
-
-    for i in range(SEGMENTS):
-        angle = float(i) * 2.0 * np.pi / SEGMENTS
-        gl.glVertex3f(np.cos(angle), np.sin(angle), 0.0)
-
-    gl.glEnd()
-
 class _StaticVars:
-    transl_factor = 1/120
     is_running = True
     mouse_left_pressed = False
     mouse_right_pressed = False
+    keyboard_ctrl_pressed = False
     mouse_last_x = 0
     mouse_last_y = 0
-    mouse_x_axe = np.array(
-        (
-            (1, 0, 0, 0),
-            (0, 1, 0, 0),
-            (0, 0, 1, 0),
-            (1, 0, 0, 1)
-        )
-    )
-    mouse_y_axe = np.array(
-        (
-            (1, 0, 0, 0),
-            (0, 1, 0, 0),
-            (0, 0, 1, 0),
-            (0, 1, 0, 1)
-        )
-    )
 
-def _init_display(size : tuple, background_color : tuple, z_up : bool):
+def _init_display():
     pg.init()
-    pg.display.set_mode(size, pg.OPENGL)
+    pg.display.set_mode(_size, pg.OPENGL)
 
     # Perspective de vue du modele: fov, ratio, near & far clipping plane
-    glu.gluPerspective(45, (size[0]/size[1]), 0.1, 50.0)
+    glu.gluPerspective(45, (_size[0]/_size[1]), 0.1, 50.0)
 
     # Reculer le point de vue pour voir la scene
     gl.glTranslatef(0.0, 0.0, -3)
 
     # De base, Z est un axe de profondeur (il viens vers la camera) et Y est vertical.
-    if z_up:
-        gl.glRotatef(-90, 1, 0, 0) # Mettre Z vers le haut, mais du coup Y est "loin"
-        gl.glRotatef(180, 0, 0, 1) # Mettre Y vers la camera
+    gl.glRotatef(-90, 1, 0, 0) # Mettre Z vers le haut, mais du coup Y est "loin"
+    gl.glRotatef(180, 0, 0, 1) # Mettre Y vers la camera
 
     # Avoir le X (rouge) qui part a droite
     gl.glScalef(-1, 1, 1)
 
     # Couleur de fond
-    gl.glClearColor(background_color[0], background_color[1], background_color[2], 1.0)
+    gl.glClearColor(_background_color[0]/255, _background_color[1]/255, _background_color[2]/255, 1.0)
 
 def _event_handler():
     _mouse_handler()
     for event in pg.event.get():
         _mouse_event(event)
         _closing_event(event)
+        _keyboard_event(event)
+
+def _keyboard_event(event):
+    if event.type == pg.KEYUP:
+        if event.key == pg.K_LCTRL or event.key == pg.K_RCTRL:
+            _StaticVars.keyboard_ctrl_pressed = False
+    if event.type == pg.KEYDOWN:
+        if event.key == pg.K_LCTRL or event.key == pg.K_RCTRL:
+            _StaticVars.keyboard_ctrl_pressed = True
+        elif _StaticVars.keyboard_ctrl_pressed:
+            if event.key == pg.K_PLUS or event.key == pg.K_KP_PLUS:
+                gl.glScalef(1.5, 1.5, 1.5)
+            elif event.key == pg.K_MINUS or event.key == pg.K_KP_MINUS:
+                gl.glScalef(0.6, 0.6, 0.6)
 
 def _closing_event(event):
     if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
@@ -286,7 +286,6 @@ def _mouse_event(event):
         elif event.button == 3:
             _StaticVars.mouse_right_pressed = False
 
-
 def _mouse_handler():
     if _StaticVars.mouse_left_pressed or _StaticVars.mouse_right_pressed:# Position actuelle de la souris
         curr_x, curr_y = pg.mouse.get_pos()
@@ -300,8 +299,8 @@ def _mouse_handler():
         matrix[3] = (0, 0, 0, 1)
 
         # Recuperer l'orientation des axes x et y
-        curr_y_axes = _StaticVars.mouse_y_axe.dot(matrix)
-        curr_x_axes = _StaticVars.mouse_x_axe.dot(matrix)
+        curr_y_axes = _y_axe.dot(matrix)
+        curr_x_axes = _x_axe.dot(matrix)
 
         # Mise a jour de la derniere position
         _StaticVars.mouse_last_x = curr_x
@@ -310,8 +309,8 @@ def _mouse_handler():
         if _StaticVars.mouse_right_pressed:
             # Effectuer une translation sur le repère de la caméra.
             # Un déplacement vertical doit être inversé.
-            gl.glTranslatef(curr_x_axes[3][0]*(depl_x*_StaticVars.transl_factor), curr_x_axes[3][1]*(depl_x*_StaticVars.transl_factor), curr_x_axes[3][2]*(depl_x*_StaticVars.transl_factor))
-            gl.glTranslatef(curr_y_axes[3][0]*(-depl_y*_StaticVars.transl_factor), curr_y_axes[3][1]*(-depl_y*_StaticVars.transl_factor), curr_y_axes[3][2]*(-depl_y*_StaticVars.transl_factor))
+            gl.glTranslatef(curr_x_axes[3][0]*(depl_x*_translation_factor), curr_x_axes[3][1]*(depl_x*_translation_factor), curr_x_axes[3][2]*(depl_x*_translation_factor))
+            gl.glTranslatef(curr_y_axes[3][0]*(-depl_y*_translation_factor), curr_y_axes[3][1]*(-depl_y*_translation_factor), curr_y_axes[3][2]*(-depl_y*_translation_factor))
 
 
         elif _StaticVars.mouse_left_pressed:

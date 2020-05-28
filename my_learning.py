@@ -2,8 +2,9 @@ import random
 import my_robot
 import my_nearest_neighbor
 import my_goal_generation
+from my_end_point import EndPoint
 
-def Motor_Babling(robot : my_robot.Robot, steps=5000):
+def Motor_Babling(robot : my_robot.Robot, steps=5000) -> list:
     """Execute un motor babling: positions aleatoires sur chacune des sections du robot.
     Retourne une deux listes: les positions obtenues, les angles utilises pour atteindre ces positions."""
 
@@ -15,9 +16,7 @@ def Motor_Babling(robot : my_robot.Robot, steps=5000):
     if batch_size == 0:
         batch_size = 1
 
-    points = []
-
-    angles = []
+    end_points = []
 
     for i in range(steps):
         #affichage barre de chargement
@@ -31,33 +30,23 @@ def Motor_Babling(robot : my_robot.Robot, steps=5000):
             print("]", end='\r')
 
         curr_angles = robot.get_random_angles()
+        end_points.append(robot.get_end_point(angles=curr_angles))
 
-        angles.append(curr_angles)
+    print("Motor Bablin done.      ")
 
-        pos = my_robot.get_pos_from_matrix(matrix=robot.get_position(angles=curr_angles))
-
-        if len(pos) == 2:
-            pos = (pos[0], pos[1], 0)
-
-        points.append(pos)
-
-    print("done", end='')
-    for j in range(nb_batch-2):
-        print(" ", end='')
-    print()
-
-    return points, angles
+    return end_points
 
 def Goal_Babling(robot : my_robot.Robot, motor_babling_steps=5000, total_steps=10000):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
+    goals = []
     
     print("Motor Babling:")
 
-    points, angles = Motor_Babling(robot=robot, steps=motor_babling_steps)
+    end_points = Motor_Babling(robot=robot, steps=motor_babling_steps)
 
     print("Goal Babling:")
 
-    NN = my_nearest_neighbor.NearestNeighbor(postures=angles, positions=points)
+    NN = my_nearest_neighbor.NearestNeighbor(end_points=end_points)
 
     #Taille de barre de chargement
     nb_batch = 20
@@ -79,18 +68,17 @@ def Goal_Babling(robot : my_robot.Robot, motor_babling_steps=5000, total_steps=1
             print("]", end='\r')
 
         goal = my_goal_generation.generate_goal(robot= robot)
+        goals.append(goal)
 
-        nearest_posture = NN.nearest(position=goal)
+        nearest_end_point = NN.nearest(position=goal)
 
-        new_posture = robot.randomize_posture(angles=nearest_posture)
-        new_point = my_robot.get_pos_from_matrix(matrix=robot.get_position(angles=nearest_posture))
+        new_posture = robot.randomize_posture(angles=nearest_end_point.get_posture())
+        new_end_point = robot.get_end_point(angles=new_posture)
 
-        NN.add_posture(posture=new_posture, position=new_point)
+        NN.add_end_point(end_point=new_end_point)
 
-        angles.append(new_posture)
-        points.append(new_point)
-
+        end_points.append(new_end_point)
         
-    print("done                      ")
+    print("Goal Babling done.                 ")
     
-    return points, angles
+    return end_points, goals

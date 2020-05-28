@@ -7,3 +7,6 @@ start.sh
 
 #Les fichiers pdf en rapport avec ce stage
 pdf/*
+
+#Le projet benureau
+benureau/*
