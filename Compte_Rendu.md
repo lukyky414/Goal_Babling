@@ -1,3 +1,21 @@
+# Comptes rendus des réunions sur le projet
+
+## Réunion vocale 28/05/2020 - 14h00
+
+La prise en compte de la rotation dans le projet est pour l'instant abandonnée.
+
+##### Concernant le projet:
+ * Préparer une discrétisation de l'espace 3D:
+    * Méthode de génération de point selon l'algorithme `Frontier`
+    * Métrique permettant de comparer les résultats de plusieurs algorithmes.
+ * Terminer la méthode de génération `agnostique` de points ou un autre algorithme pour le comparer à `Frontier`
+ * Mettre en place d'autre métriques permettant de comparer les résultats de différents algorithmes
+
+##### Concernant le rapport:
+Ajouter une explication des algorithmes utilisé pour avancer / remplir le rapport, ainsi que de poser à l'écrit une base pour les futures discussions. 
+
+
+
 ## Réunion vocale 06/05/2020 - 15h15
 
 ##### Dans un futur proche et concernant directement le code de l'application:
