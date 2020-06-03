@@ -1,14 +1,38 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage{titlesec}
 
-\title{Test Pdf}
+% Sauter une page à chaque fin (ou début?) de section
+\titleclass{\section}{top}
+\newcommand\sectionbreak{\clearpage}
+
+\title{Comment découvrir son corps ?}
 \author{Lucas Schwab}
-\date{April 2020}
+\date{Mars - Aout 2020}
 
 \begin{document}
 
 \maketitle
 
-\section{Introduction}
+\tableofcontents
+
+% % % SECTION % % %
+\section*{Remerciements}
+
+% % % SECTION % % %
+\section*{Introduction}
+
+% % % SECTION % % %
+\section*{Algorithmes}
+
+Dans cet aprentissage, je n'utilise des algorithmes différents qu'à l'étape de génération de but.
+
+\subsection*{Agnostic goal generation}
+
+La génération agnostique de but n'utilise aucun paramètre présumé sur le robot (comme sa taille). A chaque itération l'algorithme garde en mémoire les coordonnées maximales que peut atteindre le robot dans chacun des axes, et génère un point dans cet interval avec un facteur qui permet un peu d'exploration. Le résultat est ainsi une zone de génération de but très proche de la zone atteignable par le robot.
+
+\subsection*{Frontier strategy}
+
+La génération agnostique donnera un volume en forme de pavé droit, et dans notre cas la zone atteignable par le robot ressemble plus à une sphère. C'est à cette problématique que répond la stratégie de frontière. Cette stratégie consiste à discrétiser l'espace en carré pour la 2D ou en cube pour la 3D. On peut ensuite determiner quelle partition (carré / cube)  a déjà été visité et s'en servir pour la génération d'un nouveau but. Selon un facteur \emph{p}, on génère avec une probabilité \emph{p} un point dans des partitions déjà visitées et avec une probabilité 1-\emph{p}, un point dans une cellule non visité, voisine à une cellule visitée. 
 
 \end{document}
