@@ -3,6 +3,7 @@ import my_display
 import my_robot
 import my_learning
 import my_nearest_neighbor
+import my_goal_generation
 import math
 import my_analyse
 
@@ -11,7 +12,11 @@ random.seed(SEED)
 
 poppy = my_robot.Robot()
 
-end_points, _ = my_learning.Goal_Babling(robot=poppy)
+nn = my_nearest_neighbor.RtreeNeighbor()
+# gg = my_goal_generation.FrontierGenerator(NN = nn)
+gg = my_goal_generation.AgnosticGenerator(robot = poppy)
+
+end_points, _ = my_learning.Goal_Babling(robot=poppy, NN = nn, GG = gg)
 
 # my_analyse.plot_dist_to_origin(robot=poppy, endpoints=end_points)
 

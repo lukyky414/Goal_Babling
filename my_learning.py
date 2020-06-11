@@ -1,8 +1,8 @@
 import random
 import my_robot
-import my_nearest_neighbor
-import my_goal_generation
+from my_nearest_neighbor import NearestNeighbor
 from my_end_point import EndPoint
+from my_goal_generation import GoalGenerator
 
 def Motor_Babling(robot : my_robot.Robot, steps=5000) -> list:
     """Execute un motor babling: positions aleatoires sur chacune des sections du robot.
@@ -36,7 +36,7 @@ def Motor_Babling(robot : my_robot.Robot, steps=5000) -> list:
 
     return end_points
 
-def Goal_Babling(robot : my_robot.Robot, motor_babling_steps=5000, total_steps=10000):
+def Goal_Babling(robot : my_robot.Robot, NN : NearestNeighbor, GG = GoalGenerator, motor_babling_steps=5000, total_steps=10000):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     goals = []
     
@@ -46,7 +46,8 @@ def Goal_Babling(robot : my_robot.Robot, motor_babling_steps=5000, total_steps=1
 
     print("Goal Babling:")
 
-    NN = my_nearest_neighbor.NearestNeighbor(end_points=end_points)
+    NN.reset(end_points)
+    GG.reset(end_points)
 
     #Taille de barre de chargement
     nb_batch = 20
@@ -67,8 +68,9 @@ def Goal_Babling(robot : my_robot.Robot, motor_babling_steps=5000, total_steps=1
                     print(" ", end='')
             print("]", end='\r')
 
-        goal = my_goal_generation.generate_goal(robot= robot)
+        goal = GG.newGoal()
         goals.append(goal)
+        GG.addGoal(goal)
 
         nearest_end_point = NN.nearest(position=goal)
 
@@ -76,6 +78,7 @@ def Goal_Babling(robot : my_robot.Robot, motor_babling_steps=5000, total_steps=1
         new_end_point = robot.get_end_point(angles=new_posture)
 
         NN.add_end_point(end_point=new_end_point)
+        GG.add_end_point(end_point=new_end_point)
 
         end_points.append(new_end_point)
         
