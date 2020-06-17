@@ -1,5 +1,31 @@
 # Comptes rendus des réunions sur le projet
 
+## Réunion vocale 19/06/2020 - 14h00
+
+##### Concernant le projet:
+Pour l'analyse, faire une discretisation par taille de cellule prédéfini (et non par ratio de la zone atteinte par le robot) pour pouvoir comparer les résultats d'algorithmes différents avec:
+ * Le nombre de cellules visitées
+ * Les différentes cellules visités dans l'un et non dans l'autre (visualisation possible en 3D)
+Avec une taille prédéfinie il est possible de faire une évaluation en cours d'éxecution.
+
+Pour mesurer les résultats, on peut:
+ * Utiliser ikpy pour voir la différence de précision
+ * Mesurer une différence sur les postures plutôt que sur les positions atteintes
+ * Comparer deux modèles inverses avec la même liste de points/but généré soit aléatoirement, soit sur une grille
+ * Générer une HeatMap sur l'erreur de précision en comparant avec des points sur une grille pour mettre en valeur les zones non atteintes
+   -> Hypothèse : Une zone non explorée donne un taux d'erreur plus grand
+
+
+##### Concernant le rapport:
+ * Expliquer / introduire le plan du rapport pour être sûr d'aller dans la bonne direction
+ * Détailler les algorithmes utilisés (écrire l'algorithme) comme Frontier, le suivi d'une droite, ...
+
+Détails:
+ * parindent / parskip : configurer la disposition d'un paragraphe
+ * taille 11 : - [x] fait
+ 
+
+
 ## Réunion vocale 28/05/2020 - 14h00
 
 La prise en compte de la rotation dans le projet est pour l'instant abandonnée.
