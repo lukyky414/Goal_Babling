@@ -28,6 +28,9 @@ Dans le but de générer une approximation d'un modèle inverse, nous avons suiv
     \item Un certain nombre de "Motor Babling" qui consiste à donner une posture aléatoire au robot, tout simplement ici en donnant un angle aléatoire à chacun de ses moteurs, dans la limite de ceux-ci. Cette étape peut permetre à elle seule d'approximer un modèle inverse pour un robot simple (comme un robot 2D avec seulement 2 ou 3 moteurs). Mais cependant l'espace atteignable par le robot n'est pas entièrement visité lorsque la complexité du robot augmente. S'il y a plus de moteurs, il y a aussi plus de chance que le robot soit recourbé sur lui même.
     \item Puis un certain nombre de "Goal Babling". Pour éviter de ne visiter que l'espace proche du robot (quand il est recourbé sur lui-même), une technique consiste à générer un but à atteindre plutôt qu'une posture aléatoire à essayer. Il y a donc plusieurs algorithmes pour choisir efficacement un but. La donnée qui sera ajouté à la base dans cette étape sera une posture légèrement modifié aléatoirement qui correspond à celle retourné par le modèle inverse pour atteindre le but généré.
 \end{itemize}
+Les robots concernées par cet apprentissages sont principalements des bras robotiques, consitués d'une suite de sections rigides reliées par des moteurs qui peuvent prendre un certain angle comme position. Il serait possible d'adapter l'apprentissage pour une autre forme de robot, mais nous utilisons ici une représentation virtuelle du robot Poppy Ergo Jr.
+
+% TODO Image du Poppy Ergo Jr %
 
 % % % SECTION % % %
 \section*{Modèle inverse}
@@ -64,7 +67,30 @@ Pour savoir quelle cellule non visitée est choisie, une position déjà atteint
 % % % SECTION % % %
 \section*{Evaluation des algorithmes}
 
-Pour pouvoir comparer l'efficacité de certains
+Pour pouvoir comparer les résultats des différents apprentissages, il faut pouvoir donner une métrique pour mesurer ces résultats. Dans un premier temps il faut représenter un maximum de donnée à l'écran pour laisser l'utilisatuer juger si son algorithme fonctionne.
 
+\subsection*{Affichage}
+
+La première étape de mon projet consiste à afficher une représentation du robot, pour pouvoir comparer certaines formes et tailles avant de me lancer dans la suite. Voici donc un exmple de robot dans une certaine posture. La principale bibliothèque d'affichage utilisée est OpenGL. J'ai aussi utilisé SDK pour la création de la fenêtre.
+
+% TODO Afficher image du robot sur fond bland %
+
+Ensuite, le résultat de mes algorithmes me retournent une liste de point. Cela n'a aucun sens de représenter tout le robot pour chacun de ces points, j'ai préféré ne représenter que le bout du robot (appelé End Point). Voici donc le résultat d'un motor babling après 5 000 étapes:
+
+% TODO Afficher nuage de point, motor babling, 5 000 étapes
+
+Cette représentation est très utile pour un environnement 2D, mais dans notre cas il est difficile d'évaluer la distance d'un point par rapport au centre. J'ai donc décider de colorer les points par rapport à leurs distances au centre:
+
+% TODO Afficher un nuage de point coloré, mêmes données qu'au dessus
+
+Enfin, le programme peut aussi trier et représenter les données dans un graphe. Voici par exemple une repartition des points en fonction de l'axe X, Y ou Z, mais aussi par rapport à la distance au centre (la base du robot, le point d'attache).
+
+% TODO Afficher les graphes résultats par rapport aux données précédentes
+
+Ces différents affichages ne permettent cependant pas de mesurer les résultats.
+
+\subsection*{Evaluation}
+
+Il nous faut une métrique précise. Par exemple, une propriété voulue pourrait être la précision de notre modèle. Il est possible de mesurer par exemple la différence moyenne entre une position recherchée et la position retournée par le modèle inverse. 
 
 \end{document}
