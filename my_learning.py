@@ -3,6 +3,8 @@ import my_robot
 from my_nearest_neighbor import NearestNeighbor
 from my_end_point import EndPoint
 from my_goal_generation import GoalGenerator
+import my_analyse
+import my_display
 
 def Motor_Babling(robot : my_robot.Robot, steps=5000) -> list:
     """Execute un motor babling: positions aleatoires sur chacune des sections du robot.
@@ -39,6 +41,7 @@ def Motor_Babling(robot : my_robot.Robot, steps=5000) -> list:
 def Goal_Babling(robot : my_robot.Robot, NN : NearestNeighbor, GG = GoalGenerator, motor_babling_steps=5000, total_steps=10000):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     goals = []
+    table = None
     
     print("Motor Babling:")
 

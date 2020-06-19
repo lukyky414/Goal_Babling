@@ -13,7 +13,7 @@ import math
 _PRINT_HELP_ = False
 _translation_factor = 1/120
 _size = (600, 600)
-_background_color = (0, 0, 0)
+_background_color = (255, 255, 255)
 _point_color = (0, 0, 255)
 _highlight_color = (255, 0, 0)
 _joint_color = (0, 0, 0)
@@ -31,6 +31,95 @@ if _PRINT_HELP_:
     print("Right Click - Translate")
     print("Wheel Up & Down - Zoom in & out")
     print("CTRL + : zoom in / CTRL - : zoom out")
+
+def draw_discretization(table : list, min = (-1, -1, -1), max = (1, 1, 1), precision = 100, alpha_per_point = 0.01):
+    """Permet de représenter le tableau de la discretisation de l'espace. Chaque case est transparente, mais l'est de moins en moins en fonction du nombre de points dans celle-ci. Réglable avec `alpha_per_point`"""
+
+    if not _StaticVars.has_started:
+        _init_display()
+        _StaticVars.cell_size = (
+            (max[0]-min[0])/precision,
+            (max[1]-min[1])/precision,
+            (max[2]-min[2])/precision
+        )
+        gl.glEnable(gl.GL_BLEND)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+        _StaticVars.has_started = True
+
+
+    while _StaticVars.is_running:
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
+
+        _draw_axes()
+
+        gl.glBegin(gl.GL_TRIANGLES)
+        for x_t in range(precision):
+            for y_t in range(precision):
+                for z_t in range(precision):
+                    x = x_t * _StaticVars.cell_size[0] + min[0]
+                    y = y_t * _StaticVars.cell_size[1] + min[1]
+                    z = z_t * _StaticVars.cell_size[2] + min[2]
+
+                    a = table[x_t][y_t][z_t] * alpha_per_point
+                    if a > 1:
+                        a = 1
+
+                    gl.glColor4f(0, 1, 0, a)
+
+                    gl.glVertex3f(x, y, z)
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z)
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z+_StaticVars.cell_size[2])
+
+                    gl.glVertex3f(x, y, z)
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z+_StaticVars.cell_size[2])
+                    gl.glVertex3f(x, y, z+_StaticVars.cell_size[2])
+
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z)
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z)
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
+
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z)
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z+_StaticVars.cell_size[2])
+
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z)
+                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z)
+                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
+
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z)
+                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
+
+                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z)
+                    gl.glVertex3f(x, y, z)
+                    gl.glVertex3f(x, y, z+_StaticVars.cell_size[2])
+
+                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z)
+                    gl.glVertex3f(x, y, z+_StaticVars.cell_size[2])
+                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
+
+                    gl.glVertex3f(x, y, z+_StaticVars.cell_size[2])
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z+_StaticVars.cell_size[2])
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
+
+                    gl.glVertex3f(x, y, z+_StaticVars.cell_size[2])
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
+                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
+
+                    gl.glVertex3f(x, y, z)
+                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z)
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z)
+
+                    gl.glVertex3f(x, y, z)
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z)
+                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z)
+
+        gl.glEnd()
+        pg.display.flip()
+        _event_handler()
+        pg.time.wait(10)
+
+
 
 def animation(robot : my_robot.Robot):
     """Creer une animation avec le robot, en faisant tourner un a un les moteurs dans les limites de ceux-ci"""
@@ -207,6 +296,8 @@ def _draw_axes():
     gl.glPopAttrib()
 
 class _StaticVars:
+    has_started = False
+    cell_size = None
     is_running = True
     mouse_left_pressed = False
     mouse_right_pressed = False

@@ -80,10 +80,11 @@ class GoalOnGridGenerator(GoalGenerator):
     
     def reset(self, end_points):
         #TODO enregistrer les cellules visitees
+        return
         
 
 class FrontierGenerator(GoalOnGridGenerator):
-    def __init__(self, cell_size = 0.1, p =0.5, RT : my_nearest_neighbor.RtreeNeighbor, ):
+    def __init__(self, RT : my_nearest_neighbor.RtreeNeighbor, cell_size = 0.1, p =0.5):
         """Le Rtree est utilisé pour executer une recherche par cellule."""
         super(FrontierGenerator, self).__init__(cell_size=cell_size, p=p)
         self.rt = RT
@@ -95,7 +96,7 @@ class FrontierGenerator(GoalOnGridGenerator):
         ep = random.choice(self.end_points)
 
         #Choisir une direction aleatoire en 3d
-        vec = [random.gauss(0, 1) * random.choice(-1, 1) for i in range(3)]
+        vec = [random.gauss(0, 1) for i in range(3)]
         mag = sum(x**2 for x in vec) ** .5
         dir = [x/mag for x in vec]
 
@@ -155,8 +156,12 @@ class FrontierGenerator(GoalOnGridGenerator):
             # TODO utiliser la liste des cellules visitees de la classe mere
                 # temporaire
             #Rechercher les cellules correspondantes dans rtree
-            list(self.rt.my_rtree.intersection(x*size, y*size, z*size, (x+1)*size, (y+1)*size, (z+1)*size))
-            if list.count == 0:
+            list(
+                self.rt.my_rtree.intersection(
+                    x*size, y*size, z*size, (x+1)*size, (y+1)*size, (z+1)*size
+                )
+            )
+            if list.count() == 0:
                 is_ended = True
                 # fin temporaire
         
