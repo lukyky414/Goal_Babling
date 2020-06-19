@@ -47,18 +47,21 @@ def plot_dist_to_origin(robot : Robot, endpoints : list, precision = 100):
     plt.xlabel("distance from origin")
     plt.show()
 
-def plot_x_y_z_distribution(robot : Robot, endpoints : list, precision = 100):
+def plot_x_y_z_distribution(robot : Robot, endpoints : list, precision = 100, show=True):
     """Cree trois plot pour chacun des axes et affiche la distribution des points sur ces aces"""
 
-    xs = [0]*precision
-    ys = [0]*precision
-    zs = [0]*precision
+    if show:
+        xs = [0]*precision
+        ys = [0]*precision
+        zs = [0]*precision
     mi_x = robot.bounds[0][0]
     ma_x = robot.bounds[0][1]
     mi_y = robot.bounds[1][0]
     ma_y = robot.bounds[1][1]
     mi_z = robot.bounds[2][0]
     ma_z = robot.bounds[2][1]
+
+    tableau = [ [ [0]*precision ]*precision ]*precision
     
     for ep in endpoints:
         x, y, z = ep.get_pos()
@@ -73,27 +76,33 @@ def plot_x_y_z_distribution(robot : Robot, endpoints : list, precision = 100):
         if z_index == precision:
             z_index -= 1
         
-        xs[x_index] += 1
-        ys[y_index] += 1
-        zs[z_index] += 1
-    
-    axe_x = []
-    axe_y = []
-    axe_z = []
-    for i in range(precision):
-        axe_x.append(i * (ma_x - mi_x) / precision + mi_x)
-        axe_y.append(i * (ma_y - mi_y) / precision + mi_y)
-        axe_z.append(i * (ma_z - mi_z) / precision + mi_z)
-        
+        if show:
+            xs[x_index] += 1
+            ys[y_index] += 1
+            zs[z_index] += 1
 
-    _, plots = plt.subplots(3)
-    plots[0].plot(axe_x, xs)
-    plots[0].set_ylabel("Number of points")
-    plots[0].set_xlabel("X coordinates")
-    plots[1].plot(axe_y, ys)
-    plots[1].set_ylabel("Number of points")
-    plots[1].set_xlabel("Y coordinates")
-    plots[2].plot(axe_z, zs)
-    plots[2].set_ylabel("Number of points")
-    plots[2].set_xlabel("Z coordinates")
-    plt.show()
+        tableau[x_index][y_index][z_index] += 1
+    
+    if show:
+        axe_x = []
+        axe_y = []
+        axe_z = []
+        for i in range(precision):
+            axe_x.append(i * (ma_x - mi_x) / precision + mi_x)
+            axe_y.append(i * (ma_y - mi_y) / precision + mi_y)
+            axe_z.append(i * (ma_z - mi_z) / precision + mi_z)
+            
+
+        _, plots = plt.subplots(3)
+        plots[0].plot(axe_x, xs)
+        plots[0].set_ylabel("Number of points")
+        plots[0].set_xlabel("X coordinates")
+        plots[1].plot(axe_y, ys)
+        plots[1].set_ylabel("Number of points")
+        plots[1].set_xlabel("Y coordinates")
+        plots[2].plot(axe_z, zs)
+        plots[2].set_ylabel("Number of points")
+        plots[2].set_xlabel("Z coordinates")
+        plt.show()
+
+    return tableau
