@@ -18,9 +18,9 @@ gg = my_goal_generation.AgnosticGenerator(robot = poppy)
 
 end_points, _ = my_learning.Goal_Babling(robot=poppy, NN = nn, GG = gg)
 
-table = my_analyse.discretization(end_points, (-1, -1, -1), (1, 1, 1), 20)
+# table = my_analyse.discretization(end_points, (-1, -1, -1), (1, 1, 1), 20)
 
-my_display.draw_discretization(table, (-1, -1, -1), (1, 1, 1), 20, 0.0001)
+# my_display.draw_discretization(table, (-1, -1, -1), (1, 1, 1), 20, 0.0001)
 
 # my_analyse.plot_dist_to_origin(robot=poppy, endpoints=end_points)
 
@@ -29,7 +29,7 @@ my_display.draw_discretization(table, (-1, -1, -1), (1, 1, 1), 20, 0.0001)
 # err = my_analyse.error(robot=poppy, endpoints=end_points)
 # print("Distance moyenne entre un goal et le résultat: {}".format(err))
 
-# my_display.draw_points_cloud(end_points=end_points, robot=poppy)
+my_display.draw_points_cloud(end_points=end_points, robot=poppy)
 
 # my_display.animation(robot=poppy)
 

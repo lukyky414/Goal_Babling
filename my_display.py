@@ -13,7 +13,7 @@ import math
 _PRINT_HELP_ = False
 _translation_factor = 1/120
 _size = (600, 600)
-_background_color = (255, 255, 255)
+_background_color = (0, 0, 0)
 _point_color = (0, 0, 255)
 _highlight_color = (255, 0, 0)
 _joint_color = (0, 0, 0)

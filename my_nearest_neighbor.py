@@ -62,10 +62,6 @@ class RtreeNeighbor(NearestNeighbor):
         for i in range(len(end_points)):
             self.my_rtree.insert(id=i, coordinates=end_points[i].get_pos(), obj=end_points[i])
         self.nb_neighbor = len(end_points)
-    
-    def cellule_search(self, cellule):
-        """Retourne les points dans le rectangle défini par cellule"""
-        return
 
 
 

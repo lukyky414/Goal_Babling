@@ -3,6 +3,7 @@ import my_end_point
 import random
 import math
 import my_nearest_neighbor
+import my_discretisation
 
 class GoalGenerator:
     def __init__(self):
@@ -52,10 +53,10 @@ class AgnosticGenerator(GoalGenerator):
 
 # Je considère (0, 0, 0) la cellule qui a pour coins opposées les points: (0, 0, 0) et (cell_size, cell_size, cell_size)
 class GoalOnGridGenerator(GoalGenerator):
-    def __init__(self, cell_size = 0.1, p = 0.5):
+    def __init__(self, p, min, max, precision):
         """Classe mere pour generer un point sur une grille en utilisant le p-reached strategy"""
-        self.cell_size = cell_size
         self.p = p
+        self.grid = my_discretisation.Discretisation(min=min, max=max, precision=precision)
     
     def newGoalOutside(self):
         """Genere un nouveau but dans une cellule non exploree"""
@@ -70,23 +71,32 @@ class GoalOnGridGenerator(GoalGenerator):
     
     def newGoalInside(self):
         """Genere un nouveau but dans une cellule deja exploree"""
-        
+        cell = random.choice(self.grid.visited)
+        return newGoalFromCell(cell)
+
+    def newGoalFromCell(self, pos):
+        return (
+            random.uniform(pos[0]*self.grid.size[0],(pos[0]+1)*self.grid.size[0]), 
+            random.uniform(pos[1]*self.grid.size[1],(pos[1]+1)*self.grid.size[1]), 
+            random.uniform(pos[2]*self.grid.size[2],(pos[2]+1)*self.grid.size[2])
+        )
+
     def addGoal(self, goal):
         return
     
     def add_end_point(self, end_point):
-        # Les endpoints sont deja ajoutes a end_points (qui est un pointeur vers le tableau)
-        return
+        self.grid.add_point(end_point)
     
     def reset(self, end_points):
-        #TODO enregistrer les cellules visitees
-        return
+        self.grid.reset()
+        for ep in end_points:
+            self.add_end_point(ep)
         
 
 class FrontierGenerator(GoalOnGridGenerator):
-    def __init__(self, RT : my_nearest_neighbor.RtreeNeighbor, cell_size = 0.1, p =0.5):
+    def __init__(self, RT : my_nearest_neighbor.RtreeNeighbor,  p = 0.5, min = (-1, -1, -1), max = (1, 1, 1), precision = (200, 200, 200)):
         """Le Rtree est utilisé pour executer une recherche par cellule."""
-        super(FrontierGenerator, self).__init__(cell_size=cell_size, p=p)
+        super(FrontierGenerator, self).__init__(p=p, min=min, max=max, precision=precision)
         self.rt = RT
         self.end_points = None
 
@@ -94,6 +104,7 @@ class FrontierGenerator(GoalOnGridGenerator):
     def newGoalOutside(self):
         #choisir aleatoirement un point de depart
         ep = random.choice(self.end_points)
+        pos = ep.get_pos()
 
         #Choisir une direction aleatoire en 3d
         vec = [random.gauss(0, 1) for i in range(3)]
@@ -101,9 +112,10 @@ class FrontierGenerator(GoalOnGridGenerator):
         dir = [x/mag for x in vec]
 
         # coordonnee du point actuel dans l'espace discretisé
-        x = math.floor(ep.posture[0] / self.cell_size)
-        y = math.floor(ep.posture[1] / self.cell_size)
-        z = math.floor(ep.posture[2] / self.cell_size)
+        p = self.grid.get_discretized_pos(ep)
+        x = p[0]
+        y = p[1]
+        z = p[2]
 
         # determine la direction du vecteur dir dans chacun des axes
         dx = 1 if dir[0] > 0 else -1
@@ -111,9 +123,9 @@ class FrontierGenerator(GoalOnGridGenerator):
         dz = 1 if dir[2] > 0 else -1
 
         # distance a parcourir sur le vecteur 'dir' avant de changer de coordonnee dans l'espace discret à partir du point ep
-        nx = (x + size * dx - ep.posture[0]) / dir[0]
-        ny = (y + size * dy - ep.posture[1]) / dir[1]
-        nx = (x + size * dz - ep.posture[2]) / dir[2]
+        nx = (x + size * dx - pos[0]) / dir[0]
+        ny = (y + size * dy - pos[1]) / dir[1]
+        nx = (x + size * dz - pos[2]) / dir[2]
 
         # distance maximale a parcourir sur le vecteur 'dir' avant d'etre sûr de changer de coordonne dans l'espace discret à partir de n'importe quel point
         mx = 1 / dir[0]
@@ -153,20 +165,22 @@ class FrontierGenerator(GoalOnGridGenerator):
                     z += dz
                 
             # cellule vide -> fin de boucle
-            # TODO utiliser la liste des cellules visitees de la classe mere
-                # temporaire
-            #Rechercher les cellules correspondantes dans rtree
-            list(
-                self.rt.my_rtree.intersection(
-                    x*size, y*size, z*size, (x+1)*size, (y+1)*size, (z+1)*size
-                )
-            )
-            if list.count() == 0:
+            if self.grid.get_cell((x, y, z)) == 0:
                 is_ended = True
-                # fin temporaire
+
+            # temporaire
+                # #Rechercher les cellules correspondantes dans rtree
+                # list(
+                #     self.rt.my_rtree.intersection(
+                #         x*size, y*size, z*size, (x+1)*size, (y+1)*size, (z+1)*size
+                #     )
+                # )
+                # if list.count() == 0:
+                #     is_ended = True
+                #     # fin temporaire
         
         #Generer un point dans cette cellule
-        return (random.uniform(x*size,(x+1)*size), random.uniform(y*size,(y+1)*size), random.uniform(z*size,(z+1)*size))
+        return self.newGoalFromCell((x, y, z))
     
     
     def reset(self, end_points):
