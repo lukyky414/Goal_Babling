@@ -64,21 +64,21 @@ class GoalOnGridGenerator(GoalGenerator):
     
     def newGoal(self):
         r = random.random()
-        if r > p:
-            self.newGoalOutside()
+        if r > self.p:
+            return self.newGoalOutside()
         else:
-            self.newGoalInside()
+            return self.newGoalInside()
     
     def newGoalInside(self):
         """Genere un nouveau but dans une cellule deja exploree"""
         cell = random.choice(self.grid.visited)
-        return newGoalFromCell(cell)
+        return self.newGoalFromCell(cell)
 
     def newGoalFromCell(self, pos):
         return (
-            random.uniform(pos[0]*self.grid.size[0],(pos[0]+1)*self.grid.size[0]), 
-            random.uniform(pos[1]*self.grid.size[1],(pos[1]+1)*self.grid.size[1]), 
-            random.uniform(pos[2]*self.grid.size[2],(pos[2]+1)*self.grid.size[2])
+            random.uniform(pos[0]*self.grid.size[0]+self.grid.min[0],(pos[0]+1)*self.grid.size[0]+self.grid.min[0]), 
+            random.uniform(pos[1]*self.grid.size[1]+self.grid.min[1],(pos[1]+1)*self.grid.size[1]+self.grid.min[1]), 
+            random.uniform(pos[2]*self.grid.size[2]+self.grid.min[2],(pos[2]+1)*self.grid.size[2]+self.grid.min[2])
         )
 
     def addGoal(self, goal):
@@ -94,10 +94,9 @@ class GoalOnGridGenerator(GoalGenerator):
         
 
 class FrontierGenerator(GoalOnGridGenerator):
-    def __init__(self, RT : my_nearest_neighbor.RtreeNeighbor,  p = 0.5, min = (-1, -1, -1), max = (1, 1, 1), precision = (200, 200, 200)):
+    def __init__(self, p = 0.5, min = (-1, -1, -1), max = (1, 1, 1), precision = (200, 200, 200)):
         """Le Rtree est utilisé pour executer une recherche par cellule."""
         super(FrontierGenerator, self).__init__(p=p, min=min, max=max, precision=precision)
-        self.rt = RT
         self.end_points = None
 
 
@@ -123,9 +122,9 @@ class FrontierGenerator(GoalOnGridGenerator):
         dz = 1 if dir[2] > 0 else -1
 
         # distance a parcourir sur le vecteur 'dir' avant de changer de coordonnee dans l'espace discret à partir du point ep
-        nx = (x + size * dx - pos[0]) / dir[0]
-        ny = (y + size * dy - pos[1]) / dir[1]
-        nx = (x + size * dz - pos[2]) / dir[2]
+        nx = (x + self.grid.size[0] * dx - pos[0]) / dir[0]
+        ny = (y + self.grid.size[1] * dy - pos[1]) / dir[1]
+        nz = (z + self.grid.size[2] * dz - pos[2]) / dir[2]
 
         # distance maximale a parcourir sur le vecteur 'dir' avant d'etre sûr de changer de coordonne dans l'espace discret à partir de n'importe quel point
         mx = 1 / dir[0]
@@ -167,17 +166,6 @@ class FrontierGenerator(GoalOnGridGenerator):
             # cellule vide -> fin de boucle
             if self.grid.get_cell((x, y, z)) == 0:
                 is_ended = True
-
-            # temporaire
-                # #Rechercher les cellules correspondantes dans rtree
-                # list(
-                #     self.rt.my_rtree.intersection(
-                #         x*size, y*size, z*size, (x+1)*size, (y+1)*size, (z+1)*size
-                #     )
-                # )
-                # if list.count() == 0:
-                #     is_ended = True
-                #     # fin temporaire
         
         #Generer un point dans cette cellule
         return self.newGoalFromCell((x, y, z))

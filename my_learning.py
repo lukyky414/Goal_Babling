@@ -38,7 +38,7 @@ def Motor_Babling(robot : my_robot.Robot, steps=5000) -> list:
 
     return end_points
 
-def Goal_Babling(robot : my_robot.Robot, NN : NearestNeighbor, GG = GoalGenerator, motor_babling_steps=5000, total_steps=10000):
+def Goal_Babling(robot : my_robot.Robot, NN : NearestNeighbor, GG = GoalGenerator, motor_babling_steps=5000, total_steps=100000):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     goals = []
     table = None

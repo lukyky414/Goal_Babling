@@ -1,50 +1,27 @@
 import matplotlib.pyplot as plt
 import math
 from my_robot import Robot
-import my_nearest_neighbor
-import my_goal_generation
+from my_nearest_neighbor import NearestNeighbor
+from my_discretisation import Discretisation
 
-def discretization(endpoints : list, min = (-1, -1, -1), max = (1, 1, 1), precision = 100, table = None, start = 0):
-    """Retourne un tableau, résultat de la discretisation de l'espace, chaque cellule ayant le nombre de endpoints contenu dans son espace.Les limites sont le minimum et maximum de chaques axes (-x, -y, -z), (x, y, z). La taille d'une cellule est à préciser.
-    On peut donner un tableau deja pré-rempli en donnant le numéro du premier point à analyser (start)"""
-
-    if table is None:
-        table = [[[0 for _ in range(precision)] for _ in range(precision)] for _ in range(precision)]
-    nb = ((max[0]-min[0]) / precision, (max[1]-min[1]) / precision, (max[2]-min[2]) / precision)
-    #print(nb)
-    t = [0]*3
-
-    for ep in endpoints[start:]:
-        pos = ep.get_pos()
-
-        good = True
-        for i in range(3):
-            if pos[i] < min[i] or pos[i] > max[i]:
-                good = False
-                break
-            t[i] = math.floor(( pos[i] - min[i] ) / ( nb[i] ))
-
-        if not good:
-            continue
-        
-
-        #print("{} -> {}".format(pos, t))
-
-        table[t[0]][t[1]][t[2]] += 1
+def difference_discretisation(grid1 : Discretisation, grid2 : Discretisation):
+    """Retourne les cellules populées dans grid1 mais non grid2"""
+    res = []
+    for cell in grid1.visited:
+        if grid2.get_cell(cell) == 0:
+            res.append(cell)
     
-    return table
+    return res
 
-def error(robot : Robot, endpoints : list, precision = 5000):
-    """Retourne la distance moyenne entre un goal généré aléatoirement et le point retourné par le modèle inverse (nearest neighbor)"""
-    NN = my_nearest_neighbor.NearestNeighbor(endpoints)
+def error(NN : NearestNeighbor, goals : list):
+    """Retourne la distance moyenne entre une liste de goal et le point retourné par le modèle inverse (nearest neighbor)"""
     dist = 0
-    for _ in range(precision):
-        goal = my_goal_generation.generate_goal(robot, coef=1)
+    for goal in goals:
         near = NN.nearest(goal).get_pos()
 
         dist += my_nearest_neighbor.dist(goal, near)
 
-    dist = dist / precision
+    dist = dist / goals.len()
 
     return dist
 

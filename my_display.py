@@ -4,9 +4,10 @@ import OpenGL.GL as gl
 import OpenGL.GLU as glu
 import numpy as np
 import pygame as pg
-import my_robot
 from math import pi, sqrt
 from my_robot import Robot
+from my_end_point import EndPoint
+from my_discretisation import Discretisation
 import math
 
 # Quelques variables constantes pour le programme
@@ -32,19 +33,68 @@ if _PRINT_HELP_:
     print("Wheel Up & Down - Zoom in & out")
     print("CTRL + : zoom in / CTRL - : zoom out")
 
-def draw_discretization(table : list, min = (-1, -1, -1), max = (1, 1, 1), precision = 100, alpha_per_point = 0.01):
+def _draw_cube(pos : tuple, size : tuple):
+    x = pos[0]
+    y = pos[1]
+    z = pos[2]
+
+    gl.glVertex3f(x, y, z)
+    gl.glVertex3f(x+size[0], y, z)
+    gl.glVertex3f(x+size[0], y, z+size[2])
+
+    gl.glVertex3f(x, y, z)
+    gl.glVertex3f(x+size[0], y, z+size[2])
+    gl.glVertex3f(x, y, z+size[2])
+
+    gl.glVertex3f(x+size[0], y, z)
+    gl.glVertex3f(x+size[0], y+size[1], z)
+    gl.glVertex3f(x+size[0], y+size[1], z+size[2])
+
+    gl.glVertex3f(x+size[0], y, z)
+    gl.glVertex3f(x+size[0], y+size[1], z+size[2])
+    gl.glVertex3f(x+size[0], y, z+size[2])
+
+    gl.glVertex3f(x+size[0], y+size[1], z)
+    gl.glVertex3f(x, y+size[1], z)
+    gl.glVertex3f(x, y+size[1], z+size[2])
+
+    gl.glVertex3f(x+size[0], y+size[1], z)
+    gl.glVertex3f(x, y+size[1], z+size[2])
+    gl.glVertex3f(x+size[0], y+size[1], z+size[2])
+
+    gl.glVertex3f(x, y+size[1], z)
+    gl.glVertex3f(x, y, z)
+    gl.glVertex3f(x, y, z+size[2])
+
+    gl.glVertex3f(x, y+size[1], z)
+    gl.glVertex3f(x, y, z+size[2])
+    gl.glVertex3f(x, y+size[1], z+size[2])
+
+    gl.glVertex3f(x, y, z+size[2])
+    gl.glVertex3f(x+size[0], y, z+size[2])
+    gl.glVertex3f(x+size[0], y+size[1], z+size[2])
+
+    gl.glVertex3f(x, y, z+size[2])
+    gl.glVertex3f(x+size[0], y+size[1], z+size[2])
+    gl.glVertex3f(x, y+size[1], z+size[2])
+
+    gl.glVertex3f(x, y, z)
+    gl.glVertex3f(x, y+size[1], z)
+    gl.glVertex3f(x+size[0], y+size[1], z)
+
+    gl.glVertex3f(x, y, z)
+    gl.glVertex3f(x+size[0], y+size[1], z)
+    gl.glVertex3f(x+size[0], y, z)
+
+def draw_discretization(grid : Discretisation, alpha_per_point = 0.01):
     """Permet de représenter le tableau de la discretisation de l'espace. Chaque case est transparente, mais l'est de moins en moins en fonction du nombre de points dans celle-ci. Réglable avec `alpha_per_point`"""
 
-    if not _StaticVars.has_started:
-        _init_display()
-        _StaticVars.cell_size = (
-            (max[0]-min[0])/precision,
-            (max[1]-min[1])/precision,
-            (max[2]-min[2])/precision
-        )
-        gl.glEnable(gl.GL_BLEND)
-        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
-        _StaticVars.has_started = True
+    _init_display()
+    gl.glEnable(gl.GL_BLEND)
+    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+
+    size = grid.size
+    min = grid.min
 
 
     while _StaticVars.is_running:
@@ -53,75 +103,25 @@ def draw_discretization(table : list, min = (-1, -1, -1), max = (1, 1, 1), preci
         _draw_axes()
 
         gl.glBegin(gl.GL_TRIANGLES)
-        for x_t in range(precision):
-            for y_t in range(precision):
-                for z_t in range(precision):
-                    x = x_t * _StaticVars.cell_size[0] + min[0]
-                    y = y_t * _StaticVars.cell_size[1] + min[1]
-                    z = z_t * _StaticVars.cell_size[2] + min[2]
+        for cell in grid.visited:
+            x = cell[0] * size[0] + min[0]
+            y = cell[1] * size[1] + min[1]
+            z = cell[2] * size[2] + min[2]
 
-                    a = table[x_t][y_t][z_t] * alpha_per_point
-                    if a > 1:
-                        a = 1
+            a = grid.get_cell(cell) * alpha_per_point
+            if a > 1:
+                a = 1
 
-                    gl.glColor4f(0, 1, 0, a)
+            gl.glColor4f(0, 1, 0, a)
 
-                    gl.glVertex3f(x, y, z)
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z)
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z+_StaticVars.cell_size[2])
-
-                    gl.glVertex3f(x, y, z)
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z+_StaticVars.cell_size[2])
-                    gl.glVertex3f(x, y, z+_StaticVars.cell_size[2])
-
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z)
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z)
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
-
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z)
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z+_StaticVars.cell_size[2])
-
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z)
-                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z)
-                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
-
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z)
-                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
-
-                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z)
-                    gl.glVertex3f(x, y, z)
-                    gl.glVertex3f(x, y, z+_StaticVars.cell_size[2])
-
-                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z)
-                    gl.glVertex3f(x, y, z+_StaticVars.cell_size[2])
-                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
-
-                    gl.glVertex3f(x, y, z+_StaticVars.cell_size[2])
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z+_StaticVars.cell_size[2])
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
-
-                    gl.glVertex3f(x, y, z+_StaticVars.cell_size[2])
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
-                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z+_StaticVars.cell_size[2])
-
-                    gl.glVertex3f(x, y, z)
-                    gl.glVertex3f(x, y+_StaticVars.cell_size[1], z)
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z)
-
-                    gl.glVertex3f(x, y, z)
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y+_StaticVars.cell_size[1], z)
-                    gl.glVertex3f(x+_StaticVars.cell_size[0], y, z)
+            _draw_cube((x,y,z),size)
 
         gl.glEnd()
         pg.display.flip()
         _event_handler()
         pg.time.wait(10)
 
-
-
-def animation(robot : my_robot.Robot):
+def animation(robot : Robot):
     """Creer une animation avec le robot, en faisant tourner un a un les moteurs dans les limites de ceux-ci"""
     
     _init_display()
@@ -222,23 +222,25 @@ def _get_rainbow_color(fact : float):
     else:
         return (fact*3-2, 0, 3-fact*3)
 
-def draw_points_cloud(end_points : list, robot : Robot):
+def draw_points_cloud(end_points : list, max_dist = 0.3):
     """Dessine un nuage de point 3d.
-    `points` - les coordonnees des points en (x, y, z)
-    `robot` - le robot (accès à l'information de taille)."""
+    `points` - les coordonnees des points en (x, y, z)"""
 
     _init_display()
 
     # Calcul de la couleur des points avant affichage
     points = []
     for ep in end_points:
-        pos = ep.get_pos()
+        if isinstance(ep, EndPoint):
+            pos = ep.get_pos()
+        else:
+            pos = ep
         d = 0
         for p in pos:
             d += p**2
         d = sqrt(d)
 
-        fact = d / robot.furthest
+        fact = d / max_dist
         color = _get_rainbow_color(fact)
         points.append((pos, color))
 
@@ -296,8 +298,6 @@ def _draw_axes():
     gl.glPopAttrib()
 
 class _StaticVars:
-    has_started = False
-    cell_size = None
     is_running = True
     mouse_left_pressed = False
     mouse_right_pressed = False
