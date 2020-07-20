@@ -3,6 +3,9 @@ import random
 from math import pi, sqrt
 
 from my_end_point import EndPoint
+from my_nearest_neighbor import NearestNeighbor, dist
+
+import sys
 
 class Robot():
 
@@ -10,28 +13,40 @@ class Robot():
         self.robot = PoppyErgoJr(simulator="poppy-simu")
         # print("Open the simulator here:")
         # print("  http://simu.poppy-project.org/poppy-ergo-jr/")
-        # Limites (min, max) des positions rencontrées en (x, y, z) du robot.
-        self.bounds = None
-        self.furthest = 0
+        self.nn = None
+        self.nb_joints = len(self.robot.motors)
+    
+    def inv_model(self, goal : tuple):
+        """Le modèle inverse du robot. Retourne une liste d'angle pour atteindre le point demandé."""
+        if self.nn is None:
+            raise "Robots have no Nearest Neighbor. Inv_Model is impossible."
 
-    def __update_end__(self, ep : EndPoint):
-        pos = ep.get_pos()
-        if self.bounds is None:
-            self.bounds = [[pos[0], pos[0]], [pos[1], pos[1]], [pos[2], pos[2]]]
-        else:
-            for i in range(3):
-                if pos[i] < self.bounds[i][0]:
-                    self.bounds[i][0] = pos[i]
-                if pos[i] > self.bounds[i][1]:
-                    self.bounds[i][1] = pos[i]
-        
-        dist = 0
-        for p in pos:
-            dist += p**2
-        dist = sqrt(dist)
+        nears = self.nn.nearest_list(goal, 3)
 
-        if dist > self.furthest:
-            self.furthest = dist
+        dists = []
+        tot = 0
+        for ep in nears:
+            d = dist(ep.get_pos(), goal)
+            tot += d
+            dists.append(d)
+        coefs = []
+        for d in dists:
+            coefs.append(d/tot)
+
+        posture = []
+
+        for i in range(self.nb_joint)
+            p = 0
+            for ep, c in zip(nears, coefs):
+                p += ep.posture[i] * c
+            
+            if p > self.robot.motors[i].angle_limit[1]:
+                p = self.robot.motors[i].angle_limit[1]
+            if p < self.robot.motors[i].angle_limit[0]:
+                p = self.robot.motors[i].angle_limit[0]
+            posture.append(p)
+
+        return posture
         
     
     def get_end_point(self, angles : list) -> EndPoint:
@@ -44,8 +59,6 @@ class Robot():
 
         res = EndPoint(angles, self.robot.chain.forward_kinematics(joints=list_angles, full_kinematics=False))
 
-        self.__update_end__(res)
-
         return res
 
     def get_posture(self, angles : list) -> list:
@@ -57,10 +70,6 @@ class Robot():
         list_angles.append(0)
 
         res = self.robot.chain.forward_kinematics(joints=list_angles, full_kinematics=True)
-
-        ep = EndPoint(angles, res[-1])
-
-        self.__update_end__(ep)
 
         return res
     
@@ -91,11 +100,16 @@ class Robot():
         for motor in self.robot.motors:
             res.append(motor.angle_limit)
         return res
-    
-    def get_joint_number(self) -> int:
-        """Retourne le nombre de section du robot. Utile pour initialiser une liste d'angle."""
-        return len(self.robot.motors)
 
     def get_size(self):
         """Retourne la distance entre la base et l'endpoint rencontré le plus éloigné de la base."""
         return self.furthest
+    
+    def reset(self):
+        """Permet de réinitialiser les données sauvegardées après un apprentissage (comme le point le plus loin ou les limites)"""
+        self.bounds = None
+        self.furthest = 0
+    
+    def set_nn(self, NN : NearestNeighbor):
+        """Permet de changer le NearestNeighbor utilisé pour calculer le modèle inverse."""
+        self.nn = NN

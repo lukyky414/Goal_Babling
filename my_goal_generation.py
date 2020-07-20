@@ -5,6 +5,7 @@ import math
 import my_nearest_neighbor
 import my_discretisation
 
+
 class GoalGenerator:
     def __init__(self):
         """Classe mere."""
@@ -30,9 +31,10 @@ class AgnosticGenerator(GoalGenerator):
         """Initialise le générateur de but agnostic en précisant quel robot sera utilisé et quel sera le coefficient d'aggrandissement de l'espace de but."""
         self.robot = robot
         self.coef = coef
+        self.bounds = None
     
     def newGoal(self):
-        size_x, size_y, size_z = self.robot.bounds
+        size_x, size_y, size_z = self.bounds
 
         goal = (
             random.uniform(size_x[0] * self.coef, size_x[1] * self.coef),
@@ -46,10 +48,23 @@ class AgnosticGenerator(GoalGenerator):
         return
     
     def add_end_point(self, end_point):
-        return
+        pos = end_point.get_pos()
+        if self.bounds is None:
+            self.bounds = [[pos[0], pos[0]], [pos[1], pos[1]], [pos[2], pos[2]]]
+        else:
+            for i in range(3):
+                if pos[i] < self.bounds[i][0]:
+                    self.bounds[i][0] = pos[i]
+                if pos[i] > self.bounds[i][1]:
+                    self.bounds[i][1] = pos[i]
 
     def reset(self, end_points):
-        return
+        self.size_x = [0, 0]
+        self.size_y = [0, 0]
+        self.size_z = [0, 0]
+
+        for ep in end_points:
+            self.add_end_point(ep)
 
 # Je considère (0, 0, 0) la cellule qui a pour coins opposées les points: (0, 0, 0) et (cell_size, cell_size, cell_size)
 class GoalOnGridGenerator(GoalGenerator):

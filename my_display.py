@@ -2,19 +2,24 @@
 
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
+import OpenGL.GLUT as glut
 import numpy as np
 import pygame as pg
 from math import pi, sqrt
 from my_robot import Robot
 from my_end_point import EndPoint
 from my_discretisation import Discretisation
+from my_analyse import difference_discretisation
 import math
+import time
+import ctypes
 
 # Quelques variables constantes pour le programme
 _PRINT_HELP_ = False
 _translation_factor = 1/120
 _size = (600, 600)
 _background_color = (0, 0, 0)
+_font_color = (0, 255, 0)
 _point_color = (0, 0, 255)
 _highlight_color = (255, 0, 0)
 _joint_color = (0, 0, 0)
@@ -38,6 +43,7 @@ def _draw_cube(pos : tuple, size : tuple):
     y = pos[1]
     z = pos[2]
 
+    gl.glBegin(gl.GL_TRIANGLES)
     gl.glVertex3f(x, y, z)
     gl.glVertex3f(x+size[0], y, z)
     gl.glVertex3f(x+size[0], y, z+size[2])
@@ -85,13 +91,68 @@ def _draw_cube(pos : tuple, size : tuple):
     gl.glVertex3f(x, y, z)
     gl.glVertex3f(x+size[0], y+size[1], z)
     gl.glVertex3f(x+size[0], y, z)
+    gl.glEnd()
+
+def draw_diff(grid1 : Discretisation, grid2 : Discretisation, alpha_per_point = 0.1):
+    """Permet de représenter le tableau de la discretisation de l'espace. Chaque case est transparente, mais l'est de moins en moins en fonction du nombre de points dans celle-ci. Réglable avec `alpha_per_point`"""
+
+    _init_display()
+
+    size = grid1.size
+    min = grid1.min
+
+    #Cellule peuplée par grid1 mais non grid2
+    diff1 = difference_discretisation(grid1=grid1, grid2=grid2)
+    diff2 = difference_discretisation(grid1=grid2, grid2=grid1)
+
+    while _StaticVars.is_running:
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
+
+        _draw_axes()
+
+        gl.glColor4f(0, 0, 1, 0.3)
+        for cell in diff1:
+            x = cell[0] * size[0] + min[0]
+            y = cell[1] * size[1] + min[1]
+            z = cell[2] * size[2] + min[2]
+
+            # a = grid1.get_cell(cell) * alpha_per_point
+            # if a > 1:
+            #     a = 1
+            
+            # d = sqrt(x**2 + y**2 + z**2) / 0.3
+            # color = _get_rainbow_color(d)
+
+            # gl.glColor4f(color[0], color[1], color[2], a)
+
+            _draw_cube((x,y,z),size)
+
+        gl.glColor4f(1, 0, 0, 0.3)
+        for cell in diff2:
+            x = cell[0] * size[0] + min[0]
+            y = cell[1] * size[1] + min[1]
+            z = cell[2] * size[2] + min[2]
+
+            # a = grid2.get_cell(cell) * alpha_per_point
+            # if a > 1:
+            #     a = 1
+            
+            # d = sqrt(x**2 + y**2 + z**2) / 0.3
+            # color = _get_rainbow_color(d)
+
+            # gl.glColor4f(color[0], color[1], color[2], a)
+
+            _draw_cube((x,y,z),size)
+
+        _draw_fps()
+        pg.display.flip()
+        _event_handler()
+        pg.time.wait(10)
 
 def draw_discretization(grid : Discretisation, alpha_per_point = 0.01):
     """Permet de représenter le tableau de la discretisation de l'espace. Chaque case est transparente, mais l'est de moins en moins en fonction du nombre de points dans celle-ci. Réglable avec `alpha_per_point`"""
 
     _init_display()
-    gl.glEnable(gl.GL_BLEND)
-    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
     size = grid.size
     min = grid.min
@@ -102,7 +163,6 @@ def draw_discretization(grid : Discretisation, alpha_per_point = 0.01):
 
         _draw_axes()
 
-        gl.glBegin(gl.GL_TRIANGLES)
         for cell in grid.visited:
             x = cell[0] * size[0] + min[0]
             y = cell[1] * size[1] + min[1]
@@ -116,7 +176,8 @@ def draw_discretization(grid : Discretisation, alpha_per_point = 0.01):
 
             _draw_cube((x,y,z),size)
 
-        gl.glEnd()
+
+        _draw_fps()
         pg.display.flip()
         _event_handler()
         pg.time.wait(10)
@@ -126,7 +187,7 @@ def animation(robot : Robot):
     
     _init_display()
 
-    angles = [0 for _ in range(robot.get_joint_number())]
+    angles = [0 for _ in range(robot.nb_joints)]
     limits = robot.get_angle_bounds()
 
     angle = limits[0][0]
@@ -150,7 +211,7 @@ def animation(robot : Robot):
 
         if new_angle:
             angles[i] = 0
-            i = (i+1) % robot.get_joint_number()
+            i = (i+1) % robot.nb_joints
             angle = limits[i][0]
             sense = limits[i][0] < limits[i][1]
             new_angle = False
@@ -162,6 +223,7 @@ def animation(robot : Robot):
         print("{} : {}     ".format(i, angle), end='\r')
         _draw_one_robot(posture=posture, highlight=i)
 
+        _draw_fps()
         pg.display.flip()
         _event_handler()
         pg.time.wait(10)
@@ -183,6 +245,7 @@ def display_robot(posture : list):
         else:
             _draw_one_robot(posture=posture)
 
+        _draw_fps()
         pg.display.flip()
         _event_handler()
         pg.time.wait(10)
@@ -257,6 +320,7 @@ def draw_points_cloud(end_points : list, max_dist = 0.3):
 
         gl.glEnd()
 
+        _draw_fps()
         pg.display.flip()
         _event_handler()
         pg.time.wait(10)
@@ -297,6 +361,21 @@ def _draw_axes():
     gl.glEnd()
     gl.glPopAttrib()
 
+def _draw_fps():
+    gl.glColor3f(_font_color[0]/255, _font_color[1]/255, _font_color[2]/255)
+
+    t = time.time()
+    elapsed = t - _StaticVars.last_time
+    fps = str(math.floor(1 / elapsed))
+    _StaticVars.last_time = t
+    
+    gl.glPushMatrix()
+    gl.glLoadIdentity()
+    gl.glRasterPos2f(-1, 0.9)
+    for ch in fps:
+        glut.glutBitmapCharacter( glut.GLUT_BITMAP_8_BY_13 , ctypes.c_int( ord(ch) ) )
+    gl.glPopMatrix()
+
 class _StaticVars:
     is_running = True
     mouse_left_pressed = False
@@ -304,8 +383,10 @@ class _StaticVars:
     keyboard_ctrl_pressed = False
     mouse_last_x = 0
     mouse_last_y = 0
+    last_time = 0
 
 def _init_display():
+    glut.glutInit()
     pg.init()
     pg.display.set_mode(_size, pg.OPENGL)
 
@@ -324,6 +405,21 @@ def _init_display():
 
     # Couleur de fond
     gl.glClearColor(_background_color[0]/255, _background_color[1]/255, _background_color[2]/255, 1.0)
+
+    gl.glEnable(gl.GL_BLEND)
+    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+
+    gl.glEnable(gl.GL_CULL_FACE)
+    gl.glEnable(gl.GL_DEPTH_TEST)
+
+    
+    _StaticVars.is_running = True
+    _StaticVars.mouse_left_pressed = False
+    _StaticVars.mouse_right_pressed = False
+    _StaticVars.keyboard_ctrl_pressed = False
+    _StaticVars.mouse_last_x = 0
+    _StaticVars.mouse_last_y = 0
+    _StaticVars.last_time = 0
 
 def _event_handler():
     _mouse_handler()
