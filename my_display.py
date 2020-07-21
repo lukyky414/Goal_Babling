@@ -5,14 +5,14 @@ import OpenGL.GLU as glu
 import OpenGL.GLUT as glut
 import numpy as np
 import pygame as pg
-from math import pi, sqrt
+
+import math
+import time
+
 from my_robot import Robot
 from my_end_point import EndPoint
 from my_discretisation import Discretisation
 from my_analyse import difference_discretisation
-import math
-import time
-import ctypes
 
 # Quelques variables constantes pour le programme
 _PRINT_HELP_ = False
@@ -120,7 +120,7 @@ def draw_diff(grid1 : Discretisation, grid2 : Discretisation, alpha_per_point = 
             # if a > 1:
             #     a = 1
             
-            # d = sqrt(x**2 + y**2 + z**2) / 0.3
+            # d = math.sqrt(x**2 + y**2 + z**2) / 0.3
             # color = _get_rainbow_color(d)
 
             # gl.glColor4f(color[0], color[1], color[2], a)
@@ -137,7 +137,7 @@ def draw_diff(grid1 : Discretisation, grid2 : Discretisation, alpha_per_point = 
             # if a > 1:
             #     a = 1
             
-            # d = sqrt(x**2 + y**2 + z**2) / 0.3
+            # d = math.sqrt(x**2 + y**2 + z**2) / 0.3
             # color = _get_rainbow_color(d)
 
             # gl.glColor4f(color[0], color[1], color[2], a)
@@ -301,7 +301,7 @@ def draw_points_cloud(end_points : list, max_dist = 0.3):
         d = 0
         for p in pos:
             d += p**2
-        d = sqrt(d)
+        d = math.sqrt(d)
 
         fact = d / max_dist
         color = _get_rainbow_color(fact)

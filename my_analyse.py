@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import math
+
 from my_robot import Robot
-from my_nearest_neighbor import NearestNeighbor
+from my_nearest_neighbor import NearestNeighbor, dist
 from my_discretisation import Discretisation
 
 
@@ -59,32 +60,67 @@ def errors(robot : Robot, goals : list):
     dist = []
     
     for goal in goals:
-        near = robot.inv_model(goal)
-        dist.append(near)
+        posture = robot.inv_model(goal)
+        pos = robot.get_end_point(posture).get_pos()
+        d = dist(goal, pos)
+        dist.append(d)
 
     return dist
 
-def plots_distribution(robot : Robot, endpoints : list, precision = 100):
+def plots_distribution(endpoints : list, precision = 100):
     """Cree trois plot pour chacun des axes et affiche la distribution des points sur ces aces"""
 
     xs = [0] * precision
     ys = [0] * precision
     zs = [0] * precision
-    dists = []
+    ds = [0] * precision
         
-    mi_x = robot.bounds[0][0]
-    ma_x = robot.bounds[0][1]
-    mi_y = robot.bounds[1][0]
-    ma_y = robot.bounds[1][1]
-    mi_z = robot.bounds[2][0]
-    ma_z = robot.bounds[2][1]
-    max_d = robot.furthest
+    mi_x = endpoints[0].get_pos()[0]
+    ma_x = endpoints[0].get_pos()[0]
+    mi_y = endpoints[1].get_pos()[1]
+    ma_y = endpoints[1].get_pos()[1]
+    mi_z = endpoints[2].get_pos()[2]
+    ma_z = endpoints[2].get_pos()[2]
+    ma_d = dist((0, 0, 0), endpoints[0].get_pos())
+
+    nb = len(endpoints)
     
     for ep in endpoints:
+        pos = ep.get_pos()
+        d = dist((0, 0, 0), pos)
+
+        if pos[0] < mi_x:
+            mi_x = pos[0]
+        if pos[0] > ma_x:
+            ma_x = pos[0]
+
+        if pos[1] < mi_y:
+            mi_y = pos[1]
+        if pos[1] > ma_y:
+            ma_y = pos[1]
+
+        if pos[2] < mi_z:
+            mi_z = pos[2]
+        if pos[2] > ma_z:
+            ma_z = pos[2]
+        
+        if d > ma_d:
+            ma_d = d
+
+    step_x = (ma_x-mi_x)/precision
+    step_y = (ma_y-mi_y)/precision
+    step_z = (ma_z-mi_z)/precision
+    step_d = (ma_d)/precision
+
+
+    for ep in endpoints:
         x, y, z = ep.get_pos()
+        d = dist((0, 0, 0), (x, y, z))
+
         x_index = math.floor(precision*(x-mi_x)/(ma_x-mi_x))
         y_index = math.floor(precision*(y-mi_y)/(ma_y-mi_y))
         z_index = math.floor(precision*(z-mi_z)/(ma_z-mi_z))
+        d_index = math.floor(precision*(   d  )/(   ma_d  ))
 
         if x_index == precision:
             x_index -= 1
@@ -92,43 +128,43 @@ def plots_distribution(robot : Robot, endpoints : list, precision = 100):
             y_index -= 1
         if z_index == precision:
             z_index -= 1
+        if d_index == precision:
+            d_index -= 1
         
         xs[x_index] += 1
         ys[y_index] += 1
         zs[z_index] += 1
-        
-        d = 0
-        for p in ep.get_pos():
-            d += p**2
-        d = math.sqrt(d)
-        dists.append(d)
+        ds[d_index] += 1
 
     axe_x = []
     axe_y = []
     axe_z = []
+    axe_d = []
     for i in range(precision):
-        axe_x.append(i * (ma_x - mi_x) / precision + mi_x)
-        axe_y.append(i * (ma_y - mi_y) / precision + mi_y)
-        axe_z.append(i * (ma_z - mi_z) / precision + mi_z)
-    
-    graph = [0] * precision
-    for d in dists:
-        index = math.floor(precision*d/max_d)
-        if index == precision:
-            index -= 1
-        graph[index] += 1
+        axe_x.append(i * step_x + mi_x)
+        axe_y.append(i * step_y + mi_y)
+        axe_z.append(i * step_z + mi_z)
+        axe_d.append(i * step_d       )
+        
 
-    _, plots = plt.subplots(4)
-    plots[0].plot(axe_x, xs)
-    plots[0].set_ylabel("Number of points")
-    plots[0].set_xlabel("X coordinates")
-    plots[1].plot(axe_y, ys)
-    plots[1].set_ylabel("Number of points")
-    plots[1].set_xlabel("Y coordinates")
-    plots[2].plot(axe_z, zs)
-    plots[2].set_ylabel("Number of points")
-    plots[2].set_xlabel("Z coordinates")
-    plots[3].plot(dists, graph)
-    plots[3].set_ylabel("Number of points")
-    plots[3].set_xlabel("Distance from origin")
+
+    plt.plot(axe_x, xs)
+    plt.ylabel("Number of points")
+    plt.xlabel("X coordinates")
+
+    plt.figure()
+    plt.plot(axe_y, ys)
+    plt.ylabel("Number of points")
+    plt.xlabel("Y coordinates")
+
+    plt.figure()
+    plt.plot(axe_z, zs)
+    plt.ylabel("Number of points")
+    plt.xlabel("Z coordinates")
+
+    plt.figure()
+    plt.plot(axe_d, ds)
+    plt.ylabel("Number of points")
+    plt.xlabel("Distance from origin")
+
     plt.show()

@@ -1,11 +1,10 @@
 from pypot.creatures import PoppyErgoJr
 import random
-from math import pi, sqrt
+import math
 
 from my_end_point import EndPoint
 from my_nearest_neighbor import NearestNeighbor, dist
 
-import sys
 
 class Robot():
 
@@ -15,6 +14,11 @@ class Robot():
         # print("  http://simu.poppy-project.org/poppy-ergo-jr/")
         self.nn = None
         self.nb_joints = len(self.robot.motors)
+        self.size = 0
+
+        #On ingore la taille de la base qui est à 1
+        for link in self.robot.chain.links[1:]:
+            self.size += link.length
     
     def inv_model(self, goal : tuple):
         """Le modèle inverse du robot. Retourne une liste d'angle pour atteindre le point demandé."""
@@ -35,7 +39,7 @@ class Robot():
 
         posture = []
 
-        for i in range(self.nb_joint)
+        for i in range(self.nb_joints):
             p = 0
             for ep, c in zip(nears, coefs):
                 p += ep.posture[i] * c
@@ -54,7 +58,7 @@ class Robot():
         list_angles = list()
         list_angles.append(0)
         for a in angles:
-            list_angles.append(a/180*pi)
+            list_angles.append(a/180*math.pi)
         list_angles.append(0)
 
         res = EndPoint(angles, self.robot.chain.forward_kinematics(joints=list_angles, full_kinematics=False))
@@ -66,7 +70,7 @@ class Robot():
         list_angles = list()
         list_angles.append(0)
         for a in angles:
-            list_angles.append(a/180*pi)
+            list_angles.append(a/180*math.pi)
         list_angles.append(0)
 
         res = self.robot.chain.forward_kinematics(joints=list_angles, full_kinematics=True)
@@ -100,15 +104,9 @@ class Robot():
         for motor in self.robot.motors:
             res.append(motor.angle_limit)
         return res
-
-    def get_size(self):
-        """Retourne la distance entre la base et l'endpoint rencontré le plus éloigné de la base."""
-        return self.furthest
     
     def reset(self):
-        """Permet de réinitialiser les données sauvegardées après un apprentissage (comme le point le plus loin ou les limites)"""
-        self.bounds = None
-        self.furthest = 0
+        return
     
     def set_nn(self, NN : NearestNeighbor):
         """Permet de changer le NearestNeighbor utilisé pour calculer le modèle inverse."""

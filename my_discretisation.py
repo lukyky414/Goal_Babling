@@ -2,7 +2,7 @@ from my_end_point import EndPoint
 import math
 
 class Discretisation():
-    def __init__(self, min = (-1, -1, -1), max = (1, 1, 1), precision = (200, 200, 200)):
+    def __init__(self, min = (-0.5, -0.5, -0.5), max = (0.5, 0.5, 0.5), precision = (100, 100, 100)):
         """Defini la taille des cellule de la discretisation.
         `min` donne le minimum pour les axes (x, y, z). Le minimum est compris dans la zone.
         `max` donne le maximum pour les axes (x, y, z). Le maximum est en dehors de la zone.

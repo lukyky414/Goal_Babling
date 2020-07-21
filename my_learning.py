@@ -1,34 +1,36 @@
 import random
+
 from my_robot import Robot
 from my_nearest_neighbor import NearestNeighbor
-from my_end_point import EndPoint
 from my_goal_generation import GoalGenerator
 
 #Caractere pour effacer la ligne au dessus
 erase = '\x1b[1A\x1b[2K'
 
 
-def Motor_Babling(robot : Robot, steps=5000) -> list:
+def Motor_Babling(robot : Robot, steps=5000, printing=True) -> list:
     """Execute un motor babling: positions aleatoires sur chacune des sections du robot.
     Retourne une deux listes: les positions obtenues, les angles utilises pour atteindre ces positions."""
 
-    print("Motor Babling:")
+    if printing:
+        print("Motor Babling:")
 
     robot.reset()
 
-    #Taille de barre de chargement
-    nb_batch = 10
+    if printing:
+        #Taille de barre de chargement
+        nb_batch = 10
 
-    #arrondis a l'inferieur
-    batch_size = int(steps / nb_batch)
-    if batch_size == 0:
-        batch_size = 1
+        #arrondis a l'inferieur
+        batch_size = int(steps / nb_batch)
+        if batch_size == 0:
+            batch_size = 1
 
     end_points = []
 
     for i in range(steps):
         #affichage barre de chargement
-        if i%batch_size == 0:
+        if printing and i%batch_size == 0:
             print("[", end='')
             for j in range(nb_batch-1):
                 if j < i/batch_size:
@@ -40,35 +42,38 @@ def Motor_Babling(robot : Robot, steps=5000) -> list:
         curr_angles = robot.get_random_angles()
         end_points.append(robot.get_end_point(angles=curr_angles))
 
-    print(erase + "Motor Babling: done.")
-    print("                            ", end='\r')
+    if printing:
+        print(erase + "Motor Babling: done.")
+        print("                            ", end='\r')
 
     return end_points
 
-def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG = GoalGenerator, motor_babling_steps=5000, total_steps=10000):
+def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG = GoalGenerator, motor_babling_steps=5000, total_steps=10000, printing=True):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
-    goals = []
-    table = None
     
     #Fait un reset du robot.
-    end_points = Motor_Babling(robot=robot, steps=motor_babling_steps)
+    end_points = Motor_Babling(robot=robot, steps=motor_babling_steps, printing=printing)
 
-    print("Goal Babling:")
+    if printing:
+        print("Goal Babling:")
 
     NN.reset(end_points)
     GG.reset(end_points)
+    goals = []
+    table = None
 
-    #Taille de barre de chargement
-    nb_batch = 20
+    if printing:
+        #Taille de barre de chargement
+        nb_batch = 20
 
-    #arrondis a l'inferieur
-    batch_size = int((total_steps-motor_babling_steps) / nb_batch)
-    if batch_size == 0:
-        batch_size = 1
+        #arrondis a l'inferieur
+        batch_size = int((total_steps-motor_babling_steps) / nb_batch)
+        if batch_size == 0:
+            batch_size = 1
 
     for i in range(total_steps-motor_babling_steps):
         #affichage barre de chargement
-        if i%batch_size == 0:
+        if printing and i%batch_size == 0:
             print("[", end='')
             for j in range(nb_batch-1):
                 if j < i/batch_size:
@@ -90,8 +95,9 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG = GoalGenerator, motor_
         GG.add_end_point(end_point=new_end_point)
 
         end_points.append(new_end_point)
-        
-    print(erase + "Goal Babling: done.")
-    print("                          ", end='\r')
+    
+    if printing:
+        print(erase + "Goal Babling: done.")
+        print("                          ", end='\r')
     
     return end_points, goals

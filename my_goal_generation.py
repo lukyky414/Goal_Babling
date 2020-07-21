@@ -1,9 +1,10 @@
-import my_robot
-import my_end_point
+
 import random
 import math
-import my_nearest_neighbor
-import my_discretisation
+
+from my_robot import Robot
+from my_end_point import EndPoint
+from my_discretisation import Discretisation
 
 
 class GoalGenerator:
@@ -18,7 +19,7 @@ class GoalGenerator:
         """Ajouter un but retenu (visé)  dans la base"""
         raise NotImplementedError
 
-    def add_end_point(self, end_point : my_end_point.EndPoint):
+    def add_end_point(self, end_point : EndPoint):
         """Ajouter un nouvel end_point ou une liste de end_points dans la base de recherche"""
         raise NotImplementedError
     
@@ -27,7 +28,7 @@ class GoalGenerator:
         raise NotImplementedError
 
 class AgnosticGenerator(GoalGenerator):
-    def __init__(self, robot : my_robot.Robot, coef=1.4):
+    def __init__(self, robot : Robot, coef=1.4):
         """Initialise le générateur de but agnostic en précisant quel robot sera utilisé et quel sera le coefficient d'aggrandissement de l'espace de but."""
         self.robot = robot
         self.coef = coef
@@ -59,19 +60,16 @@ class AgnosticGenerator(GoalGenerator):
                     self.bounds[i][1] = pos[i]
 
     def reset(self, end_points):
-        self.size_x = [0, 0]
-        self.size_y = [0, 0]
-        self.size_z = [0, 0]
-
+        self.bounds = None
         for ep in end_points:
             self.add_end_point(ep)
 
 # Je considère (0, 0, 0) la cellule qui a pour coins opposées les points: (0, 0, 0) et (cell_size, cell_size, cell_size)
 class GoalOnGridGenerator(GoalGenerator):
-    def __init__(self, p, min, max, precision):
+    def __init__(self, p, grid:Discretisation):
         """Classe mere pour generer un point sur une grille en utilisant le p-reached strategy"""
         self.p = p
-        self.grid = my_discretisation.Discretisation(min=min, max=max, precision=precision)
+        self.grid = grid
     
     def newGoalOutside(self):
         """Genere un nouveau but dans une cellule non exploree"""
@@ -109,9 +107,9 @@ class GoalOnGridGenerator(GoalGenerator):
         
 
 class FrontierGenerator(GoalOnGridGenerator):
-    def __init__(self, p = 0.5, min = (-1, -1, -1), max = (1, 1, 1), precision = (200, 200, 200)):
+    def __init__(self, p = 0.5, grid : Discretisation):
         """Le Rtree est utilisé pour executer une recherche par cellule."""
-        super(FrontierGenerator, self).__init__(p=p, min=min, max=max, precision=precision)
+        super(FrontierGenerator, self).__init__(p=p, grid=grid)
         self.end_points = None
 
 

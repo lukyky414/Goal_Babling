@@ -1,8 +1,8 @@
 from rtree import index
-import sys
+import copy
+
 from my_end_point import EndPoint
 from math import sqrt
-import copy
 
 
 def dist(A, B):
@@ -49,7 +49,6 @@ class RtreeNeighbor(NearestNeighbor):
         posture_list = list(self.my_rtree.nearest(pos, num_results=num_results, objects='raw'))
         return posture_list
 
-
     def add_end_point(self, end_point : EndPoint):
         self.my_rtree.insert(id=self.nb_neighbor, coordinates=end_point.get_pos(), obj=end_point)
         self.nb_neighbor = self.nb_neighbor+1
@@ -59,12 +58,13 @@ class RtreeNeighbor(NearestNeighbor):
 
         if self.my_rtree is not None:
             del self.my_rtree
+
         # Initialisation de Rtree
         p = index.Property()
         p.dimension = 3
         self.my_rtree = index.Rtree(properties=p)
+        self.nb_neighbor = 0
 
         # Ajout des points du motor bablind dans Rtree
-        for i in range(len(end_points)):
-            self.my_rtree.insert(id=i, coordinates=end_points[i].get_pos(), obj=end_points[i])
-        self.nb_neighbor = len(end_points)
+        for ep in end_points:
+            self.add_end_point(ep)
