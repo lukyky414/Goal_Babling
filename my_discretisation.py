@@ -5,11 +5,8 @@ _MIN = (-0.5, -0.5, -0.5)
 _MAX = (0.5, 0.5, 0.5)
 
 class Discretisation():
-    def __init__(self, cell_size = 0.01):
-        """Defini la taille des cellule de la discretisation.
-        `min` donne le minimum pour les axes (x, y, z). Le minimum est compris dans la zone.
-        `max` donne le maximum pour les axes (x, y, z). Le maximum est en dehors de la zone.
-        `precision` donne le nombre de division des axes (x, y, z)."""
+    def __init__(self, cell_size : float):
+        """Defini la taille des cellule de la discretisation."""
 
         self.precision = [
             (ma-mi)/cell_size
@@ -56,10 +53,3 @@ class Discretisation():
     def add_to_pos(self, pos):
         """Dans le cas où la position discrétisée a déjà été calculée"""
         self.table[pos[0]][pos[1]][pos[2]] += 1
-    
-    def reset(self):
-        self.visited.clear()
-        self.table = [[[0
-            for _ in range(self.precision[2])]
-            for _ in range(self.precision[1])]
-            for _ in range(self.precision[0])]

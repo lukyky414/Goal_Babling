@@ -6,10 +6,6 @@ from my_end_point import EndPoint
 from my_nearest_neighbor import NearestNeighbor, dist
 
 
-from py_ergojr.network.messages import Message
-from py_ergojr.network.zmq_publisher import ZmqPublisher
-import time
-
 
 class Robot():
 
@@ -117,6 +113,11 @@ class Robot():
 
 
 if __name__ == "__main__":
+
+    from py_ergojr.network.messages import Message
+    from py_ergojr.network.zmq_publisher import ZmqPublisher
+    import time
+    
     socket = ZmqPublisher("6666", host="poppy", bound=False, debug=True)
     # socket = ZmqPublisher("6666", host="localhost", bound=False, debug=True)
     socket.start()

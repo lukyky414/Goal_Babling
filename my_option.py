@@ -21,6 +21,13 @@ def pos_int(value):
 def get_options():
     parser = argparse.ArgumentParser(description='A new way of getting an Inverse Model for a robot with Motor and Goal babling. Robot used : PoppyErgoJr.')
 
+
+    parser.add_argument("--debug", 
+                        dest="learning",
+                        action='store_true',
+                        default=False,  
+                        help="Execute the learning step, default=True"
+    )
     parser.add_argument("--learning", 
                         dest="learning",
                         action='store_false',
@@ -36,19 +43,19 @@ def get_options():
     parser.add_argument("--n",
                         dest="n",
                         type=str,
-                        default="",
+                        default=None
                         help="Number (or else) to add at the end of the filename"
     )
     parser.add_argument("--analyse", 
                         dest="analyse",
-                        action='store_true',
-                        default=False,  
-                        help="Execute the analyse step, default=False"
+                        type=str,
+                        default=None,  
+                        help="Execute the analyse step on the given file, default=None"
     )
     parser.add_argument("--gg", 
                         dest="gg",
                         type=str,
-                        default="frontier",
+                        default="none",
                         choices=["frontier","agnostic"],
                         help= "Wich goal generator to use in learning process, default=frontier"
     )
@@ -87,6 +94,12 @@ def get_options():
                         type=float,
                         default=0.01,  
                         help= "Perturbation in degree to randomize a posture, default=0.01"
+    )
+    parser.add_argument("--seed",
+                        dest="seed",
+                        type=int,
+                        default=None,
+                        help="The seed to initiate random numbers. Leave empty for random seed"
     )
     
 

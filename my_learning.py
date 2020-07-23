@@ -8,7 +8,7 @@ from my_goal_generation import GoalGenerator
 erase = '\x1b[1A\x1b[2K'
 
 
-def Motor_Babling(robot : Robot, steps=5000, printing=True) -> list:
+def Motor_Babling(robot : Robot, steps : int, printing : bool) -> list:
     """Execute un motor babling: positions aleatoires sur chacune des sections du robot.
     Retourne une deux listes: les positions obtenues, les angles utilises pour atteindre ces positions."""
 
@@ -48,7 +48,7 @@ def Motor_Babling(robot : Robot, steps=5000, printing=True) -> list:
 
     return end_points
 
-def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps : int, motor_babling_proportion : float, perturbation : float, printing=True):
+def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps : int, motor_babling_proportion : float, perturbation : float, printing : bool):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     
     motor_babling_steps = steps * motor_babling_proportion
@@ -59,8 +59,8 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps 
     if printing:
         print("Goal Babling:")
 
-    NN.reset(end_points)
-    GG.reset(end_points)
+    NN.init(end_points)
+    GG.init(end_points)
     goals = []
     table = None
 

@@ -25,20 +25,35 @@ class NearestNeighbor:
         """Ajoute dans la base d'apprentissage du Nearest Neighbor le point donné"""
         raise NotImplementedError
 
-    def reset(self, end_points : list):
-        """Reset la base de recherche avec une nouvelle liste d'end_points"""
+    def init(self, end_points : list):
+        """Initialise la base de recherche avec une liste d'end_points"""
         raise NotImplementedError
 
 
 
 
 class RtreeNeighbor(NearestNeighbor):
-    def __init__(self):
-        self.my_rtree = None
+    def __init__(self, save_load:bool, name=None):
+        #load_save True -> save. False -> load.
+
+        # Initialisation de Rtree
+        p = index.Property()
+        p.dimension = 3
+        p.overwrite = save_load
+
+        if self.name is not None
+            self.my_rtree = index.Rtree(self.name, properties=p)
+        else:
+            self.my_rtree = index.Rtree(properties=p)
+        self.nb_neighbor = 0
 
     def nearest(self, position : tuple):
         res = self.nearest_list(position=position, num_results=1)
         return res[0]
+    
+    def init(self, end_points):
+        for ep in end_points:
+            self.add_end_point(ep)
     
     def nearest_list(self, position : tuple, num_results : int):
         # Normalement rtree fait une recherche par intersection de box (rectangle en 2d). Elle transforme une coordonnee seule en un rectangle de taille 0.
@@ -53,19 +68,3 @@ class RtreeNeighbor(NearestNeighbor):
     def add_end_point(self, end_point : EndPoint):
         self.my_rtree.insert(id=self.nb_neighbor, coordinates=end_point.get_pos(), obj=end_point)
         self.nb_neighbor = self.nb_neighbor+1
-    
-    def reset(self, end_points):
-        """Initialise le nearest neighbor avec un certain nombre de postures qui mènent à des positions 3D du robot."""
-
-        if self.my_rtree is not None:
-            del self.my_rtree
-
-        # Initialisation de Rtree
-        p = index.Property()
-        p.dimension = 3
-        self.my_rtree = index.Rtree(properties=p)
-        self.nb_neighbor = 0
-
-        # Ajout des points du motor bablind dans Rtree
-        for ep in end_points:
-            self.add_end_point(ep)

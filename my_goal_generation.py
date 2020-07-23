@@ -23,12 +23,12 @@ class GoalGenerator:
         """Ajouter un nouvel end_point ou une liste de end_points dans la base de recherche"""
         raise NotImplementedError
     
-    def reset(self, end_points : list):
-        """Réinitialise le générateur de but avec cette nouvelle liste d'end_points"""
+    def init(self, end_points : list):
+        """Initialise le générateur de but avec cette liste d'end_points"""
         raise NotImplementedError
 
 class AgnosticGenerator(GoalGenerator):
-    def __init__(self, robot : Robot, coef=1.4):
+    def __init__(self, robot : Robot, coef : int):
         """Initialise le générateur de but agnostic en précisant quel robot sera utilisé et quel sera le coefficient d'aggrandissement de l'espace de but."""
         self.robot = robot
         self.coef = coef
@@ -50,17 +50,16 @@ class AgnosticGenerator(GoalGenerator):
     
     def add_end_point(self, end_point):
         pos = end_point.get_pos()
-        if self.bounds is None:
-            self.bounds = [[pos[0], pos[0]], [pos[1], pos[1]], [pos[2], pos[2]]]
-        else:
-            for i in range(3):
-                if pos[i] < self.bounds[i][0]:
-                    self.bounds[i][0] = pos[i]
-                if pos[i] > self.bounds[i][1]:
-                    self.bounds[i][1] = pos[i]
+        for i in range(3):
+            if pos[i] < self.bounds[i][0]:
+                self.bounds[i][0] = pos[i]
+            if pos[i] > self.bounds[i][1]:
+                self.bounds[i][1] = pos[i]
 
-    def reset(self, end_points):
-        self.bounds = None
+    def init(self, end_points):
+        pos = end_points[0].get_pos()
+        self.bounds = [[pos[0], pos[0]], [pos[1], pos[1]], [pos[2], pos[2]]]
+
         for ep in end_points:
             self.add_end_point(ep)
 
@@ -100,8 +99,7 @@ class GoalOnGridGenerator(GoalGenerator):
     def add_end_point(self, end_point):
         self.grid.add_point(end_point)
     
-    def reset(self, end_points):
-        self.grid.reset()
+    def init(self, end_points):
         for ep in end_points:
             self.add_end_point(ep)
         
@@ -184,6 +182,5 @@ class FrontierGenerator(GoalOnGridGenerator):
         return self.newGoalFromCell((x, y, z))
     
     
-    def reset(self, end_points):
-        super().reset(end_points)
+    def init(self, end_points):
         self.end_points = end_points
