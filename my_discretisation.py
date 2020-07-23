@@ -7,9 +7,11 @@ _MAX = (0.5, 0.5, 0.5)
 class Discretisation():
     def __init__(self, cell_size : float):
         """Defini la taille des cellule de la discretisation."""
+        self.min = _MIN
+        self.max = _MAX
 
         self.precision = [
-            (ma-mi)/cell_size
+            math.floor((ma-mi)/cell_size)+1
             for mi, ma in zip(_MIN, _MAX)
         ]
 

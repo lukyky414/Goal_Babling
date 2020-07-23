@@ -23,60 +23,20 @@ def get_options():
 
 
     parser.add_argument("--debug", 
-                        dest="learning",
+                        dest="debug",
                         action='store_true',
                         default=False,  
-                        help="Execute the learning step, default=True"
+                        help="Print debug infos, default=False"
     )
-    parser.add_argument("--learning", 
-                        dest="learning",
-                        action='store_false',
-                        default=True,  
-                        help="Execute the learning step, default=True"
-    )
-    parser.add_argument("--file", 
-                        dest="use_file",
-                        action='store_true',
-                        default=False,  
-                        help="Enable saving in learning and loading in analyse, default=False"
-    )
+
     parser.add_argument("--n",
                         dest="n",
                         type=str,
-                        default=None
+                        default=None,
                         help="Number (or else) to add at the end of the filename"
     )
-    parser.add_argument("--analyse", 
-                        dest="analyse",
-                        type=str,
-                        default=None,  
-                        help="Execute the analyse step on the given file, default=None"
-    )
-    parser.add_argument("--gg", 
-                        dest="gg",
-                        type=str,
-                        default="none",
-                        choices=["frontier","agnostic"],
-                        help= "Wich goal generator to use in learning process, default=frontier"
-    )
-    parser.add_argument("--exp", 
-                        dest="exp",
-                        type=float_1plus,
-                        default=1.4,  
-                        help= "Expansion coefficient, default=1.4"
-    )
-    parser.add_argument("--size", 
-                        dest="size",
-                        type=float,
-                        default=0.01,  
-                        help= "Cell size for the discretisation (goal on grid), default=0.01"
-    )
-    parser.add_argument("--p_exp", 
-                        dest="p_exp",
-                        type=float_01,
-                        default=0.5,
-                        help= "Probability of exploration, default=0.5"
-    )
+
+
     parser.add_argument("--steps", 
                         dest="steps",
                         type=pos_int,
@@ -93,8 +53,37 @@ def get_options():
                         dest="pp",
                         type=float,
                         default=0.01,  
-                        help= "Perturbation in degree to randomize a posture, default=0.01"
+                        help= "Perturbation in degree to randomize a posture during the learning process, default=0.01"
     )
+
+
+    parser.add_argument("--gg", 
+                        dest="gg",
+                        type=str,
+                        default="none",
+                        choices=["frontier","agnostic"],
+                        help= "Wich goal generator to use in learning process, default=frontier"
+    )
+    parser.add_argument("--exp", 
+                        dest="exp",
+                        type=float_1plus,
+                        default=1.4,  
+                        help= "Expansion coefficient for agnostic goal generator, default=1.4"
+    )
+    parser.add_argument("--size", 
+                        dest="size",
+                        type=float,
+                        default=0.01,  
+                        help= "Cell size for the discretisation (goal on grid -> frontier), default=0.01"
+    )
+    parser.add_argument("--p_exp", 
+                        dest="p_exp",
+                        type=float_01,
+                        default=0.5,
+                        help= "Probability of exploration (goal on grid -> frontier), default=0.5"
+    )
+
+
     parser.add_argument("--seed",
                         dest="seed",
                         type=int,

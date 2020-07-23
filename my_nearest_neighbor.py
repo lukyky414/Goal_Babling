@@ -41,10 +41,7 @@ class RtreeNeighbor(NearestNeighbor):
         p.dimension = 3
         p.overwrite = save_load
 
-        if self.name is not None
-            self.my_rtree = index.Rtree(self.name, properties=p)
-        else:
-            self.my_rtree = index.Rtree(properties=p)
+        self.my_rtree = index.Rtree(name, properties=p)
         self.nb_neighbor = 0
 
     def nearest(self, position : tuple):

@@ -1,4 +1,5 @@
 import random
+import math
 
 from my_robot import Robot
 from my_nearest_neighbor import NearestNeighbor
@@ -51,7 +52,7 @@ def Motor_Babling(robot : Robot, steps : int, printing : bool) -> list:
 def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps : int, motor_babling_proportion : float, perturbation : float, printing : bool):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     
-    motor_babling_steps = steps * motor_babling_proportion
+    motor_babling_steps = math.floor(steps * motor_babling_proportion)
 
     #Fait un reset du robot.
     end_points = Motor_Babling(robot=robot, steps=motor_babling_steps, printing=printing)
@@ -69,7 +70,7 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps 
         nb_batch = 20
 
         #arrondis a l'inferieur
-        batch_size = int((total_steps-motor_babling_steps) / nb_batch)
+        batch_size = int((steps-motor_babling_steps) / nb_batch)
         if batch_size == 0:
             batch_size = 1
 

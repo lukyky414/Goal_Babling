@@ -88,9 +88,9 @@ class GoalOnGridGenerator(GoalGenerator):
 
     def newGoalFromCell(self, pos):
         return (
-            random.uniform(pos[0]*self.grid.size[0]+self.grid.min[0],(pos[0]+1)*self.grid.size[0]+self.grid.min[0]), 
-            random.uniform(pos[1]*self.grid.size[1]+self.grid.min[1],(pos[1]+1)*self.grid.size[1]+self.grid.min[1]), 
-            random.uniform(pos[2]*self.grid.size[2]+self.grid.min[2],(pos[2]+1)*self.grid.size[2]+self.grid.min[2])
+            random.uniform(pos[0]*self.grid.size+self.grid.min[0],(pos[0]+1)*self.grid.size+self.grid.min[0]), 
+            random.uniform(pos[1]*self.grid.size+self.grid.min[1],(pos[1]+1)*self.grid.size+self.grid.min[1]), 
+            random.uniform(pos[2]*self.grid.size+self.grid.min[2],(pos[2]+1)*self.grid.size+self.grid.min[2])
         )
 
     def addGoal(self, goal):
@@ -133,9 +133,9 @@ class FrontierGenerator(GoalOnGridGenerator):
         dz = 1 if dir[2] > 0 else -1
 
         # distance a parcourir sur le vecteur 'dir' avant de changer de coordonnee dans l'espace discret à partir du point ep
-        nx = (x + self.grid.size[0] * dx - pos[0]) / dir[0]
-        ny = (y + self.grid.size[1] * dy - pos[1]) / dir[1]
-        nz = (z + self.grid.size[2] * dz - pos[2]) / dir[2]
+        nx = (x + self.grid.size * dx - pos[0]) / dir[0]
+        ny = (y + self.grid.size * dy - pos[1]) / dir[1]
+        nz = (z + self.grid.size * dz - pos[2]) / dir[2]
 
         # distance maximale a parcourir sur le vecteur 'dir' avant d'etre sûr de changer de coordonne dans l'espace discret à partir de n'importe quel point
         mx = 1 / dir[0]
