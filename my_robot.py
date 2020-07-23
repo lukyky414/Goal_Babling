@@ -6,6 +6,11 @@ from my_end_point import EndPoint
 from my_nearest_neighbor import NearestNeighbor, dist
 
 
+from py_ergojr.network.messages import Message
+from py_ergojr.network.zmq_publisher import ZmqPublisher
+import time
+
+
 class Robot():
 
     def __init__(self):
@@ -84,16 +89,14 @@ class Robot():
             res.append(random.uniform(motor.angle_limit[0], motor.angle_limit[1]))
         return res
     
-    def randomize_posture(self, angles : list) -> list:
+    def randomize_posture(self, angles : list, perturbation : float) -> list:
         """Modifie aléatoirement la posture donnée par `angles` dans les limites des moteurs du robot"""
-        # déformation
-        d = 0.01
 
         res = list()
         for motor, angle in zip(self.robot.motors, angles):
             res.append(random.uniform(
-                max(motor.angle_limit[0], angle - d),
-                min(motor.angle_limit[1], angle + d)
+                max(motor.angle_limit[0], angle - perturbation),
+                min(motor.angle_limit[1], angle + perturbation)
             ))
         
         return res
@@ -111,3 +114,52 @@ class Robot():
     def set_nn(self, NN : NearestNeighbor):
         """Permet de changer le NearestNeighbor utilisé pour calculer le modèle inverse."""
         self.nn = NN
+
+
+if __name__ == "__main__":
+    socket = ZmqPublisher("6666", host="poppy", bound=False, debug=True)
+    # socket = ZmqPublisher("6666", host="localhost", bound=False, debug=True)
+    socket.start()
+
+
+    msg_handler = Message()
+
+
+    # msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
+    # socket.publish_on_topic(msg_handler.make("stiff",msg), "EJTELEOP")
+
+    # msg = "dt:2|m1:0|m2:0|m3:-45|m4:0|m5:-45|m6:0"
+    # socket.publish_on_topic(msg_handler.make("move",msg,"Q"), "EJTELEOP")
+
+    # input("Enter")
+
+
+    for i in range(12):
+        msg = "m{}:off".format((i-1)%5+2)
+        msg += "|m{}:blue".format(i%5+2)
+        msg += "|m{}:white".format((i+1)%5+2)
+        msg += "|m{}:red".format((i+2)%5+2)
+        socket.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
+        time.sleep(0.5)
+
+    # msg = "dance:start"
+    # socket.publish_on_topic(msg_handler.make("invoke", msg), 'EJPRIM')
+
+    # input("Enter")
+
+    # msg = "dance:stop"
+    # socket.publish_on_topic(msg_handler.make("invoke", msg), 'EJPRIM')
+
+
+    input("Enter")
+
+    # msg = "dt:2|m1:-180|m4:0|m5:35|m6:35|m2:-120|m3:50"
+    # socket.publish_on_topic(msg_handler.make("move",msg,"Q"), "EJTELEOP")
+    # time.sleep(2)
+
+    msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
+    socket.publish_on_topic(msg_handler.make("stiff",msg), "EJTELEOP")
+    msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
+    socket.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
+
+    socket.close()

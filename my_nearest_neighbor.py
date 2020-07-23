@@ -26,8 +26,9 @@ class NearestNeighbor:
         raise NotImplementedError
 
     def reset(self, end_points : list):
-        """Reset la base de recherhce avec une nouvelle liste d'end_points"""
+        """Reset la base de recherche avec une nouvelle liste d'end_points"""
         raise NotImplementedError
+
 
 
 

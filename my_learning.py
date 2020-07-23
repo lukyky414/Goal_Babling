@@ -48,9 +48,11 @@ def Motor_Babling(robot : Robot, steps=5000, printing=True) -> list:
 
     return end_points
 
-def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG = GoalGenerator, motor_babling_steps=5000, total_steps=10000, printing=True):
+def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps : int, motor_babling_proportion : float, perturbation : float, printing=True):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     
+    motor_babling_steps = steps * motor_babling_proportion
+
     #Fait un reset du robot.
     end_points = Motor_Babling(robot=robot, steps=motor_babling_steps, printing=printing)
 
@@ -71,7 +73,7 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG = GoalGenerator, motor_
         if batch_size == 0:
             batch_size = 1
 
-    for i in range(total_steps-motor_babling_steps):
+    for i in range(steps-motor_babling_steps):
         #affichage barre de chargement
         if printing and i%batch_size == 0:
             print("[", end='')
@@ -88,7 +90,7 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG = GoalGenerator, motor_
 
         nearest_end_point = NN.nearest(position=goal)
 
-        new_posture = robot.randomize_posture(angles=nearest_end_point.get_posture())
+        new_posture = robot.randomize_posture(angles=nearest_end_point.get_posture(), perturbation = perturbation)
         new_end_point = robot.get_end_point(angles=new_posture)
 
         NN.add_end_point(end_point=new_end_point)

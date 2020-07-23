@@ -1,32 +1,32 @@
+import sys
+
+if __name__ != "__main__":
+    print("This file needs to be run as main")
+    sys.exit(1)
+
 import random
+import math
+from time import time
+
 import my_display
 import my_robot
 import my_learning
 import my_nearest_neighbor
 import my_goal_generation
 import my_discretisation
-import math
 import my_analyse
-from time import time
-import sys
+import my_option
 
+# #Le robot étudié est le Poppy
+# poppy = my_robot.Robot()
 
-#Le SEED de random change à l'utilisation de pypot.creature
-poppy = my_robot.Robot()
+# #Le SEED de random change à l'utilisation de pypot.creature. Réinitialisation nécessaire pour re-création des résultats
+# SEED = 0
+# random.seed(SEED)
 
-SEED = 0
-random.seed(SEED)
+# #Le meilleure Nearest Neighbor utilisé
+# nn = my_nearest_neighbor.RtreeNeighbor()
 
-nn = my_nearest_neighbor.RtreeNeighbor()
-grid = my_discretisation.grid()
-gg = my_goal_generation.FrontierGenerator(p=0.5, grid=grid)
+options = my_option.get_options()
 
-
-print("Learning Frontier")
-start = time()
-end_points, goals = my_learning.Goal_Babling(robot=poppy, NN = nn, GG = gg, motor_babling_steps=2000, total_steps=4000)
-stop = time()
-print("Computing time: {}ms".format(math.floor((stop - start) * 1000)))
-print()
-
-my_analyse.plots_distribution(robot=poppy, endpoints=end_points, precision=200)
+print(options)

@@ -1,29 +1,28 @@
 from my_end_point import EndPoint
 import math
 
+_MIN = (-0.5, -0.5, -0.5)
+_MAX = (0.5, 0.5, 0.5)
+
 class Discretisation():
-    def __init__(self, min = (-0.5, -0.5, -0.5), max = (0.5, 0.5, 0.5), precision = (100, 100, 100)):
+    def __init__(self, cell_size = 0.01):
         """Defini la taille des cellule de la discretisation.
         `min` donne le minimum pour les axes (x, y, z). Le minimum est compris dans la zone.
         `max` donne le maximum pour les axes (x, y, z). Le maximum est en dehors de la zone.
         `precision` donne le nombre de division des axes (x, y, z)."""
 
-        self.precision = precision
+        self.precision = [
+            (ma-mi)/cell_size
+            for mi, ma in zip(_MIN, _MAX)
+        ]
 
         #Le tableau contenant les données de la discrétisation
         self.table = [[[0
             for _ in range(self.precision[2])]
             for _ in range(self.precision[1])]
             for _ in range(self.precision[0])]
-        #les minimums et maximums
-        self.min = min
-        self.max = max
-        #La taille d'une cellule selon chacun des axes
-        self.size = (
-            (max[0]-min[0]) / self.precision[0],
-            (max[1]-min[1]) / self.precision[1],
-            (max[2]-min[2]) / self.precision[2]
-        )
+        #La taille d'une cellule
+        self.size = cell_size
         #Garde en mémoire les cellules visitées
         self.visited = []
     
@@ -40,13 +39,7 @@ class Discretisation():
 
         good = True
         for i in range(3):
-            if pos[i] < self.min[i] or pos[i] >= self.max[i]:
-                good = False
-                break
-            t.append( math.floor(( pos[i] - self.min[i] ) / ( self.size[i] )) )
-
-        if not good:
-            return (-1, -1, -1)
+            t.append( math.floor(( pos[i] - _MIN[i] ) / ( self.size )) )
         
         return t
     
@@ -54,10 +47,9 @@ class Discretisation():
         """Prise en compte d'un nouveau end_point. Retourne 1 si le point est en dehors de la zone, 0 si pris en compte."""
 
         pos = self.get_discretized_pos(end_point)
-        if pos[0] != -1:
-            if self.get_cell(pos) == 0:
-                self.visited.append(pos)
-            self.add_to_pos(pos)
+        if self.get_cell(pos) == 0:
+            self.visited.append(pos)
+        self.add_to_pos(pos)
 
         return 0
     
@@ -67,7 +59,7 @@ class Discretisation():
     
     def reset(self):
         self.visited.clear()
-        for tx in self.table:
-            for ty in tx:
-                for tz in ty:
-                    tz = 0
+        self.table = [[[0
+            for _ in range(self.precision[2])]
+            for _ in range(self.precision[1])]
+            for _ in range(self.precision[0])]

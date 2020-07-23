@@ -77,7 +77,7 @@ class GoalOnGridGenerator(GoalGenerator):
     
     def newGoal(self):
         r = random.random()
-        if r > self.p:
+        if r < self.p:
             return self.newGoalOutside()
         else:
             return self.newGoalInside()
@@ -107,7 +107,7 @@ class GoalOnGridGenerator(GoalGenerator):
         
 
 class FrontierGenerator(GoalOnGridGenerator):
-    def __init__(self, p = 0.5, grid : Discretisation):
+    def __init__(self, p : float, grid : Discretisation):
         """Le Rtree est utilisé pour executer une recherche par cellule."""
         super(FrontierGenerator, self).__init__(p=p, grid=grid)
         self.end_points = None
