@@ -1,10 +1,12 @@
 import sys
 
 if __name__ != "__main__":
-    print("This file needs to be run as main")
+    print("This file needs to be run as main", file=sys.stderr)
     sys.exit(1)
 
 import random
+import os
+import json
 
 import my_robot
 import my_learning
@@ -12,20 +14,28 @@ import my_goal_generation
 import my_discretisation
 import my_nearest_neighbor
 import my_option
+import my_json_encoder
+
+DIRECTORY = "files/NearestNeighbor"
+
+#Dossier des fichiers
+name = ""
 
 #Récupération des options & paramètres
-options = my_option.get_options()
+options = my_option.get_options_learning()
 
 #Création du nom de fichier en fonction des paramètres
 if options.mb == 1 and options.gg != "none":
-    raise "Cannot use a goal generator if using only motor babling"
+    print("Cannot use a goal generator if using only motor babling", file=sys.stderr)
+    sys.exit(1)
 
-if options.gg == "none":
+if options.gg is None:
     if options.mb != 1:
-        raise "Cannot use `none` goal generator if using goal babling"
-    name = "MotorBabling_"
+        print("Cannot use `none` goal generator if using goal babling", file=sys.stderr)
+        sys.exit(1)
+    name += "MotorBabling_"
 else:
-    name = "GoalBabling-{}MotorBabling_{}_".format(options.mb,options.gg)
+    name += "GoalBabling-{}MotorBabling_{}_".format(options.mb,options.gg)
     if options.gg == "agnostic":
         name += "{}".format(options.exp)
     elif options.gg == "frontier":
@@ -46,7 +56,10 @@ random.seed(options.seed)
 end_points, goals = None, None
 nn = None
 
-nn = my_nearest_neighbor.RtreeNeighbor(save_load=True, name=name)
+#save_load=True --> Saving in a new file (override old one if exist)
+if not os.path.exists(DIRECTORY):
+    os.makedirs(DIRECTORY)
+nn = my_nearest_neighbor.RtreeNeighbor(save_load=True, f="{}/{}".format(DIRECTORY,name))
 
 if options.mb == 1:
     end_points, goals = my_learning.Motor_Babling(
@@ -66,7 +79,8 @@ else:
         gg = my_goal_generation.FrontierGenerator(p=options.p_exp, grid=grid)
     
     if gg is None:
-        raise "Please select a valid goal generator"
+        print("Please select a valid goal generator", file=sys.stderr)
+        sys.exit(1)
 
     end_points, goals = my_learning.Goal_Babling(
         robot=poppy,
@@ -77,3 +91,11 @@ else:
         perturbation=options.pp,
         printing=options.debug
     )
+
+
+f = open("{}/{}_ep.json".format(DIRECTORY, name), "w")
+json.dump(end_points, fp=f, cls=my_json_encoder.EP_Encoder)
+f.close()
+f = open("{}/{}_g.json".format(DIRECTORY, name), "w")
+json.dump(goals, fp=f)
+f.close()

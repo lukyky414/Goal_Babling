@@ -33,7 +33,7 @@ class NearestNeighbor:
 
 
 class RtreeNeighbor(NearestNeighbor):
-    def __init__(self, save_load:bool, name=None):
+    def __init__(self, save_load:bool, f=None):
         #load_save True -> save. False -> load.
 
         # Initialisation de Rtree
@@ -41,7 +41,7 @@ class RtreeNeighbor(NearestNeighbor):
         p.dimension = 3
         p.overwrite = save_load
 
-        self.my_rtree = index.Rtree(name, properties=p)
+        self.my_rtree = index.Rtree(f, properties=p)
         self.nb_neighbor = 0
 
     def nearest(self, position : tuple):

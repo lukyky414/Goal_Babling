@@ -8,11 +8,12 @@ import pygame as pg
 
 import math
 import time
+import matplotlib.pyplot as plt
+import ctypes
 
 from my_robot import Robot
 from my_end_point import EndPoint
 from my_discretisation import Discretisation
-from my_analyse import difference_discretisation
 
 # Quelques variables constantes pour le programme
 _PRINT_HELP_ = False
@@ -38,59 +39,162 @@ if _PRINT_HELP_:
     print("Wheel Up & Down - Zoom in & out")
     print("CTRL + : zoom in / CTRL - : zoom out")
 
-def _draw_cube(pos : tuple, size : tuple):
+
+def plots_distribution(endpoints : list, precision = 100):
+    """Cree quatre plots, un pour chacun des axes et un pour la distance à l'origine, et affiche la distribution des points sur ces graphes"""
+
+    xs = [0] * precision
+    ys = [0] * precision
+    zs = [0] * precision
+    ds = [0] * precision
+        
+    mi_x = endpoints[0].get_pos()[0]
+    ma_x = endpoints[0].get_pos()[0]
+    mi_y = endpoints[1].get_pos()[1]
+    ma_y = endpoints[1].get_pos()[1]
+    mi_z = endpoints[2].get_pos()[2]
+    ma_z = endpoints[2].get_pos()[2]
+    ma_d = dist((0, 0, 0), endpoints[0].get_pos())
+
+    nb = len(endpoints)
+    
+    for ep in endpoints:
+        pos = ep.get_pos()
+        d = dist((0, 0, 0), pos)
+
+        if pos[0] < mi_x:
+            mi_x = pos[0]
+        if pos[0] > ma_x:
+            ma_x = pos[0]
+
+        if pos[1] < mi_y:
+            mi_y = pos[1]
+        if pos[1] > ma_y:
+            ma_y = pos[1]
+
+        if pos[2] < mi_z:
+            mi_z = pos[2]
+        if pos[2] > ma_z:
+            ma_z = pos[2]
+        
+        if d > ma_d:
+            ma_d = d
+
+    step_x = (ma_x-mi_x)/precision
+    step_y = (ma_y-mi_y)/precision
+    step_z = (ma_z-mi_z)/precision
+    step_d = (ma_d)/precision
+
+
+    for ep in endpoints:
+        x, y, z = ep.get_pos()
+        d = dist((0, 0, 0), (x, y, z))
+
+        x_index = math.floor(precision*(x-mi_x)/(ma_x-mi_x))
+        y_index = math.floor(precision*(y-mi_y)/(ma_y-mi_y))
+        z_index = math.floor(precision*(z-mi_z)/(ma_z-mi_z))
+        d_index = math.floor(precision*(   d  )/(   ma_d  ))
+
+        if x_index == precision:
+            x_index -= 1
+        if y_index == precision:
+            y_index -= 1
+        if z_index == precision:
+            z_index -= 1
+        if d_index == precision:
+            d_index -= 1
+        
+        xs[x_index] += 1
+        ys[y_index] += 1
+        zs[z_index] += 1
+        ds[d_index] += 1
+
+    axe_x = []
+    axe_y = []
+    axe_z = []
+    axe_d = []
+    for i in range(precision):
+        axe_x.append(i * step_x + mi_x)
+        axe_y.append(i * step_y + mi_y)
+        axe_z.append(i * step_z + mi_z)
+        axe_d.append(i * step_d       )
+        
+
+
+    plt.plot(axe_x, xs)
+    plt.ylabel("Number of points")
+    plt.xlabel("X coordinates")
+
+    plt.figure()
+    plt.plot(axe_y, ys)
+    plt.ylabel("Number of points")
+    plt.xlabel("Y coordinates")
+
+    plt.figure()
+    plt.plot(axe_z, zs)
+    plt.ylabel("Number of points")
+    plt.xlabel("Z coordinates")
+
+    plt.figure()
+    plt.plot(axe_d, ds)
+    plt.ylabel("Number of points")
+    plt.xlabel("Distance from origin")
+
+    plt.show()
+
+def _draw_cube(pos : tuple, size : float):
     x = pos[0]
     y = pos[1]
     z = pos[2]
 
     gl.glBegin(gl.GL_TRIANGLES)
     gl.glVertex3f(x, y, z)
-    gl.glVertex3f(x+size[0], y, z)
-    gl.glVertex3f(x+size[0], y, z+size[2])
+    gl.glVertex3f(x+size, y, z)
+    gl.glVertex3f(x+size, y, z+size)
 
     gl.glVertex3f(x, y, z)
-    gl.glVertex3f(x+size[0], y, z+size[2])
-    gl.glVertex3f(x, y, z+size[2])
+    gl.glVertex3f(x+size, y, z+size)
+    gl.glVertex3f(x, y, z+size)
 
-    gl.glVertex3f(x+size[0], y, z)
-    gl.glVertex3f(x+size[0], y+size[1], z)
-    gl.glVertex3f(x+size[0], y+size[1], z+size[2])
+    gl.glVertex3f(x+size, y, z)
+    gl.glVertex3f(x+size, y+size, z)
+    gl.glVertex3f(x+size, y+size, z+size)
 
-    gl.glVertex3f(x+size[0], y, z)
-    gl.glVertex3f(x+size[0], y+size[1], z+size[2])
-    gl.glVertex3f(x+size[0], y, z+size[2])
+    gl.glVertex3f(x+size, y, z)
+    gl.glVertex3f(x+size, y+size, z+size)
+    gl.glVertex3f(x+size, y, z+size)
 
-    gl.glVertex3f(x+size[0], y+size[1], z)
-    gl.glVertex3f(x, y+size[1], z)
-    gl.glVertex3f(x, y+size[1], z+size[2])
+    gl.glVertex3f(x+size, y+size, z)
+    gl.glVertex3f(x, y+size, z)
+    gl.glVertex3f(x, y+size, z+size)
 
-    gl.glVertex3f(x+size[0], y+size[1], z)
-    gl.glVertex3f(x, y+size[1], z+size[2])
-    gl.glVertex3f(x+size[0], y+size[1], z+size[2])
+    gl.glVertex3f(x+size, y+size, z)
+    gl.glVertex3f(x, y+size, z+size)
+    gl.glVertex3f(x+size, y+size, z+size)
 
-    gl.glVertex3f(x, y+size[1], z)
+    gl.glVertex3f(x, y+size, z)
     gl.glVertex3f(x, y, z)
-    gl.glVertex3f(x, y, z+size[2])
+    gl.glVertex3f(x, y, z+size)
 
-    gl.glVertex3f(x, y+size[1], z)
-    gl.glVertex3f(x, y, z+size[2])
-    gl.glVertex3f(x, y+size[1], z+size[2])
+    gl.glVertex3f(x, y+size, z)
+    gl.glVertex3f(x, y, z+size)
+    gl.glVertex3f(x, y+size, z+size)
 
-    gl.glVertex3f(x, y, z+size[2])
-    gl.glVertex3f(x+size[0], y, z+size[2])
-    gl.glVertex3f(x+size[0], y+size[1], z+size[2])
+    gl.glVertex3f(x, y, z+size)
+    gl.glVertex3f(x+size, y, z+size)
+    gl.glVertex3f(x+size, y+size, z+size)
 
-    gl.glVertex3f(x, y, z+size[2])
-    gl.glVertex3f(x+size[0], y+size[1], z+size[2])
-    gl.glVertex3f(x, y+size[1], z+size[2])
-
-    gl.glVertex3f(x, y, z)
-    gl.glVertex3f(x, y+size[1], z)
-    gl.glVertex3f(x+size[0], y+size[1], z)
+    gl.glVertex3f(x, y, z+size)
+    gl.glVertex3f(x+size, y+size, z+size)
+    gl.glVertex3f(x, y+size, z+size)
 
     gl.glVertex3f(x, y, z)
-    gl.glVertex3f(x+size[0], y+size[1], z)
-    gl.glVertex3f(x+size[0], y, z)
+    gl.glVertex3f(x, y+size, z)
+    gl.glVertex3f(x+size, y+size, z)
+
+    gl.glVertex3f(x, y, z)
+    gl.glVertex3f(x+size, y+size, z)
+    gl.glVertex3f(x+size, y, z)
     gl.glEnd()
 
 def draw_diff(grid1 : Discretisation, grid2 : Discretisation, alpha_per_point = 0.1):
@@ -102,8 +206,10 @@ def draw_diff(grid1 : Discretisation, grid2 : Discretisation, alpha_per_point = 
     min = grid1.min
 
     #Cellule peuplée par grid1 mais non grid2
-    diff1 = difference_discretisation(grid1=grid1, grid2=grid2)
-    diff2 = difference_discretisation(grid1=grid2, grid2=grid1)
+    diff1 = []
+    diff2 = []
+    # diff1 = difference_discretisation(grid1=grid1, grid2=grid2)
+    # diff2 = difference_discretisation(grid1=grid2, grid2=grid1)
 
     while _StaticVars.is_running:
         gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
@@ -164,9 +270,9 @@ def draw_discretization(grid : Discretisation, alpha_per_point = 0.01):
         _draw_axes()
 
         for cell in grid.visited:
-            x = cell[0] * size[0] + min[0]
-            y = cell[1] * size[1] + min[1]
-            z = cell[2] * size[2] + min[2]
+            x = cell[0] * size + min[0]
+            y = cell[1] * size + min[1]
+            z = cell[2] * size + min[2]
 
             a = grid.get_cell(cell) * alpha_per_point
             if a > 1:

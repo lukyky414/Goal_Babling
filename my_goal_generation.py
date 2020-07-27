@@ -110,16 +110,20 @@ class FrontierGenerator(GoalOnGridGenerator):
         super(FrontierGenerator, self).__init__(p=p, grid=grid)
         self.end_points = None
 
+    def get_random_dir():
+        #Choisir une direction aleatoire en 3d
+        vec = [random.gauss(0, 1) for i in range(3)]
+        mag = sum(x**2 for x in vec) ** .5
+        dir = [x/mag for x in vec]
+
+        return dir
 
     def newGoalOutside(self):
         #choisir aleatoirement un point de depart
         ep = random.choice(self.end_points)
         pos = ep.get_pos()
 
-        #Choisir une direction aleatoire en 3d
-        vec = [random.gauss(0, 1) for i in range(3)]
-        mag = sum(x**2 for x in vec) ** .5
-        dir = [x/mag for x in vec]
+        dir = FrontierGenerator.get_random_dir()
 
         # coordonnee du point actuel dans l'espace discretisé
         p = self.grid.get_discretized_pos(ep)
@@ -183,4 +187,5 @@ class FrontierGenerator(GoalOnGridGenerator):
     
     
     def init(self, end_points):
+        super().init(end_points)
         self.end_points = end_points

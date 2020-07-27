@@ -52,10 +52,11 @@ def Motor_Babling(robot : Robot, steps : int, printing : bool) -> list:
 def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps : int, motor_babling_proportion : float, perturbation : float, printing : bool):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     
-    motor_babling_steps = math.floor(steps * motor_babling_proportion)
+    motor_babling_steps = round(steps * motor_babling_proportion)
 
     #Fait un reset du robot.
     end_points = Motor_Babling(robot=robot, steps=motor_babling_steps, printing=printing)
+
 
     if printing:
         print("Goal Babling:")
@@ -63,7 +64,6 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps 
     NN.init(end_points)
     GG.init(end_points)
     goals = []
-    table = None
 
     if printing:
         #Taille de barre de chargement

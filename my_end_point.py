@@ -20,7 +20,7 @@ class EndPoint():
     def get_posture(self):
         return self.posture
 
-    #Pour la bibliotheque Pickle qui serialise les donnees
+    #Pour la serialisation pickle
     def __getstate__(self):
         res = (self.posture, self.matrix)
         return res
@@ -28,6 +28,7 @@ class EndPoint():
     def __setstate__(self, d):
         self.posture = d[0]
         self.matrix = d[1]
+
     
     #Pour la comparaison entre les nearest neighbor
     def __eq__(self, other):
