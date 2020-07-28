@@ -24,7 +24,7 @@ poppy = Robot()
 random.seed(options.seed)
 
 goals = []
-for _ in range(1000):
+for _ in range(10000):
     dir = FrontierGenerator.get_random_dir()
     dist = random.uniform(0, poppy.size)
     goals.append([p*dist for p in dir])

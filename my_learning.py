@@ -38,14 +38,14 @@ def Motor_Babling(robot : Robot, steps : int, printing : bool) -> list:
                     print("#", end='')
                 else:
                     print(" ", end='')
-            print("]", end='\r')
+            print("] {}/{}".format(i,steps), end='\r')
 
         curr_angles = robot.get_random_angles()
         end_points.append(robot.get_end_point(angles=curr_angles))
 
     if printing:
         print(erase + "Motor Babling: done.")
-        print("                            ", end='\r')
+        print("                                    ", end='\r')
 
     return end_points
 
@@ -53,6 +53,7 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps 
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     
     motor_babling_steps = round(steps * motor_babling_proportion)
+    goal_babling_steps = steps - motor_babling_steps
 
     #Fait un reset du robot.
     end_points = Motor_Babling(robot=robot, steps=motor_babling_steps, printing=printing)
@@ -74,7 +75,7 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps 
         if batch_size == 0:
             batch_size = 1
 
-    for i in range(steps-motor_babling_steps):
+    for i in range(goal_babling_steps):
         #affichage barre de chargement
         if printing and i%batch_size == 0:
             print("[", end='')
@@ -83,7 +84,7 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps 
                     print("#", end='')
                 else:
                     print(" ", end='')
-            print("]", end='\r')
+            print("] {}/{}".format(i,goal_babling_steps), end='\r')
 
         goal = GG.newGoal()
         goals.append(goal)
@@ -101,6 +102,6 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps 
     
     if printing:
         print(erase + "Goal Babling: done.")
-        print("                          ", end='\r')
+        print("                                         ", end='\r')
     
     return end_points, goals

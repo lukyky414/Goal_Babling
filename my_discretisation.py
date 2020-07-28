@@ -27,7 +27,7 @@ class Discretisation():
     
     def get_cell(self, pos):
         for i in range(3):
-            if pos[i] < 0 or pos[i] > self.precision[i] :
+            if pos[i] < 0 or pos[i] >= self.precision[i] :
                 return 0
         
         return self.table[pos[0]][pos[1]][pos[2]]

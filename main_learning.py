@@ -25,26 +25,29 @@ name = ""
 options = my_option.get_options_learning()
 
 #Création du nom de fichier en fonction des paramètres
-if options.mb == 1 and options.gg != "none":
-    print("Cannot use a goal generator if using only motor babling", file=sys.stderr)
-    sys.exit(1)
+if options.mb == 1:
+    options.gg = None
 
 if options.gg is None:
     if options.mb != 1:
-        print("Cannot use `none` goal generator if using goal babling", file=sys.stderr)
+        print("Cannot use `none` goal generator if using goal babling (mb!=0, gg==none)", file=sys.stderr)
         sys.exit(1)
     name += "MotorBabling_"
 else:
     name += "GoalBabling-{}MotorBabling_{}_".format(options.mb,options.gg)
     if options.gg == "agnostic":
-        name += "{}".format(options.exp)
+        name += "{}_".format(options.exp)
     elif options.gg == "frontier":
-        name += "{}p-{}cell".format(options.p_exp, options.size)
+        name += "{}p-{}cell_".format(options.p_exp, options.size)
 
-name += "_{}step_{}disturb".format(options.steps, options.pp)
+name += "{}step_{}disturb".format(options.steps, options.pp)
 
 if options.n is not None:
     name += "_{}".format(options.n)
+
+if options.getname:
+    print(name)
+    sys.exit(0)
 
 
 #Création du robot
@@ -62,12 +65,12 @@ if not os.path.exists(DIRECTORY):
 nn = my_nearest_neighbor.RtreeNeighbor(save_load=True, f="{}/{}".format(DIRECTORY,name))
 
 if options.mb == 1:
-    end_points, goals = my_learning.Motor_Babling(
+    end_points = my_learning.Motor_Babling(
         robot=poppy,
         steps=options.steps,
         printing=options.debug
     )
-
+    goals = []
     nn.init(end_points)
 else:
     gg = None
@@ -92,10 +95,13 @@ else:
         printing=options.debug
     )
 
-
+if options.debug:
+    print("Saving end_points")
 f = open("{}/{}_ep.json".format(DIRECTORY, name), "w")
 json.dump(end_points, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
+if options.debug:
+    print("Saving goals")
 f = open("{}/{}_g.json".format(DIRECTORY, name), "w")
 json.dump(goals, fp=f)
 f.close()

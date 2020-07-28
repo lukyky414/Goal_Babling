@@ -87,7 +87,6 @@ class Robot():
     
     def randomize_posture(self, angles : list, perturbation : float) -> list:
         """Modifie aléatoirement la posture donnée par `angles` dans les limites des moteurs du robot"""
-
         res = list()
         for motor, angle in zip(self.robot.motors, angles):
             res.append(random.uniform(
