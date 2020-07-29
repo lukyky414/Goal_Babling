@@ -6,12 +6,6 @@ def float_01(value):
         raise argparse.ArgumentTypeError("%s is not a float between 0 and 1" % value)
     return fvalue
 
-def float_n01(value):
-    fvalue = float(value)
-    if fvalue <= 0 or fvalue > 1:
-        raise argparse.ArgumentTypeError("%s is not a float between 0 and 1 (0 excluded)" % value)
-    return fvalue
-
 def float_positive(value):
     fvalue = float(value)
     if fvalue < 0:
@@ -125,7 +119,7 @@ def get_options_learning():
     )
     parser.add_argument("--mb", 
                         dest="mb",
-                        type=float_n01,
+                        type=float_01,
                         default=0.2,  
                         help= "Proportion of motor babling steps in total learning steps, default=0.2"
     )

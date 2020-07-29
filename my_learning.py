@@ -52,7 +52,7 @@ def Motor_Babling(robot : Robot, steps : int, printing : bool) -> list:
 def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps : int, motor_babling_proportion : float, perturbation : float, printing : bool):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     
-    motor_babling_steps = round(steps * motor_babling_proportion)
+    motor_babling_steps = math.floor(steps * motor_babling_proportion)+1
     goal_babling_steps = steps - motor_babling_steps
 
     #Fait un reset du robot.
