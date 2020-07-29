@@ -1,3 +1,4 @@
-# Gaol Babling
+# Goal Babling
 
-Basé sur <a href="https://github.com/benureau/recode/tree/master/benureau2015_gb">ce git</a>, je compte faire du "Goal Babling" en 3D. J'utiliserais pour l'affichage OpenGL qui permet l'affichage de scène 3D.
+Basé sur <a href="https://github.com/benureau/recode/tree/master/benureau2015_gb">ce git</a>
+Afin de créer un modèle inverse basée sur le remplissage d'une base de points connus et d'un NearestNeighbor, j'utilise plusieurs manières pour remplir cette base: principalement le GoalBabling avec une méthode spécifique pour le Goals On Grid qui est l'algorithme Frontier.
