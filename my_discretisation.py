@@ -1,8 +1,10 @@
 from my_end_point import EndPoint
 import math
 
-_MIN = (-0.5, -0.5, -0.5)
-_MAX = (0.5, 0.5, 0.5)
+# _MIN = (-0.5, -0.5, -0.5)
+# _MAX = (0.5, 0.5, 0.5)
+_MIN = (-1, -1, -1)
+_MAX = (1, 1, 1)
 
 class Discretisation():
     def __init__(self, cell_size : float):

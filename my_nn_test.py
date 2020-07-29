@@ -1,42 +1,57 @@
-from my_nearest_neighbor import NearestNeighbor, dist
+from my_nearest_neighbor import RtreeNeighbor, dist
+import random
+from my_end_point import EndPoint
 
+#Points in the base
+points_number = 5000
+#Number of tests
+test_number=10000
 
-def test_neirest_neighboor(NN : NearestNeighbor, points_number = 5000, test_number=1000):
-    diff = 0
+NN = RtreeNeighbor(True, f="TestNN")
 
-    end_points = [(random.uniform(-1,1), random.uniform(-1, 1), random.uniform(-1, 1)) for _ in range(points_number)]
+diff = 0
 
-    NN.reset(end_points)
+print("Generating points")
 
-    print("Testing nearest neighbor with naive method:")
+end_points = [EndPoint([], 
+        (
+            (0,0,0,random.uniform(-1,1)),
+            (0,0,0,random.uniform(-1,1)),
+            (0,0,0,random.uniform(-1,1)),
+            (0,0,0,0)
+        )
+    ) for _ in range(points_number)
+]
 
-    for i in range(test_number):
-        # Barre de chargement
-        print("[", end='')
-        for j in range(19):
-            if j < i/(test_number / 20):
-                print("#", end='')
-            else:
-                print(" ", end='')
-        print("] err: {} ".format(diff), end='\r')
+NN.init(end_points)
 
-        goal = [ random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1) ]
+print("Testing nearest neighbor with naive method:")
 
-        naive_end_point = end_points[0]
-        min_dist = dist(goal, end_points[0].get_pos())
+for i in range(test_number):
+    # Barre de chargement
+    print("[", end='')
+    for j in range(19):
+        if j < i/(test_number / 20):
+            print("#", end='')
+        else:
+            print(" ", end='')
+    print("] err: {} ".format(diff), end='\r')
 
-        for p in end_points:
-            pos = p.get_pos()
-            d = dist(goal, pos)
-            if d < min_dist:
-                naive_end_point = p
-                min_dist = d
+    goal = [ random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1) ]
 
-        nn_end_point = NN.nearest(goal)
+    naive_end_point = end_points[0]
+    min_dist = dist(goal, end_points[0].get_pos())
 
-        if not naive_end_point == nn_end_point:
-            diff += 1
-    
-    print("Test terminated with {} error(s). ({} % error)".format(diff, (100*diff/test_number)))
+    for p in end_points:
+        pos = p.get_pos()
+        d = dist(goal, pos)
+        if d < min_dist:
+            naive_end_point = p
+            min_dist = d
 
-    return diff
+    nn_end_point = NN.nearest(goal)
+
+    if not naive_end_point == nn_end_point:
+        diff += 1
+
+print("Test terminated with {} error(s). ({} % error)".format(diff, (100*diff/test_number)))

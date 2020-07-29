@@ -1,14 +1,14 @@
 clear;
 #Options generales pour toutes executions
-options="--gg frontier --seed 0 --steps 100000"
+options="--gg agnostic --seed 0 --steps 100"
 #Options par rapport aux user input
 #options = "$options $@"
 
 #Sur quelle option il faut boucler
-for size in 5 10
+for exp in 0.2 0.8 1 1.1 1.3 1.4 1.5 1.7 1.9 2 5 10 50
 do
     #Options pour ce parcour de boucle (ajouter la variable de la boucle)
-    this_option="$options --size $size"
+    this_option="$options --exp $exp"
     #Recuperer le nom du fichier qui sera genere et utilise pour le reste
     name=$(python main_learning.py --getname $this_option);
     #Afficher le nom pour suivre l'execution du script

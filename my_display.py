@@ -255,7 +255,7 @@ def draw_diff(grid1 : Discretisation, grid2 : Discretisation, alpha_per_point = 
         _event_handler()
         pg.time.wait(10)
 
-def draw_discretization(grid : Discretisation, alpha_per_point = 0.01):
+def draw_discretization(grid : Discretisation, alpha_per_point = 0.01, d=None):
     """Permet de représenter le tableau de la discretisation de l'espace. Chaque case est transparente, mais l'est de moins en moins en fonction du nombre de points dans celle-ci. Réglable avec `alpha_per_point`"""
 
     _init_display()
@@ -281,6 +281,14 @@ def draw_discretization(grid : Discretisation, alpha_per_point = 0.01):
             gl.glColor4f(0, 1, 0, a)
 
             _draw_cube((x,y,z),size)
+        
+
+        if d is not None:
+            gl.glColor3f(1, 0, 0)
+            gl.glPushMatrix()
+            gl.glTranslatef(d[0], d[1], d[2])
+            glu.gluSphere(glu.gluNewQuadric(), 0.03, 16, 16)
+            gl.glPopMatrix()
 
 
         _draw_fps()

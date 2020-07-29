@@ -35,12 +35,24 @@ class AgnosticGenerator(GoalGenerator):
         self.bounds = None
     
     def newGoal(self):
-        size_x, size_y, size_z = self.bounds
+        axe_x, axe_y, axe_z = self.bounds
+        
+        demi_size_x = (axe_x[1]-axe_x[0])/2
+        demi_size_y = (axe_y[1]-axe_y[0])/2
+        demi_size_z = (axe_z[1]-axe_z[0])/2
+
+        mid_x = demi_size_x + axe_x[0]
+        mid_y = demi_size_y + axe_y[0]
+        mid_z = demi_size_z + axe_z[0]
+
+        add_x = demi_size_x * self.coef
+        add_y = demi_size_y * self.coef
+        add_z = demi_size_z * self.coef
 
         goal = (
-            random.uniform(size_x[0] * self.coef, size_x[1] * self.coef),
-            random.uniform(size_y[0] * self.coef, size_y[1] * self.coef),
-            random.uniform(size_z[0] * self.coef, size_z[1] * self.coef)
+            random.uniform(mid_x-add_x, mid_x+add_x),
+            random.uniform(mid_y-add_y, mid_y+add_y),
+            random.uniform(mid_z-add_z, mid_z+add_z)
         )
 
         return goal
@@ -108,11 +120,11 @@ class FrontierGenerator(GoalOnGridGenerator):
     def __init__(self, p : float, grid : Discretisation):
         """Le Rtree est utilisé pour executer une recherche par cellule."""
         super(FrontierGenerator, self).__init__(p=p, grid=grid)
-        self.end_points = None
+        self.end_points = []
 
     def get_random_dir():
         #Choisir une direction aleatoire en 3d
-        vec = [random.gauss(0, 1) for i in range(3)]
+        vec = [random.gauss(0, 1) for _ in range(3)]
         mag = sum(x**2 for x in vec) ** .5
         dir = [x/mag for x in vec]
 
@@ -122,30 +134,27 @@ class FrontierGenerator(GoalOnGridGenerator):
         #choisir aleatoirement un point de depart
         ep = random.choice(self.end_points)
         pos = ep.get_pos()
+        size = self.grid.size
 
         dir = FrontierGenerator.get_random_dir()
 
         # coordonnee du point actuel dans l'espace discretisé
-        p = self.grid.get_discretized_pos(ep)
-        x = p[0]
-        y = p[1]
-        z = p[2]
+        (x, y, z) = self.grid.get_discretized_pos(ep)
 
         # determine la direction du vecteur dir dans chacun des axes
         dx = 1 if dir[0] > 0 else -1
         dy = 1 if dir[1] > 0 else -1
         dz = 1 if dir[2] > 0 else -1
 
+        # distance maximale a parcourir sur le vecteur 'dir' pour changer de case
+        mx = (size / (dir[0])) * dx
+        my = (size / (dir[1])) * dy
+        mz = (size / (dir[2])) * dz
+
         # distance a parcourir sur le vecteur 'dir' avant de changer de coordonnee dans l'espace discret à partir du point ep
-        nx = (x + self.grid.size * dx - pos[0]) / dir[0]
-        ny = (y + self.grid.size * dy - pos[1]) / dir[1]
-        nz = (z + self.grid.size * dz - pos[2]) / dir[2]
-
-        # distance maximale a parcourir sur le vecteur 'dir' avant d'etre sûr de changer de coordonne dans l'espace discret à partir de n'importe quel point
-        mx = 1 / dir[0]
-        my = 1 / dir[1]
-        mz = 1 / dir[2]
-
+        nx = ( (size*(dx+1)/2) - dx*(pos[0]%size) ) / size * mx
+        ny = ( (size*(dy+1)/2) - dy*(pos[1]%size) ) / size * my
+        nz = ( (size*(dz+1)/2) - dz*(pos[2]%size) ) / size * mz
 
         is_ended = False
         while ( not is_ended ):
@@ -183,6 +192,7 @@ class FrontierGenerator(GoalOnGridGenerator):
                 is_ended = True
         
         #Generer un point dans cette cellule
+        return dir
         return self.newGoalFromCell((x, y, z))
     
     

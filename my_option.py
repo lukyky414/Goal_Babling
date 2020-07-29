@@ -12,10 +12,10 @@ def float_n01(value):
         raise argparse.ArgumentTypeError("%s is not a float between 0 and 1 (0 excluded)" % value)
     return fvalue
 
-def float_1plus(value):
+def float_positive(value):
     fvalue = float(value)
-    if fvalue < 1:
-        raise argparse.ArgumentTypeError("%s is not a float >= 1" % value)
+    if fvalue < 0:
+        raise argparse.ArgumentTypeError("%s is not a positive float" % value)
     return fvalue
 
 def pos_int(value):
@@ -146,7 +146,7 @@ def get_options_learning():
     )
     parser.add_argument("--exp", 
                         dest="exp",
-                        type=float_1plus,
+                        type=float_positive,
                         default=1.4,  
                         help= "Expansion coefficient for agnostic goal generator, default=1.4"
     )
