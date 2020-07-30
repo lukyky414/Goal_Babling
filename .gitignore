@@ -16,3 +16,7 @@ files/NearestNeighbor
 
 #fichier personnel pour stopper le robot reel
 program/stop.py
+
+#fichier temporaires pour latex
+rapport/*
+!rapport/rapport.tex
