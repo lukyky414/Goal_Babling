@@ -63,7 +63,7 @@ if not os.path.isfile("{}/{}_ep.json".format(LEARNING_DIRECTORY, name)):
 poppy = Robot()
 
 if options.debug:
-    print("Loading files")
+    print("Loading files", end="")
 
 #Chargement de la liste des end_points atteint
 f = open("{}/{}.json".format(INV_MOD_DIRECTORY, name), "r")
@@ -71,10 +71,16 @@ str_ep_im = json.load(fp=f)
 end_points_im = my_json_encoder.decode(str_ep_im)
 f.close()
 
+if options.debug:
+    print(".", end="")
+
 #Chargement de la liste des but que le modele inverse a essayé d'atteindre
 f = open(g, "r")
 goals = json.load(fp=f)
 f.close()
+
+if options.debug:
+    print(".", end="")
 
 #Chargement des end_points dans la base
 f = open("{}/{}_ep.json".format(LEARNING_DIRECTORY, name), "r")
@@ -82,6 +88,8 @@ str_ep = json.load(fp=f)
 end_points = my_json_encoder.decode(str_ep)
 f.close()
 
+if options.debug:
+    print(".")
 
 ##########
 #Analyse des résultats

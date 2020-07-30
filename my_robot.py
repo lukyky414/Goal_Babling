@@ -5,7 +5,7 @@ import math
 from my_end_point import EndPoint
 from my_nearest_neighbor import NearestNeighbor, dist
 
-
+#Le robot est basé sur PoppyErgoJr qui est une Pypot.Creature
 
 class Robot():
 
@@ -17,7 +17,7 @@ class Robot():
         self.nb_joints = len(self.robot.motors)
         self.size = 0
 
-        #On ingore la taille de la base qui est à 1
+        #On ingore la taille de la base qui est à 1, mais on somme le reste des links
         for link in self.robot.chain.links[1:]:
             self.size += link.length
     
@@ -66,7 +66,7 @@ class Robot():
 
         return res
 
-    def get_posture(self, angles : list) -> list:
+    def get_posture_pos(self, angles : list) -> list:
         """Retourne la liste des matrices de rotation de chacunes des sections en executant les `angles` donnés en degré"""
         list_angles = list()
         list_angles.append(0)
@@ -103,16 +103,14 @@ class Robot():
             res.append(motor.angle_limit)
         return res
     
-    def reset(self):
-        return
-    
     def set_nn(self, NN : NearestNeighbor):
         """Permet de changer le NearestNeighbor utilisé pour calculer le modèle inverse."""
         self.nn = NN
 
 
 if __name__ == "__main__":
-
+    #Permet de faire bouger le robot réel.
+    
     from py_ergojr.network.messages import Message
     from py_ergojr.network.zmq_publisher import ZmqPublisher
     import time

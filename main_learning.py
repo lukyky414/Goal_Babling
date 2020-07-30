@@ -64,17 +64,21 @@ if not os.path.exists(DIRECTORY):
     os.makedirs(DIRECTORY)
 nn = my_nearest_neighbor.RtreeNeighbor(save_load=True, f="{}/{}".format(DIRECTORY,name))
 
+#Motor Babling only
 if options.mb == 1:
     end_points = my_learning.Motor_Babling(
         robot=poppy,
         steps=options.steps,
         printing=options.debug
     )
+    #Pas de but à suivre pour le motor babling
     goals = []
+    #Enregistrement nécessaire dans le nn
     nn.init(end_points)
 else:
     gg = None
 
+    #Choix du goal generator
     if options.gg == "agnostic":
         gg = my_goal_generation.AgnosticGenerator(robot=poppy, coef=options.exp)
     elif options.gg == "frontier":
@@ -85,6 +89,7 @@ else:
         print("Please select a valid goal generator", file=sys.stderr)
         sys.exit(1)
 
+    #Execution de l'apprentissage
     end_points, goals = my_learning.Goal_Babling(
         robot=poppy,
         NN=nn,
@@ -97,11 +102,14 @@ else:
 
 if options.debug:
     print("Saving end_points")
+
 f = open("{}/{}_ep.json".format(DIRECTORY, name), "w")
 json.dump(end_points, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
+
 if options.debug:
     print("Saving goals")
+
 f = open("{}/{}_g.json".format(DIRECTORY, name), "w")
 json.dump(goals, fp=f)
 f.close()

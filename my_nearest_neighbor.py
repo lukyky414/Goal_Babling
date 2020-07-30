@@ -11,6 +11,7 @@ def dist(A, B):
         res += (a-b)**2
     return sqrt(res)
 
+#Classe mère, servant de template à un autre possible NearestNeighbor pour le faire fonctionner avec le reste du programme
 class NearestNeighbor:
     
     def nearest(self, position : tuple):
@@ -41,6 +42,7 @@ class RtreeNeighbor(NearestNeighbor):
         p.dimension = 3
         p.overwrite = save_load
 
+        # Si un nom de fichier est donné, Rtree enregitre automatiquement
         self.my_rtree = index.Rtree(f, properties=p)
         self.nb_neighbor = 0
 

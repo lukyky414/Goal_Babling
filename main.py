@@ -6,6 +6,8 @@ import my_discretisation
 import my_end_point
 import my_goal_generation
 
+
+
 #############################################
 # Affichage des points / goals d'un fichier #
 #############################################
@@ -30,7 +32,26 @@ import my_goal_generation
 #############################################
 # class false_grid(my_discretisation.Discretisation):
 #     def __init__(self):
-#         super().__init__(0.1)
+#         #Recréation du init pour changer le min & max
+#         self.min = (-1.5, -1.5, -1.5)
+#         self.max = (1.5, 1.5, 1.5)
+
+#         self.precision = [
+#             math.floor((ma-mi)/cell_size)+1
+#             for mi, ma in zip(_MIN, _MAX)
+#         ]
+
+#         Le tableau contenant les données de la discrétisation
+#         self.table = [[[0
+#             for _ in range(self.precision[2])]
+#             for _ in range(self.precision[1])]
+#             for _ in range(self.precision[0])]
+#         # La taille d'une cellule
+#         self.size = cell_size
+#         # Garde en mémoire les cellules visitées
+#         self.visited = []
+
+#         # Retour au comportement normal pendant l'affichage
 #         self.display = False
 
 #     def get_cell(self, pos, override = False):

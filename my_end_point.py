@@ -1,7 +1,9 @@
 
 class EndPoint():
     def __init__(self, posture : list, rotation_matrix):
+        #Liste d'angle
         self.posture = posture
+        #Matrice de rotation du End Point
         self.matrix = rotation_matrix
     
     def get_pos(self):
@@ -10,7 +12,6 @@ class EndPoint():
     
     def get_rot(self):
         """Retourne la partie 3x3 concernant la rotation dans la matrice de rotation"""
-
         return (
             (self.matrix[0][0], self.matrix[0][1], self.matrix[0][2]),
             (self.matrix[1][0], self.matrix[1][1], self.matrix[1][2]),
@@ -18,6 +19,7 @@ class EndPoint():
         )
     
     def get_posture(self):
+        """Retourne la liste d'angle utilisée pour atteindre cet end_point"""
         return self.posture
 
     #Pour la serialisation pickle
@@ -30,7 +32,7 @@ class EndPoint():
         self.matrix = d[1]
 
     
-    #Pour la comparaison entre les nearest neighbor
+    #Pour la comparaison entre les nearest neighbor (my_nn_test)
     def __eq__(self, other):
         if isinstance(other, self.__class__) and len(self.posture) == len(other.posture):
             # Si la posture est la meme alors le resultat (position) et le meme.

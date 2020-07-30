@@ -1,22 +1,31 @@
 import argparse
 
+#Permet de récupérer les arguments passé en ligne de commande
+
+#Ces fonctions permettent d'avoir un controle sur les valeurs données directement dans ArgParse, sans faire de test dans le programme explicitement.
+
+#Float entre 0 et 1
 def float_01(value):
     fvalue = float(value)
     if fvalue < 0 or fvalue > 1:
         raise argparse.ArgumentTypeError("%s is not a float between 0 and 1" % value)
     return fvalue
 
+#Float supérieur ou égal à 0
 def float_positive(value):
     fvalue = float(value)
     if fvalue < 0:
         raise argparse.ArgumentTypeError("%s is not a positive float" % value)
     return fvalue
 
+#Int supérieur ou égal à 0
 def pos_int(value):
     ivalue = int(value)
     if ivalue < 0:
         raise argparse.ArgumentTypeError("%s is not a positive int" % value)
     return ivalue
+
+#Différentes fonction pour chacun des main
 
 def get_options_goal():
     parser = argparse.ArgumentParser(description='Generate a list of goal to reach for the Inverse Model.')

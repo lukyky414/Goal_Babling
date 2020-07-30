@@ -5,18 +5,16 @@ from my_robot import Robot
 from my_nearest_neighbor import NearestNeighbor
 from my_goal_generation import GoalGenerator
 
-#Caractere pour effacer la ligne au dessus
+#Caractere pour effacer la ligne du dessus
 erase = '\x1b[1A\x1b[2K'
 
 
 def Motor_Babling(robot : Robot, steps : int, printing : bool) -> list:
     """Execute un motor babling: positions aleatoires sur chacune des sections du robot.
-    Retourne une deux listes: les positions obtenues, les angles utilises pour atteindre ces positions."""
+    Retourne les positions obtenues"""
 
     if printing:
         print("Motor Babling:")
-
-    robot.reset()
 
     if printing:
         #Taille de barre de chargement
@@ -52,6 +50,7 @@ def Motor_Babling(robot : Robot, steps : int, printing : bool) -> list:
 def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps : int, motor_babling_proportion : float, perturbation : float, printing : bool):
     """Execute d'abord un motor babling, puis ameliore les connaissances avec un goal babling."""
     
+    #Au moins une donnée est necessaire pour que le Goal Babling puisse démarrer.
     motor_babling_steps = math.floor(steps * motor_babling_proportion)+1
     goal_babling_steps = steps - motor_babling_steps
 
@@ -86,15 +85,19 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps 
                     print(" ", end='')
             print("] {}/{}".format(i,goal_babling_steps), end='\r')
 
+        #Génération d'un but
         goal = GG.newGoal()
         goals.append(goal)
         GG.addGoal(goal)
 
+        #Selection de la posture s'en rapprochant le plus
         nearest_end_point = NN.nearest(position=goal)
 
+        #Perturbation de cette posture
         new_posture = robot.randomize_posture(angles=nearest_end_point.get_posture(), perturbation = perturbation)
         new_end_point = robot.get_end_point(angles=new_posture)
 
+        #Enregistrement du point résultat de cette perturbation
         NN.add_end_point(end_point=new_end_point)
         GG.add_end_point(end_point=new_end_point)
 

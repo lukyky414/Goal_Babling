@@ -28,6 +28,7 @@ if options.debug:
 
 f = options.file
 
+#Récupération du nom de fichier (ignorer les extensions ou les dossiers)
 name = f[f.rfind("/")+1:]
 if name[-4:] == ".dat":
     name = name[:-4]
@@ -78,6 +79,7 @@ if options.debug:
     i=0
 res = []
 for g in goals:
+    #Affichage de la barre de chargement
     if options.debug:
         i=i+1
         if i%batch_size == 0:
@@ -88,15 +90,21 @@ for g in goals:
                 else:
                     print(" ", end='')
             print("] {}/{}".format(i,len(goals)), end='\r')
+    #Execution du modele inverse
     posture = poppy.inv_model(g)
     endpoint = poppy.get_end_point(posture)
     res.append(endpoint)
 
+
+if options.debug:
+    print()
+    print("Output in file")
 if not os.path.exists(DIRECTORY):
     os.makedirs(DIRECTORY)
+    
 f = open("{}/{}.json".format(DIRECTORY, name), "w")
 json.dump(res, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
 
 if options.debug:
-    print("Done.                           ")
+    print("Done.")
