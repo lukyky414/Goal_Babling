@@ -1,12 +1,18 @@
-#fichier cache de python
-__pycache__/*
+#fichiers de python
+program/__pycache__/*
 
-#Mon script pour demarrer le programme (clear; python main.py)
-start.sh
+#fichiers de vscode
 .vscode/*
+
+#controlleur du robot reel
+program/py_ergojr
 
 #Les fichiers pdf en rapport avec ce stage
 pdf/*
 
-#Le projet benureau
-benureau/*
+#fichiers résultats du programme
+files/InverseModel
+files/NearestNeighbor
+
+#fichier personnel pour stopper le robot reel
+program/stop.py
