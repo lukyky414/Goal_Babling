@@ -1,8 +1,9 @@
 \documentclass[11pt,french]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{titlesec}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{babel}
+\usepackage[T1]{fontenc}
 
 % Sauter une page à chaque fin (ou début?) de section
 \titleclass{\section}{top}
@@ -16,27 +17,95 @@
 
 \maketitle
 
+% Le rapport décrit le travail effectué pendant le stage, tout en le plaçant dans son contexte.  Typiquement on s’attend à un rapport d'une taille entre 30 et 40 pages en utilisant une police de caractères de 11 points, sans compter les éventuelles annexes et les pages avant l’introduction.
+
+% L'introduction doit présenter brièvement  
+
+%     le sujet de stage tel que formulé initialement,
+%      les modifications opérées pendant le stage,
+%      les résultats obtenus pendant le stage.
+
+% Cette partie doit être assez courte, le tout sera expliqué plus en détail dans les chapitres suivants qui doivent décrire 
+
+%     le cadre de travail, le descriptif de l’entreprise/le laboratoire
+%     le sujet et son contexte 
+%     le travail réalisé (résultats obtenus, démarche et méthode suivies, difficultés rencontrées, planning, ...)
+%     les conclusions.
+
+% Il faut également fournir la liste des références bibliographiques consultées pendant le stage.  Les références doivent être aussi complètes que possible et citées dans le corps du rapport.
+
+% Un soin particulier devra être accordé à l'orthographe, la grammaire, et la typographie.
+
 \tableofcontents
 
+%%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
+%%%%%%%%%%%%%%%%%%%
 \section{Remerciements}
+% Je tiens à remercier toute personne ayant participé de près ou de loin à ce stage.
+% Tout d’abord mon tuteur,  Monsieur  Boumaza Amine pour m’avoir aiguillé,  accompagné  et  pour avoir répondu à mes questions.
+% Le LORIA et Monsieur Marion Jean-Yves pour avoir accepté mon stage au sein du laboratoire.
+% L’équipe LARSEN et Monsieur Charpillet François pour avoir accepté mon stage au sein de son équipe.
+% Mon enseignant référent, Madame Souquières Jeanine pour avoir été là si j’avais un problème.
+% L’Institut  des  Sciences  du  Digital  Management  et  Cognition, Monsieur  Thomann  Laurentet les personnes ayant contribué à la partie administrativede ce stage.
+% Toutes les personnes m’ayant aidé lors de la recherche de ce stage et pendant toute la durée de ce dernier.
 
+%%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
+%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
+% le sujet de stage tel que formulé initialement
+\subsection{Sujet}
 
-Afin de contrôler un robot de manière intuitive, donc en lui donnant un position comme but et non une posture (comme une suite d'angle pour le robot Poppy Ergo Jr), nous avons besoin d'un modèle inverse. Celui-ci peut rapidement devenir difficile à construire selon la complexité du robot. Le but de ce stage est de trouver une manière simple de générer un modèle inverse fiable.\\
+\noindent\textbf{Motivations}
+
+Apprendre à contrôler un robot redondant, c’est-à-dire un robot où plusieurs configurations permettent d’atteindre une position donnée, reste une tâche difficile en Intelligence Artificielle. Elle est d’autant plus difficile quand on ne dispose pas de modèle du robot. Le but de ce projet est d’explorer différentes approches pour apprendre de manière autonome ce type de contrôle.\\[10pt]
+\noindent\textbf{Sujet \& Cadre du travail}
+
+Ce projet rentre dans le cadre général de l’apprentissage artificiel et plus précisément dans le cadre où l’agent apprenant ne dispose par d’un modèle (cinématique et dynamique) de son corps. Il doit “apprendre” ce modèle en observant les effets de ses différentes actions de manière progressive, à l’image des nouveaux nés, dont les premiers gestes sont assez imprécis et s’affinent au fur et à mesure du développement de l’enfant et la découverte de leur corps.
+
+Plusieurs algorithmes d’apprentissage proposent d’imiter le développement chez les enfant en s’appuyantsur un processus exploratoire des espaces sensoriels et moteur du robot. L’objectif du travail de recherche proposé est de proposer et d’implanter un algorithme d’exploration des effets des action moteur surun robot réel.\\[10pt]
+Le protocole expérimental envisagé s’appuiera sur un robot ErgoJr à plusieurs degrés de liberté. Une caméra sera installée en bout de bras. Les algorithmes d’apprentissage devront permettre de mettre en œuvre des tâches d’asservissement visuel (parexemple, suivre “du regard” un stimulus visuel).
+
+Nous proposons d’articuler ce projet en plusieurs étapes.
+\begin{itemize}
+    \item Étude bibliographique sur les méthodes de la littérature permettant le type d’apprentissage visé dans ceprojet. Cette étude pourrait être amorcée par la thèse.
+    \item Mise au point d’un algorithme et expérimentations pour tests et validations.
+\end{itemize}
+
+% les modifications opérées pendant le stage
+\subsection{Travail apporté}
+% les résultats obtenus pendant le stage
+\subsection{Résultats obtenus}
+
+%%%%%%%%%%%%%%%%%%%
+% % % SECTION % % %
+%%%%%%%%%%%%%%%%%%%
+% le cadre de travail, le descriptif de l’entreprise/le laboratoire
+\section{Cadre de travail}
+
+%%%%%%%%%%%%%%%%%%%
+% % % SECTION % % %
+%%%%%%%%%%%%%%%%%%%
+% le sujet et son contexte 
+\section{Sujet et son contexte}
+
+Afin de contrôler un robot de manière intuitive, donc en lui donnant un position comme but et non une posture (comme une suite d'angle pour le robot Poppy Ergo Jr), nous avons besoin d'un modèle inverse. Celui-ci peut rapidement devenir difficile à construire selon la complexité du robot. Le but de ce stage est de trouver une manière simple de générer un modèle inverse fiable.
+
 J'utilise une base de donnée contenant une posture et la position de l'effecteur du robot. La méthode utilisé pour obtenir le modèle inverse consiste à rechercher une liste des points dans cette base les plus proche du but demandé, et de donner en résultat la moyenne des postures associées à ces points pondéré par leurs distance au but. Le contenu de cette base est donc important pour avoir un résultat convaincant. L'apprentissage utilisé pour construire et remplir cette base de donnée repose sur deux méthodes:
 \begin{itemize}
-    \item \textbf{Motor Babling} ou babillage moteur, qui consiste à donner une posture aléatoire au robot et d'observer l'effect que cela produit. Pour ce projet cela se résume à créer une liste d'angles aléatoires pour la posture, et de calculer la position de l'effecteur du robot. Cette méthode permet déjà de remplir la base de donnée pour un robot simple, comme un bras ne possédant que 2 ou 3 jointure. Mais ces points ne remplissent pas tout l'espace de travail du robot lorsque la complexité de celui-ci robot augmente. S'il y a plus de jonctions, il y a aussi plus de chance que le robot soit replié sur lui même.
-    \item \textbf{Goal Babling} Le babillage moteur est une méthode simple qui ne remplis pas intelligemment l'espace. Une manière d'ajouter plus efficacement des points peut être le babillage par but. Pour éviter de ne visiter que les zones facilement atteignables nous cherchons à essayer d'atteindre un but. Le plus difficile à faire et la selection de ce but.
+    \item \textbf{Motor Babling} Le babillage moteur consiste à donner une posture aléatoire au robot et d'observer l'effect que cela produit. Pour ce projet cela se résume à créer une liste d'angles aléatoires pour la posture, et de calculer la position de l'effecteur du robot. Cette méthode permet déjà de remplir la base de donnée pour un robot simple, comme un bras robotique ne possédant que 2 ou 3 jointure. Mais ces points ne remplissent pas tout l'espace de travail du robot lorsque la complexité de celui-ci augmente. S'il y a plus de jonctions, il y a aussi plus de chance que le robot soit replié sur lui même.
+    \item \textbf{Goal Babling} Le babillage par but permet de compléter le babillage moteur qui est une méthode simple qui ne remplis pas intelligemment l'espace. C'est une manière d'ajouter plus efficacement des points. Pour éviter de ne visiter que les zones facilement atteignables nous cherchons à essayer d'atteindre un but. Le plus difficile à faire et la selection de ce but.
 \end{itemize}
 
 Les robots concernées par cet apprentissages sont principalements des bras robotiques, consitués d'une suite de sections rigides reliées par des moteurs qui peuvent prendre un certain angle comme position. Il serait possible d'adapter l'apprentissage pour une autre forme de robot, mais nous utilisons ici une représentation virtuelle du robot Poppy Ergo Jr.
 
-% TODO Image du Poppy Ergo Jr %
-
+%%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
-\section{Modèle inverse}
+%%%%%%%%%%%%%%%%%%%
+% le travail réalisé (résultats obtenus, démarche et méthode suivies, difficultés rencontrées, planning, ...)
+\section{Travail réalisé}
+\subsection{Modèle inverse}
 
 La première partie à mettre en place est le modèle inverse. Comme il suffit de séléctionner le point le plus proche dans la base de donnée, il faut mettre un place en Nearest-Neighbor. Celui-ci doit répondre à plusieurs contraintes:
 \begin{itemize}
@@ -50,8 +119,7 @@ Une autre bibliothèque assez utilisé pour le Nearest Neighbor est "Sklearn" av
 
 J'utilise donc une bibliothèque appellée "Rtree" qui utilise la méthode du RTree et est basé sur la librairie "libspatialindex" écrite en C. Le Rtree utilise des rectangles englobant, qui regroupe les points de la base en plusieurs paquets. La recherche d'un voisin proche est simplifié par la structure de l'arbre et donc rapide. Les données sont organisé spécialement pour le stockage sur disque comme une base de donnée.
 
-% % % SECTION % % %
-\section{Algorithmes utilisés}
+\subsection{Algorithmes utilisés}
 
 Le modèle inverse ne change pas dans cet apprentissage. Il reste donc trois parties de l'apprentissage qu'il faut créer:
 \begin{itemize}
@@ -62,22 +130,21 @@ Le modèle inverse ne change pas dans cet apprentissage. Il reste donc trois par
 
 J'ai utilisé des valeurs aléatoires uniformes pour générer une posture dans le Motor Babling, et aussi une valeur aléatoire uniforme dans un petit interval pour modifier la posture donnée par le modèle inverse. Il reste la génération d'un but à faire, et il existe une multitude de manière de faire. La distribution finale de ces but doit remplir au maximum l'espace atteignable par le robot, sans pouvoir connaître cet espace. Voici les algorithme que j'ai mis en place dans ce projet.
 
-\subsection{Agnostic goal generation}
+\subsubsection{Agnostic goal generation}
 
 La génération agnostique de but n'utilise aucun paramètre présumé sur le robot (comme sa taille). A chaque itération l'algorithme garde en mémoire les coordonnées maximales que peut atteindre le robot dans chacun des axes, et génère un point dans cet interval avec un facteur qui permet un peu d'exploration. Le résultat est ainsi une zone de génération de but très proche de la zone atteignable par le robot.
 
-\subsection{Frontier strategy}
+\subsubsection{Frontier strategy}
 
-La génération agnostique donnera un volume en forme de pavé droit, et dans notre cas la zone atteignable par le robot ressemble plus à une sphère. C'est à cette problématique que répond la stratégie de frontière. Cette stratégie consiste à discrétiser l'espace en carré pour la 2D ou en cube pour la 3D pour determiner quelle cellule (carré / cube)  a déjà été visité et s'en servir pour la génération d'un nouveau but. Le nouveau but est généré avec une probabilité \emph{p} dans des cellules déjà visitées et avec une probabilité 1-\emph{p} dans une cellule non visitée.
+La génération agnostique donnera un volume en forme de pavé droit, et dans notre cas la zone atteignable par le robot ressemble plus à une sphère. C'est à cette problématique que répond la stratégie de frontière. Cette stratégie consiste à discrétiser l'espace en carré pour la 2D ou en cube pour la 3D pour determiner quelle cellule (carré / cube) a déjà été visité et s'en servir pour la génération d'un nouveau but. Le nouveau but est généré avec une probabilité \emph{p} dans des cellules déjà visitées et avec une probabilité 1-\emph{p} dans une cellule non visitée.
 
 Pour savoir quelle cellule non visitée est choisie, une position déjà atteinte par le robot est selectionnée aléatoirement. Ensuite, une direction est choisie aléatoirement. Cet algorithme va suivre le vecteur déterminé par la position et la direction, et va se déplacer dans l'espace jusqu'à atteindre une cellule qui n'a pas encore été visitée.
 
-% % % SECTION % % %
-\section{Evaluation des algorithmes}
+\subsection{Evaluation des algorithmes}
 
 Pour pouvoir comparer les résultats des différents apprentissages, il faut pouvoir donner une métrique pour mesurer ces résultats. Dans un premier temps il faut représenter un maximum de donnée à l'écran pour laisser l'utilisatuer juger si son algorithme fonctionne.
 
-\subsection{Affichage}
+\subsubsection{Affichage}
 
 La première étape de mon projet consiste à afficher une représentation du robot, pour pouvoir comparer certaines formes et tailles avant de me lancer dans la suite. Voici donc un exmple de robot dans une certaine posture. La principale bibliothèque d'affichage utilisée est OpenGL. J'ai aussi utilisé SDK pour la création de la fenêtre.
 
@@ -97,8 +164,14 @@ Enfin, le programme peut aussi trier et représenter les données dans un graphe
 
 Ces différents affichages ne permettent cependant pas de mesurer les résultats.
 
-\subsection{Evaluation}
+\subsubsection{Evaluation}
 
 Il nous faut une métrique précise. Par exemple, une propriété voulue pourrait être la précision de notre modèle. Il est possible de mesurer par exemple la différence moyenne entre une position recherchée et la position retournée par le modèle inverse. 
+
+%%%%%%%%%%%%%%%%%%%
+% % % SECTION % % %
+%%%%%%%%%%%%%%%%%%%
+% les conclusions
+\section{Conslusion}
 
 \end{document}
