@@ -95,7 +95,7 @@ else:
     if options.gg == "agnostic":
         gg = my_goal_generation.AgnosticGenerator(robot=poppy, coef=options.exp)
     elif options.gg == "frontier":
-        grid = my_discretisation.Discretisation(nb_divs=options.nb_div)
+        grid = my_discretisation.Discretisation(nb_divs=options.nb_div, save_visited=True)
         gg = my_goal_generation.FrontierGenerator(p=options.p_exp, grid=grid)
     
     if gg is None:

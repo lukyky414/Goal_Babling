@@ -60,8 +60,8 @@ def get_options_analyse():
     parser.add_argument("--nb_div", 
                         dest="nb_div",
                         type=pos_int,
-                        default=100,
-                        help= "Number of division for discretisation, default=100"
+                        default=1000,
+                        help= "Number of division for discretisation, default=1 000"
     )
 
 

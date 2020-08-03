@@ -113,11 +113,11 @@ for ep, g in zip(end_points_im, goals):
 
 if options.debug:
     print("Calculating volume")
-grid = Discretisation(options.nb_div)
+grid = Discretisation(options.nb_div, save_visited=False)
 for ep in end_points:
     grid.add_point(ep)
 
-vol = len(grid.visited) * (grid.size ** 3)
+vol = grid.nb_visited * (grid.size ** 3)
 RESULTS["volume"] = vol
 
 theorical_vol = (poppy.size ** 3) * math.pi * 4/3

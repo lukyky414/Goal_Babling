@@ -9,22 +9,23 @@ _MAX = 0.5
 
 # Je considère (0, 0, 0) la cellule qui a pour coins opposées les points: (0, 0, 0) et (cell_size, cell_size, cell_size)
 class Discretisation():
-    def __init__(self, nb_divs : float):
+    def __init__(self, nb_divs : float, save_visited : bool):
         """Defini la taille des cellule de la discretisation."""
         self.min = _MIN
         self.max = _MAX
 
         self.nb_divs = nb_divs
+        self.nb_divs2 = nb_divs**2
 
         # Le tableau contenant les données de la discrétisation
-        self.table = [[[0
-            for _ in range(self.nb_divs)]
-            for _ in range(self.nb_divs)]
-            for _ in range(self.nb_divs)]
+        self.table = bytearray(math.floor(nb_divs**3 /8)+1)
         # La taille d'une cellule
         self.size = (self.max - self.min) / nb_divs
-        # Garde en mémoire les cellules visitées
-        self.visited = []
+        self.save_visited = save_visited
+        if save_visited:
+            # Garde en mémoire les cellules visitées
+            self.visited = []
+        self.nb_visited = 0
     
     def get_cell(self, pos):
         """Retourne le contenu d'une cellule de la discretisation. Retourne 0 si la cellule est hors memoire."""
@@ -33,7 +34,11 @@ class Discretisation():
             if pos[i] < 0 or pos[i] >= self.nb_divs :
                 return 0
         
-        return self.table[pos[0]][pos[1]][pos[2]]
+        n = pos[0]*self.nb_divs2 + pos[1]*self.nb_divs + pos[2]
+        c = n>>3
+        b = n&7
+
+        return (self.table[c] & (1<<b)) > 0
     
     def get_discretized_pos(self, end_point : EndPoint):
         """Retourne la position de la cellule contenant le end_point donné."""
@@ -50,11 +55,17 @@ class Discretisation():
         """Prise en compte d'un nouveau end_point. Attentions aux points hors de portée."""
         #Pas de prise en charge des points hors de portée pour augmenter la rapidité de calcul
         pos = self.get_discretized_pos(end_point)
-        if self.get_cell(pos) == 0:
-            self.visited.append(pos)
+        if not self.get_cell(pos):
+            if self.save_visited:
+                self.visited.append(pos)
+            self.nb_visited += 1
         self.add_to_pos(pos)
     
     def add_to_pos(self, pos):
         """Dans le cas où la position discrétisée a déjà été calculée, pas besoin de faire add_point"""
         #Pas de prise en charge des points hors de portée pour augmenter la rapidité de calcul
-        self.table[pos[0]][pos[1]][pos[2]] += 1
+        n = pos[0]*self.nb_divs2 + pos[1]*self.nb_divs + pos[2]
+        c = n>>3
+        b = n&7
+
+        self.table[c] = self.table[c] | 1<<b

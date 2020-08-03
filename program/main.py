@@ -10,34 +10,47 @@ import my_end_point
 import my_goal_generation
 import my_robot
 
+
+######################################
+# Comparer deux generations de goals #
+######################################
+f = sys.argv[1]
+
+f1 = open("{}_g.json".format(f), "r")
+f2 = open("{}_2_g.json".format(f), "r")
+
+goals1 = json.load(fp=f1)
+goals2 = json.load(fp=f2)
+
+for g1, g2 in zip(goals1, goals2):
+    if g1 != g2:
+        print("{} \t {}".format(g1, g2))
+    else:
+        print("same")
+
 ##################################
 # Generation direction aleatoire #
 ##################################
-pos = []
+# pos = []
 
-angle = 2*math.pi - (math.pi/2)
+# angle = 2*math.pi - (math.pi/2)
+# rot = 3*math.pi/4
 
-for _ in range(10000):
-    u = random.uniform(0,1)
-    v = random.uniform(0,1)
+# for _ in range(10000):
+#     u = random.uniform(0,1)
+#     v = random.uniform(0,1)
 
-    theta = angle*u + 5*math.pi/4
+#     theta = angle*u + rot
+#     phi = math.acos(2*v-1)
 
-    phi = math.acos(2*v-1)
+#     x = math.cos(theta) * math.sin(phi)
+#     y = math.sin(theta) * math.sin(phi)
+#     z = abs(math.cos(phi))
 
-    x = math.cos(theta) * math.sin(phi)
-    y = math.sin(theta) * math.sin(phi)
-    z = abs(math.cos(phi))
+#     mag = random.uniform(0,1)
+#     pos.append((x*mag, y*mag, z*mag))
 
-    mag = random.uniform(0,1)
-    pos.append((x*mag, y*mag, z*mag))
-
-    # mag = (x**2 + y**2 + z**2) ** .5
-    # pos.append((x/mag, y/mag, z/mag))
-
-    # pos.append((x, y, z))
-
-my_display.draw_points_cloud(pos, max_dist = 1)
+# my_display.draw_points_cloud(pos, max_dist = 1)
 
 
 ######################
@@ -51,17 +64,21 @@ my_display.draw_points_cloud(pos, max_dist = 1)
 # Affichage des points / goals d'un fichier #
 #############################################
 # f = sys.argv[1]
+# end_points = []
+# goals = []
 
-# stream = open(f, "r")
+# the_file = "{}_ep.json".format(f)
+# stream = open(the_file, "r")
 # string_ep = json.load(fp=stream)
 # end_points = my_json_encoder.decode(string_ep)
 # stream.close()
-# my_display.draw_points_cloud(end_points)
 
-# stream = open(f, "r")
+# the_file = "{}_g.json".format(f)
+# stream = open(the_file, "r")
 # goals = json.load(fp=stream)
 # stream.close()
-# my_display.draw_points_cloud(goals)
+
+# my_display.draw_ep_and_goal(end_points, goals)
 
 
 
