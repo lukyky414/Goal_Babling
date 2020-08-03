@@ -180,7 +180,8 @@ def draw_discretization(grid : Discretisation, alpha_per_point = 0.01, d=None):
 
 def animation(robot : Robot):
     """Creer une animation avec le robot, en faisant tourner un à un les moteurs dans les limites de ceux-ci"""
-    
+    global _background_color
+    _background_color = (255, 255, 255)
     _init_display()
 
     angles = [0 for _ in range(robot.nb_joints)]
@@ -214,10 +215,10 @@ def animation(robot : Robot):
 
         angles[i] = angle
 
-        posture = robot.get_posture(angles=angles)
+        posture = robot.get_posture_pos(angles=angles)
 
         print("{} : {}     ".format(i, angle), end='\r')
-        _draw_one_robot(posture=posture, highlight=i)
+        _draw_one_robot(posture_pos=posture, highlight=i)
 
         _draw_fps()
         pg.display.flip()
@@ -338,6 +339,9 @@ def _init_display():
     # Avoir le X (rouge) qui part a droite
     gl.glScalef(-1, 1, 1)
 
+    # Pour garder cet etat de base
+    gl.glPushMatrix()
+
     # Couleur de fond
     gl.glClearColor(_background_color[0]/255, _background_color[1]/255, _background_color[2]/255, 1.0)
 
@@ -376,21 +380,21 @@ def _draw_one_robot(posture_pos : list, highlight=None):
     gl.glBegin(gl.GL_LINE_STRIP)
     gl.glColor3ui(0, 0, 0)
 
-    for section in posture:
+    for section in posture_pos:
         gl.glVertex3f(section[0][3], section[1][3], section[2][3])
 
     gl.glEnd()
 
 
     # Chaque moteur est represente par une sphere bleue
-    for i in range(len(posture)):
+    for i in range(len(posture_pos)):
         # Si on veux mettre en valeur un moteur, on l'affiche en rouge (pour l'animation)
         if highlight is not None and i == highlight+1:
             gl.glColor3ui(255, 0, 0)
         else:
             gl.glColor3ui(0, 0, 255)
         gl.glPushMatrix()
-        gl.glTranslatef(posture[i][0][3], posture[i][1][3], posture[i][2][3])
+        gl.glTranslatef(posture_pos[i][0][3], posture_pos[i][1][3], posture_pos[i][2][3])
         glu.gluSphere(glu.gluNewQuadric(), 0.003, 16, 16)
         gl.glPopMatrix()
 
@@ -521,6 +525,21 @@ def _get_rainbow_color(fact : float):
     else:
         return (fact*3-2, 0, 3-fact*3)
 
+
+#Variable contante pour éviter de recréer / calculer à chaque fois
+_x_axe = np.array(( (1, 0, 0, 0),
+                    (0, 1, 0, 0),
+                    (0, 0, 1, 0),
+                    (1, 0, 0, 1)))
+_y_axe = np.array(( (1, 0, 0, 0),
+                    (0, 1, 0, 0),
+                    (0, 0, 1, 0),
+                    (0, 1, 0, 1)))
+_z_axe = np.array(( (1, 0, 0, 0),
+                    (0, 1, 0, 0),
+                    (0, 0, 1, 0),
+                    (0, 0, 1, 1)))
+
 def _event_handler():
     """Prend en charge les evenements pygame"""
     _mouse_handler()
@@ -531,13 +550,37 @@ def _event_handler():
 
 def _keyboard_event(event):
     """Trie les event pour prendre en compte les touches du clavier utilisée"""
+    #Relachement d'une touche
     if event.type == pg.KEYUP:
+        #Relachement de la touche controle
         if event.key == pg.K_LCTRL or event.key == pg.K_RCTRL:
             _StaticVars.keyboard_ctrl_pressed = False
-    if event.type == pg.KEYDOWN:
+    #Appui d'une touche
+    elif event.type == pg.KEYDOWN:
+        #Appui sur une touche controle (droite ou gauche)
         if event.key == pg.K_LCTRL or event.key == pg.K_RCTRL:
             _StaticVars.keyboard_ctrl_pressed = True
-        elif _StaticVars.keyboard_ctrl_pressed:
+
+        #Appui sur une fleche: recentrer la vue sur un axe
+
+        #up = cacher axe Z (vert)
+        elif event.key == pg.K_UP:
+            gl.glPopMatrix()
+            gl.glPushMatrix()
+            gl.glRotatef(90, 1, 0, 0)
+        #down = cacher axe y (bleu)
+        elif event.key == pg.K_DOWN:
+            gl.glPopMatrix()
+            gl.glPushMatrix()
+        #right = cacher axe x (rouge)
+        elif event.key == pg.K_RIGHT:
+            gl.glPopMatrix()
+            gl.glPushMatrix()
+            gl.glRotatef(-90, 0, 0, 1)
+
+
+        #Si controle est appuyé, verification du + et -
+        if _StaticVars.keyboard_ctrl_pressed:
             if event.key == pg.K_PLUS or event.key == pg.K_KP_PLUS:
                 gl.glScalef(1.5, 1.5, 1.5)
             elif event.key == pg.K_MINUS or event.key == pg.K_KP_MINUS:
@@ -579,15 +622,6 @@ def _mouse_event(event):
         elif event.button == 3:
             _StaticVars.mouse_right_pressed = False
 
-#Variable contante pour éviter de recréer / calculer à chaque fois
-_x_axe = np.array(( (1, 0, 0, 0),
-                    (0, 1, 0, 0),
-                    (0, 0, 1, 0),
-                    (1, 0, 0, 1)))
-_y_axe = np.array(( (1, 0, 0, 0),
-                    (0, 1, 0, 0),
-                    (0, 0, 1, 0),
-                    (0, 1, 0, 1)))
 
 # Rapport entre le déplacement de la souris et la translation du monde
 _translation_factor = 1/120

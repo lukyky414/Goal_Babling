@@ -113,7 +113,7 @@ for ep, g in zip(end_points_im, goals):
 
 if options.debug:
     print("Calculating volume")
-grid = Discretisation(options.size)
+grid = Discretisation(options.nb_div)
 for ep in end_points:
     grid.add_point(ep)
 

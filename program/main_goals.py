@@ -24,7 +24,7 @@ poppy = Robot()
 random.seed(options.seed)
 
 goals = []
-for _ in range(10000):
+for _ in range(1000):
     #Direction aléatoire, dans un vecteur de taille 1
     dir = FrontierGenerator.get_random_dir()
     #Distribution uniforme entre 0 et la taille du robot

@@ -34,13 +34,12 @@ class NearestNeighbor:
 
 
 class RtreeNeighbor(NearestNeighbor):
-    def __init__(self, save_load:bool, f=None):
-        #load_save True -> save. False -> load.
+    def __init__(self, f):
 
         # Initialisation de Rtree
         p = index.Property()
         p.dimension = 3
-        p.overwrite = save_load
+        p.overwrite = False
 
         # Si un nom de fichier est donné, Rtree enregitre automatiquement
         self.my_rtree = index.Rtree(f, properties=p)

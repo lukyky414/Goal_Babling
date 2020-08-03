@@ -20,6 +20,16 @@ class Robot():
         #On ingore la taille de la base qui est à 1, mais on somme le reste des links
         for link in self.robot.chain.links[1:]:
             self.size += link.length
+        
+        self.motor_range = []
+        for m in self.robot.motors:
+            mi, ma = m.angle_limit
+            if ma < mi:
+                t = ma
+                ma = mi
+                mi = t
+            
+            self.motor_range.append(ma - mi)
     
     def inv_model(self, goal : tuple):
         """Le modèle inverse du robot. Retourne une liste d'angle pour atteindre le point demandé."""
@@ -88,10 +98,10 @@ class Robot():
     def randomize_posture(self, angles : list, perturbation : float) -> list:
         """Modifie aléatoirement la posture donnée par `angles` dans les limites des moteurs du robot"""
         res = list()
-        for motor, angle in zip(self.robot.motors, angles):
+        for angle, motor, _range in zip(angles, self.robot.motors, self.motor_range):
             res.append(random.uniform(
-                max(motor.angle_limit[0], angle - perturbation),
-                min(motor.angle_limit[1], angle + perturbation)
+                max(motor.angle_limit[0], angle - perturbation * _range),
+                min(motor.angle_limit[1], angle + perturbation * _range)
             ))
         
         return res
@@ -108,56 +118,71 @@ class Robot():
         self.nn = NN
 
 
-if __name__ == "__main__":
-    #Permet de faire bouger le robot réel.
+# if __name__ == "__main__":
+
+
+    # #Permet de faire bouger le robot réel.
     
-    from py_ergojr.network.messages import Message
-    from py_ergojr.network.zmq_publisher import ZmqPublisher
-    import time
+    # from py_ergojr.network.messages import Message
+    # from py_ergojr.network.zmq_publisher import ZmqPublisher
+    # import time
+    # from my_nearest_neighbor import RtreeNeighbor
+    # import sys
+
+    # poppy = Robot()
+
+    # nn = RtreeNeighbor(false, f=sys.argv[1])
     
-    socket = ZmqPublisher("6666", host="poppy", bound=False, debug=True)
-    # socket = ZmqPublisher("6666", host="localhost", bound=False, debug=True)
-    socket.start()
+    # socket_real = ZmqPublisher("6666", host="poppy", bound=False, debug=True)
+    # socket_simu = ZmqPublisher("6666", host="localhost", bound=False, debug=True)
+    # socket_real.start()
+    # socket_simu.start()
+
+    # def send_cmd(cmd, topic):
+    #     socket_simu.pusblish_on_topic(cmd, topic)
+
+    #     res = input("Is command valid?")
+
+    #     if res == y:
+    #         socket_real.publish_on_topic(cmd, topic)
+
+    # msg_handler = Message()
+
+    # # msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
+    # #  send_cmd(msg_handler.make("stiff",msg), "EJTELEOP")
+
+    # # msg = "dt:2|m1:0|m2:0|m3:-45|m4:0|m5:-45|m6:0"
+    # #  send_cmd(msg_handler.make("move",msg,"Q"), "EJTELEOP")
+
+    # # input("Enter")
 
 
-    msg_handler = Message()
+    # for i in range(12):
+    #     msg = "m{}:off".format((i-1)%5+2)
+    #     msg += "|m{}:blue".format(i%5+2)
+    #     msg += "|m{}:white".format((i+1)%5+2)
+    #     msg += "|m{}:red".format((i+2)%5+2)
+    #     send_cmd(msg_handler.make("led",msg), "EJTELEOP")
+    #     time.sleep(0.5)
 
+    # # msg = "dance:start"
+    # #  send_cmd(msg_handler.make("invoke", msg), 'EJPRIM')
+
+    # # input("Enter")
+
+    # # msg = "dance:stop"
+    # #  send_cmd(msg_handler.make("invoke", msg), 'EJPRIM')
+
+
+    # input("Enter")
+
+    # # msg = "dt:2|m1:-180|m4:0|m5:35|m6:35|m2:-120|m3:50"
+    # #  send_cmd(msg_handler.make("move",msg,"Q"), "EJTELEOP")
+    # # time.sleep(2)
 
     # msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
-    # socket.publish_on_topic(msg_handler.make("stiff",msg), "EJTELEOP")
+    #  send_cmd(msg_handler.make("stiff",msg), "EJTELEOP")
+    # msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
+    #  send_cmd(msg_handler.make("led",msg), "EJTELEOP")
 
-    # msg = "dt:2|m1:0|m2:0|m3:-45|m4:0|m5:-45|m6:0"
-    # socket.publish_on_topic(msg_handler.make("move",msg,"Q"), "EJTELEOP")
-
-    # input("Enter")
-
-
-    for i in range(12):
-        msg = "m{}:off".format((i-1)%5+2)
-        msg += "|m{}:blue".format(i%5+2)
-        msg += "|m{}:white".format((i+1)%5+2)
-        msg += "|m{}:red".format((i+2)%5+2)
-        socket.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
-        time.sleep(0.5)
-
-    # msg = "dance:start"
-    # socket.publish_on_topic(msg_handler.make("invoke", msg), 'EJPRIM')
-
-    # input("Enter")
-
-    # msg = "dance:stop"
-    # socket.publish_on_topic(msg_handler.make("invoke", msg), 'EJPRIM')
-
-
-    input("Enter")
-
-    # msg = "dt:2|m1:-180|m4:0|m5:35|m6:35|m2:-120|m3:50"
-    # socket.publish_on_topic(msg_handler.make("move",msg,"Q"), "EJTELEOP")
-    # time.sleep(2)
-
-    msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
-    socket.publish_on_topic(msg_handler.make("stiff",msg), "EJTELEOP")
-    msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
-    socket.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
-
-    socket.close()
+    # socket.close()

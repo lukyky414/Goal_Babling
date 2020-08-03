@@ -56,8 +56,7 @@ nn = None
 
 if options.debug:
     print("Loading files")
-#save_load=False --> Loading file
-nn = my_nearest_neighbor.RtreeNeighbor(save_load=False, f="{}/{}".format(LEARNING_DIRECTORY, name))
+nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(LEARNING_DIRECTORY, name))
 
 poppy.set_nn(nn)
 
@@ -82,7 +81,7 @@ for g in goals:
     #Affichage de la barre de chargement
     if options.debug:
         i=i+1
-        if i%batch_size == 0:
+        if i%batch_size == 0 or i%1000 == 0:
             print("[", end='')
             for j in range(nb_batch-1):
                 if j < i/batch_size:

@@ -5,8 +5,15 @@ import sys
 import my_discretisation
 import my_end_point
 import my_goal_generation
+import my_robot
 
+######################
+# Animation du robot #
+######################
 
+poppy = my_robot.Robot()
+
+my_display.animation(poppy)
 
 #############################################
 # Affichage des points / goals d'un fichier #

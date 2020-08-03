@@ -4,29 +4,25 @@ import math
 #Bien définir le min & max pour être sur et certain d'encadres entièrement le robot.
 #Mieux vaut prévoir trop grand
 #Par exemple, PoppyErgoJr a une taille d'environ 0.32. Cette grille peut prendre en charge un robot d'une taille jusqu'à 0.5
-_MIN = (-0.5, -0.5, -0.5)
-_MAX = (0.5, 0.5, 0.5)
+_MIN = -0.5
+_MAX = 0.5
 
 # Je considère (0, 0, 0) la cellule qui a pour coins opposées les points: (0, 0, 0) et (cell_size, cell_size, cell_size)
 class Discretisation():
-    def __init__(self, cell_size : float):
+    def __init__(self, nb_divs : float):
         """Defini la taille des cellule de la discretisation."""
         self.min = _MIN
         self.max = _MAX
 
-        # Nombre de cellules pour chacun des axes
-        self.precision = [
-            math.floor((ma-mi)/cell_size)+1
-            for mi, ma in zip(self.min, self.max)
-        ]
+        self.nb_divs = nb_divs
 
         # Le tableau contenant les données de la discrétisation
         self.table = [[[0
-            for _ in range(self.precision[2])]
-            for _ in range(self.precision[1])]
-            for _ in range(self.precision[0])]
+            for _ in range(self.nb_divs)]
+            for _ in range(self.nb_divs)]
+            for _ in range(self.nb_divs)]
         # La taille d'une cellule
-        self.size = cell_size
+        self.size = (self.max - self.min) / nb_divs
         # Garde en mémoire les cellules visitées
         self.visited = []
     
@@ -34,7 +30,7 @@ class Discretisation():
         """Retourne le contenu d'une cellule de la discretisation. Retourne 0 si la cellule est hors memoire."""
         #Ici on prend en compte la portée de la mémoire car l'algo frontier peut dépasser la taille du robot, et donc la taille définie. Surtout si une cellule possède une grande taille.
         for i in range(3):
-            if pos[i] < 0 or pos[i] >= self.precision[i] :
+            if pos[i] < 0 or pos[i] >= self.nb_divs :
                 return 0
         
         return self.table[pos[0]][pos[1]][pos[2]]
@@ -46,7 +42,7 @@ class Discretisation():
 
         good = True
         for i in range(3):
-            t.append( math.floor(( pos[i] - self.min[i] ) / ( self.size )) )
+            t.append( math.floor(( pos[i] - self.min ) / ( self.size )) )
         
         return t
     

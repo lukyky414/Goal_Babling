@@ -105,9 +105,9 @@ class GoalOnGridGenerator(GoalGenerator):
     def newGoalFromCell(self, pos):
         """Génère un but aléatoirement dans une cellule définie"""
         return (
-            random.uniform(pos[0]*self.grid.size+self.grid.min[0],(pos[0]+1)*self.grid.size+self.grid.min[0]), 
-            random.uniform(pos[1]*self.grid.size+self.grid.min[1],(pos[1]+1)*self.grid.size+self.grid.min[1]), 
-            random.uniform(pos[2]*self.grid.size+self.grid.min[2],(pos[2]+1)*self.grid.size+self.grid.min[2])
+            random.uniform(pos[0]*self.grid.size+self.grid.min,(pos[0]+1)*self.grid.size+self.grid.min), 
+            random.uniform(pos[1]*self.grid.size+self.grid.min,(pos[1]+1)*self.grid.size+self.grid.min), 
+            random.uniform(pos[2]*self.grid.size+self.grid.min,(pos[2]+1)*self.grid.size+self.grid.min)
         )
 
     def addGoal(self, goal):

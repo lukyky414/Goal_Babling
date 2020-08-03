@@ -24,6 +24,9 @@ name = ""
 #Récupération des options & paramètres
 options = my_option.get_options_learning()
 
+if options.debug:
+    print("Creating filename")
+
 #Création du nom de fichier en fonction des paramètres
 if options.mb == 1:
     options.gg = None
@@ -38,7 +41,7 @@ else:
     if options.gg == "agnostic":
         name += "{}_".format(options.exp)
     elif options.gg == "frontier":
-        name += "{}p-{}cell_".format(options.p_exp, options.size)
+        name += "{}p-{}div_".format(options.p_exp, options.nb_div)
 
 name += "{}step_{}disturb".format(options.steps, options.pp)
 
@@ -49,7 +52,9 @@ if options.getname:
     print(name)
     sys.exit(0)
 
-
+if options.debug:
+    print(name)
+    print("Initialising")
 #Création du robot
 poppy = my_robot.Robot()
 
@@ -59,10 +64,18 @@ random.seed(options.seed)
 end_points, goals = None, None
 nn = None
 
-#save_load=True --> Saving in a new file (override old one if exist)
+
 if not os.path.exists(DIRECTORY):
     os.makedirs(DIRECTORY)
-nn = my_nearest_neighbor.RtreeNeighbor(save_load=True, f="{}/{}".format(DIRECTORY,name))
+if os.path.exists("{}/{}".format(DIRECTORY,name)):
+    os.remove("{}/{}.dat".format(DIRECTORY,name))
+    os.remove("{}/{}.idx".format(DIRECTORY,name))
+    os.remove("{}/{}_ep.json".format(DIRECTORY,name))
+    os.remove("{}/{}_g.json".format(DIRECTORY,name))
+nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(DIRECTORY,name))
+
+if options.debug:
+    print("Learning")
 
 #Motor Babling only
 if options.mb == 1:
@@ -82,7 +95,7 @@ else:
     if options.gg == "agnostic":
         gg = my_goal_generation.AgnosticGenerator(robot=poppy, coef=options.exp)
     elif options.gg == "frontier":
-        grid = my_discretisation.Discretisation(cell_size=options.size)
+        grid = my_discretisation.Discretisation(nb_divs=options.nb_div)
         gg = my_goal_generation.FrontierGenerator(p=options.p_exp, grid=grid)
     
     if gg is None:

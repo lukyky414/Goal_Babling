@@ -29,7 +29,7 @@ def Motor_Babling(robot : Robot, steps : int, printing : bool) -> list:
 
     for i in range(steps):
         #affichage barre de chargement
-        if printing and i%batch_size == 0:
+        if printing and (i%batch_size == 0 or i%1000 == 0):
             print("[", end='')
             for j in range(nb_batch-1):
                 if j < i/batch_size:
@@ -76,7 +76,7 @@ def Goal_Babling(robot : Robot, NN : NearestNeighbor, GG : GoalGenerator, steps 
 
     for i in range(goal_babling_steps):
         #affichage barre de chargement
-        if printing and i%batch_size == 0:
+        if printing and (i%batch_size == 0 or i%1000 == 0):
             print("[", end='')
             for j in range(nb_batch-1):
                 if j < i/batch_size:
