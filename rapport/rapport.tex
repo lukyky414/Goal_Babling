@@ -42,13 +42,16 @@
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
 \section{Remerciements}
-% Je tiens à remercier toute personne ayant participé de près ou de loin à ce stage.
-% Tout d’abord mon tuteur,  Monsieur  Boumaza Amine pour m’avoir aiguillé,  accompagné  et  pour avoir répondu à mes questions.
-% Le LORIA et Monsieur Marion Jean-Yves pour avoir accepté mon stage au sein du laboratoire.
-% L’équipe LARSEN et Monsieur Charpillet François pour avoir accepté mon stage au sein de son équipe.
-% Mon enseignant référent, Madame Souquières Jeanine pour avoir été là si j’avais un problème.
-% L’Institut  des  Sciences  du  Digital  Management  et  Cognition, Monsieur  Thomann  Laurentet les personnes ayant contribué à la partie administrativede ce stage.
+
+% \underline{Exemple d'une ancienne stagiaire}\\[10pt]
+% Je tiens à remercier toute personne ayant participé de près ou de loin à ce stage.\\[10pt]
+% Tout d’abord mon tuteur,  Monsieur  Boumaza Amine pour m’avoir aiguillé,  accompagné  et  pour avoir répondu à mes questions.\\[10pt]
+% Le LORIA et Monsieur Marion Jean-Yves pour avoir accepté mon stage au sein du laboratoire.\\[10pt]
+% L’équipe LARSEN et Monsieur Charpillet François pour avoir accepté mon stage au sein de son équipe.\\[10pt]
+% Mon enseignant référent, Madame Souquières Jeanine pour avoir été là si j’avais un problème.\\[10pt]
+% L’Institut  des  Sciences  du  Digital  Management  et  Cognition, Monsieur  Thomann  Laurentet les personnes ayant contribué à la partie administrativede ce stage.\\[10pt]
 % Toutes les personnes m’ayant aidé lors de la recherche de ce stage et pendant toute la durée de ce dernier.
+
 
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
@@ -67,16 +70,20 @@ Ce projet rentre dans le cadre général de l’apprentissage artificiel et plus
 Plusieurs algorithmes d’apprentissage proposent d’imiter le développement chez les enfant en s’appuyantsur un processus exploratoire des espaces sensoriels et moteur du robot. L’objectif du travail de recherche proposé est de proposer et d’implanter un algorithme d’exploration des effets des action moteur surun robot réel.\\[10pt]
 Le protocole expérimental envisagé s’appuiera sur un robot ErgoJr à plusieurs degrés de liberté. Une caméra sera installée en bout de bras. Les algorithmes d’apprentissage devront permettre de mettre en œuvre des tâches d’asservissement visuel (parexemple, suivre “du regard” un stimulus visuel).
 
+
+% les modifications opérées pendant le stage
+\subsection{Travail apporté}
+
 Nous proposons d’articuler ce projet en plusieurs étapes.
 \begin{itemize}
     \item Étude bibliographique sur les méthodes de la littérature permettant le type d’apprentissage visé dans ceprojet. Cette étude pourrait être amorcée par la thèse.
     \item Mise au point d’un algorithme et expérimentations pour tests et validations.
 \end{itemize}
 
-% les modifications opérées pendant le stage
-\subsection{Travail apporté}
 % les résultats obtenus pendant le stage
 \subsection{Résultats obtenus}
+
+Afficher une démonstration sur robot réel
 
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
@@ -84,94 +91,57 @@ Nous proposons d’articuler ce projet en plusieurs étapes.
 % le cadre de travail, le descriptif de l’entreprise/le laboratoire
 \section{Cadre de travail}
 
+% \underline{Exemple d'une ancienne stagiaire}\\[10pt]
+% Depuis 1976, le laboratoire du CRIN (Centre de Recherche en Informatique de Nancy) regroupe des chercheurs dont les problématiques se trouvent autour de deux axes: Théorie et Techniques du Logiciel (TTL) et Reconnaissance des Formes et Intelligence Artificielle (RFIA).
+
+% Le rapprochement de l’INRIA, du CRIN et du CNRS a permis le développement de trois autres secteurs pluridisciplinaires: l’informatique et les sciences humaines et sociales, la modélisation et le calcul à hautes performances et les sciences de la vie et de la santé.
+
+% C’est suite à tout cela que le Laboratoire lorrain de Recherche en Informatique et ses Applications (LORIA) a été créé en 1997. Il s’agit d’une Unité Mixte de Recherche (UMR) commune au CNRS, à l’Université de Lorraine et à l’INRIA. Il a pour directeur Jean-Yves Marion et Yannick Toussaint comme directeur adjoint.
+
+% Il est composé de 30 équipes (dont 15 communes avec l’Inria), elles-mêmes structurées en 5 départements (Figure 4).
+
+% Le 5ème département («Systèmes complexes, intelligence artificielle et robotique») est composé de 5 équipes: BISCUIT, KIWI, CAPSID, LARSEN et NEURORYTHMS. Son objectif est l’étude des systèmes complexes et leurs interactions, de l’intelligence artificielle et de la robotique.
+
+% Ce stage se déroule au sein de l’équipe LARSEN (anciennement MaIA) qui a été créée au premier janvier 2015 et qui a pour responsable François Charpillet. Cette équipe a pour objectif de faire évoluer des robots en dehors des laboratoires ou des chaines de production.Il faut donc qu’ils puissent interagir (avec des êtres humains et d’autres robots) et être autonomes (s’adapter à des changements de leur environnement ou de leur morphologie).
+
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
 % le sujet et son contexte 
-\section{Sujet et son contexte}
-
-Afin de contrôler un robot de manière intuitive, donc en lui donnant un position comme but et non une posture (comme une suite d'angle pour le robot Poppy Ergo Jr), nous avons besoin d'un modèle inverse. Celui-ci peut rapidement devenir difficile à construire selon la complexité du robot. Le but de ce stage est de trouver une manière simple de générer un modèle inverse fiable.
-
-J'utilise une base de donnée contenant une posture et la position de l'effecteur du robot. La méthode utilisé pour obtenir le modèle inverse consiste à rechercher une liste des points dans cette base les plus proche du but demandé, et de donner en résultat la moyenne des postures associées à ces points pondéré par leurs distance au but. Le contenu de cette base est donc important pour avoir un résultat convaincant. L'apprentissage utilisé pour construire et remplir cette base de donnée repose sur deux méthodes:
-\begin{itemize}
-    \item \textbf{Motor Babling} Le babillage moteur consiste à donner une posture aléatoire au robot et d'observer l'effect que cela produit. Pour ce projet cela se résume à créer une liste d'angles aléatoires pour la posture, et de calculer la position de l'effecteur du robot. Cette méthode permet déjà de remplir la base de donnée pour un robot simple, comme un bras robotique ne possédant que 2 ou 3 jointure. Mais ces points ne remplissent pas tout l'espace de travail du robot lorsque la complexité de celui-ci augmente. S'il y a plus de jonctions, il y a aussi plus de chance que le robot soit replié sur lui même.
-    \item \textbf{Goal Babling} Le babillage par but permet de compléter le babillage moteur qui est une méthode simple qui ne remplis pas intelligemment l'espace. C'est une manière d'ajouter plus efficacement des points. Pour éviter de ne visiter que les zones facilement atteignables nous cherchons à essayer d'atteindre un but. Le plus difficile à faire et la selection de ce but.
-\end{itemize}
-
-Les robots concernées par cet apprentissages sont principalements des bras robotiques, consitués d'une suite de sections rigides reliées par des moteurs qui peuvent prendre un certain angle comme position. Il serait possible d'adapter l'apprentissage pour une autre forme de robot, mais nous utilisons ici une représentation virtuelle du robot Poppy Ergo Jr.
+\section{Présentation du stage}
 
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
 % le travail réalisé (résultats obtenus, démarche et méthode suivies, difficultés rencontrées, planning, ...)
 \section{Travail réalisé}
-\subsection{Modèle inverse}
 
-La première partie à mettre en place est le modèle inverse. Comme il suffit de séléctionner le point le plus proche dans la base de donnée, il faut mettre un place en Nearest-Neighbor. Celui-ci doit répondre à plusieurs contraintes:
-\begin{itemize}
-    \item La recherche d'un Nearest Neighbor doit être rapide : Utiliser une méthode naive qui calcule une à une la distance entre le but et tous les points de la base n'est pas envisagable, car dans l'execution de cet apprentissage, le modèle inverse est utilisé à chaque étape de "Goal Babling". Pour maximiser l'efficacité des résultats, un maximum d'étape de goal babling est à faire.
-    \item L'ajout d'un point à la base de donnée doit être possible et rapide : Chaque étape de "Goal Babling" ajoute un point à la base du modèle inverse. Il faut donc que cet ajout soit faisable et si possible rapide.
-\end{itemize}
+\subsection{Pourquoi / Modèle Géométrique Inverse}
+Commencer par expliquer qu'est-ce que la cinématique directe d'un robot, puis la cinématique inverse. Expliquer la modélisation d'un robot, la création d'une modélisation géométrique directe qui peut parfois être difficile (environnement qui change, parties flexible, précision de la physique) -> utiliser le monde réel comme modélisation est utile.
+Montrer les difficultés à créer une modélisation géométrique inverse. Expliquer le principe de l'exploration des espaces moteurs et sensoriels avec la comparaison à un nouveau né. L'avantage est l'autonomie de cet apprentissage ainsi que ce n'est pas limité sur le type de robot.
 
-Le programme est en python, et est basé sur \href{http://www.fabien.benureau.com/recode/benureau2015_gb/benureau2015_gb.html}{ce projet} ce projet qui utilise une bibliothèque appelé "learners". Celle-ci permet l'ajout d'un point dans la base, mais est difficile d'utilisation et, selon l'installation, peut ne pas être rapide.
+\subsection{Nearest Neighbor}
+Montrer la construction de la base de donnée des commandes \& observations (posture / position) qui est la base de l'exploration. Le modèle géometrique inverse généré utilisera cette base avec un Nearest Neighbor. Explication du Nearest Neighbor et des manières d'enregistrer les points pour une execution plus rapide de l'algorithme.
 
-Une autre bibliothèque assez utilisé pour le Nearest Neighbor est "Sklearn" avec la méthode du KDTree. Cette bibliothèque est assez facile d'utilisation et d'installation, est aussi rapide pour la recherche d'un Nearest Neighbor mais ne permet pas d'inserer facilement un point dans la base. En effect, le KDTree utilise une architecture d'arbre binaire pour ranger les points. Chaque noeud contient un point de la base est un hyper-plan qui coupe l'espace en deux, créant ainsi deux sous-espaces qui correspondent aux deux branches de ce noeud. Pour une utilisation rapide de cet arbre binaire, il est important de le garder équilibré. Ceci est facile à la création de l'arbre, mais cet équilibre est impossible à garantir lors de l'ajout d'un point sans procéder à un rééquilibrage total de l'arbre. C'est pourquoi Sklearn ne propose simplement pas cette méthode.
+\subsection{motor babling}
+La première manière d'explorer est le motor babling. Expliquer le fonctionnement, algo simple quelque soit le robot. Donner l'exemple d'un robot simple, puis d'un robot compliqué qui n'explore pas entièrement l'espace.
 
-J'utilise donc une bibliothèque appellée "Rtree" qui utilise la méthode du RTree et est basé sur la librairie "libspatialindex" écrite en C. Le Rtree utilise des rectangles englobant, qui regroupe les points de la base en plusieurs paquets. La recherche d'un voisin proche est simplifié par la structure de l'arbre et donc rapide. Les données sont organisé spécialement pour le stockage sur disque comme une base de donnée.
+\subsection{goal babling}
+Pour mieux explorer l'espace on crée le goal babling, qui permet de diriger l'apprentissage. Problématique: Nearest Neighbor doit être capable d'ajouter des points dans la base en cours d'execution: exclusion de scikit sklearn.neighbors. Commencer avec un agnostic goal generation, montrer les limites de cet algorithme car explore mal l'espace si mal configuré (concentration de but sur les bords de l'espace de "travail"?)
 
-\subsection{Algorithmes utilisés}
+\subsubsection{goal on grid}
+Une des manières de diriger sans connaitre le modèle du robot mais pour autant sans trop déteriorer l'apprentissage, on peut partitionner l'espace et générer des buts dans une grille. Introduction de la probabilité d'exploration. But dans une zone atteinte: facile. But dans une zone non atteinte: plus difficile.
 
-Le modèle inverse ne change pas dans cet apprentissage. Il reste donc trois parties de l'apprentissage qu'il faut créer:
-\begin{itemize}
-    \item La génération aléatoire d'une posture dans l'étape de "Motor Babling".
-    \item La génération d'un but dans l'étape de "Goal Babling".
-    \item La modification de la posture retourné par le modèle inverse pour le but généré précédemment.
-\end{itemize}
+\subsubsection{frontier}
+Une manière de selectionner une cellule dans une zone non atteinte.
 
-J'ai utilisé des valeurs aléatoires uniformes pour générer une posture dans le Motor Babling, et aussi une valeur aléatoire uniforme dans un petit interval pour modifier la posture donnée par le modèle inverse. Il reste la génération d'un but à faire, et il existe une multitude de manière de faire. La distribution finale de ces but doit remplir au maximum l'espace atteignable par le robot, sans pouvoir connaître cet espace. Voici les algorithme que j'ai mis en place dans ce projet.
 
-\subsubsection{Agnostic goal generation}
-
-La génération agnostique de but n'utilise aucun paramètre présumé sur le robot (comme sa taille). A chaque itération l'algorithme garde en mémoire les coordonnées maximales que peut atteindre le robot dans chacun des axes, et génère un point dans cet interval avec un facteur qui permet un peu d'exploration. Le résultat est ainsi une zone de génération de but très proche de la zone atteignable par le robot.
-
-\subsubsection{Frontier strategy}
-
-La génération agnostique donnera un volume en forme de pavé droit, et dans notre cas la zone atteignable par le robot ressemble plus à une sphère. C'est à cette problématique que répond la stratégie de frontière. Cette stratégie consiste à discrétiser l'espace en carré pour la 2D ou en cube pour la 3D pour determiner quelle cellule (carré / cube) a déjà été visité et s'en servir pour la génération d'un nouveau but. Le nouveau but est généré avec une probabilité \emph{p} dans des cellules déjà visitées et avec une probabilité 1-\emph{p} dans une cellule non visitée.
-
-Pour savoir quelle cellule non visitée est choisie, une position déjà atteinte par le robot est selectionnée aléatoirement. Ensuite, une direction est choisie aléatoirement. Cet algorithme va suivre le vecteur déterminé par la position et la direction, et va se déplacer dans l'espace jusqu'à atteindre une cellule qui n'a pas encore été visitée.
-
-\subsection{Evaluation des algorithmes}
-
-Pour pouvoir comparer les résultats des différents apprentissages, il faut pouvoir donner une métrique pour mesurer ces résultats. Dans un premier temps il faut représenter un maximum de donnée à l'écran pour laisser l'utilisatuer juger si son algorithme fonctionne.
-
-\subsubsection{Affichage}
-
-La première étape de mon projet consiste à afficher une représentation du robot, pour pouvoir comparer certaines formes et tailles avant de me lancer dans la suite. Voici donc un exmple de robot dans une certaine posture. La principale bibliothèque d'affichage utilisée est OpenGL. J'ai aussi utilisé SDK pour la création de la fenêtre.
-
-% TODO Afficher image du robot sur fond bland %
-
-Ensuite, le résultat de mes algorithmes me retournent une liste de point. Cela n'a aucun sens de représenter tout le robot pour chacun de ces points, j'ai préféré ne représenter que le bout du robot (appelé End Point). Voici donc le résultat d'un motor babling après 5 000 étapes:
-
-% TODO Afficher nuage de point, motor babling, 5 000 étapes
-
-Cette représentation est très utile pour un environnement 2D, mais dans notre cas il est difficile d'évaluer la distance d'un point par rapport au centre. J'ai donc décider de colorer les points par rapport à leurs distances au centre:
-
-% TODO Afficher un nuage de point coloré, mêmes données qu'au dessus
-
-Enfin, le programme peut aussi trier et représenter les données dans un graphe. Voici par exemple une repartition des points en fonction de l'axe X, Y ou Z, mais aussi par rapport à la distance au centre (la base du robot, le point d'attache).
-
-% TODO Afficher les graphes résultats par rapport aux données précédentes
-
-Ces différents affichages ne permettent cependant pas de mesurer les résultats.
-
-\subsubsection{Evaluation}
-
-Il nous faut une métrique précise. Par exemple, une propriété voulue pourrait être la précision de notre modèle. Il est possible de mesurer par exemple la différence moyenne entre une position recherchée et la position retournée par le modèle inverse. 
 
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
 % les conclusions
 \section{Conslusion}
+
 
 \end{document}
