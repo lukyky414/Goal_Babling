@@ -130,14 +130,25 @@ class FrontierGenerator(GoalOnGridGenerator):
     def get_random_dir():
         """Choisir une direction aleatoire en 3d"""
 
-        #Distribution gaussienne sur chacune des dimensions
-        vec = [random.gauss(0, 1) for _ in range(3)]
+        # https://mathworld.wolfram.com/SpherePointPicking.html
+        u = random.uniform(0,1)
+        v = random.uniform(0,1)
 
-        #Normaliser le vecteur
-        mag = sum(x**2 for x in vec) ** .5
-        dir = [x/mag for x in vec]
+        theta = 2*math.pi*u
+        phi = math.acos(2*v-1)
 
-        return dir
+        x = math.cos(theta) * math.sin(phi)
+        y = math.sin(theta) * math.sin(phi)
+        z = math.cos(phi)
+
+        # #Distribution gaussienne sur chacune des dimensions
+        # vec = [random.gauss(0, 1) for _ in range(3)]
+
+        # #Normaliser le vecteur
+        # mag = sum(x**2 for x in vec) ** .5
+        # dir = [x/mag for x in vec]
+
+        return (x, y, z)
 
     def newGoalOutside(self):
         #choisir aleatoirement un point de depart

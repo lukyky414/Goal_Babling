@@ -9,7 +9,6 @@ import os
 import json
 
 from my_robot import Robot
-from my_goal_generation import FrontierGenerator
 from my_option import get_options_goal
 
 DIRECTORY = "files"
@@ -23,14 +22,27 @@ poppy = Robot()
 
 random.seed(options.seed)
 
+
 goals = []
+
+#angle à générer aléatoirement pour avoir le camembert
+angle = 2*math.pi - (math.pi/2)
+#angle pour faire tourner le camembert
+rot = 3*math.pi/4
+
 for _ in range(1000):
-    #Direction aléatoire, dans un vecteur de taille 1
-    dir = FrontierGenerator.get_random_dir()
-    #Distribution uniforme entre 0 et la taille du robot
-    dist = random.uniform(0, poppy.size)
-    #Distribution uniforme dans une boule centré sur l'origine, de rayon = robot.size
-    goals.append([p*dist for p in dir])
+    u = random.uniform(0,1)
+    v = random.uniform(0,1)
+
+    theta = angle*u + rot
+    phi = math.acos(2*v-1)
+
+    x = math.cos(theta) * math.sin(phi)
+    y = math.sin(theta) * math.sin(phi)
+    z = abs(math.cos(phi))
+
+    dist = random.uniform(0,robot.size)
+    goals.append((x*mag, y*mag, z*mag))
 
 
 if options.debug:

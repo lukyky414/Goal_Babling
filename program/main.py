@@ -1,19 +1,51 @@
-import my_display
 import json
-import my_json_encoder
 import sys
+import random
+import math
+
+import my_json_encoder
+import my_display
 import my_discretisation
 import my_end_point
 import my_goal_generation
 import my_robot
 
+##################################
+# Generation direction aleatoire #
+##################################
+pos = []
+
+angle = 2*math.pi - (math.pi/2)
+
+for _ in range(10000):
+    u = random.uniform(0,1)
+    v = random.uniform(0,1)
+
+    theta = angle*u + 5*math.pi/4
+
+    phi = math.acos(2*v-1)
+
+    x = math.cos(theta) * math.sin(phi)
+    y = math.sin(theta) * math.sin(phi)
+    z = abs(math.cos(phi))
+
+    mag = random.uniform(0,1)
+    pos.append((x*mag, y*mag, z*mag))
+
+    # mag = (x**2 + y**2 + z**2) ** .5
+    # pos.append((x/mag, y/mag, z/mag))
+
+    # pos.append((x, y, z))
+
+my_display.draw_points_cloud(pos, max_dist = 1)
+
+
 ######################
 # Animation du robot #
 ######################
+# poppy = my_robot.Robot()
 
-poppy = my_robot.Robot()
-
-my_display.animation(poppy)
+# my_display.animation(poppy)
 
 #############################################
 # Affichage des points / goals d'un fichier #
