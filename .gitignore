@@ -12,7 +12,7 @@ pdf/*
 
 #fichiers résultats du programme
 files/InverseModel
-files/NearestNeighbor
+files/InvModResults
 
 #fichier personnel pour stopper le robot reel
 program/stop.py

@@ -15,9 +15,10 @@ import my_option
 import my_json_encoder
 
 #Récupération des options & paramètres
-options = my_option.get_options_result()
+options = my_option.get_options_use_im()
 
 if options.debug:
+    print("Step2: Use Inverse Model")
     print("Loading config")
 
 f = options.file
@@ -31,10 +32,10 @@ if name[-8:] == "_ep.json":
 if name[-7:] == "_g.json":
     name = name[:-7]
 
-if not os.path.isfile("{}/{}.dat".format(INV_DIR, name)):
+if not os.path.isfile("{}/{}/{}.dat".format(MAIN_DIR, INV_DIR, name)):
     print("No .dat file found for '{}'.".format(name), file=sys.stderr)
     sys.exit(1)
-if not os.path.isfile("{}/{}.idx".format(INV_DIR, name)):
+if not os.path.isfile("{}/{}/{}.idx".format(MAIN_DIR, INV_DIR, name)):
     print("No .idx file found for '{}'.".format(name), file=sys.stderr)
     sys.exit(1)
 
@@ -50,7 +51,7 @@ nn = None
 
 if options.debug:
     print("Loading files")
-nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(INV_DIR, name))
+nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}/{}".format(MAIN_DIR, INV_DIR, name))
 
 poppy.set_nn(nn)
 
@@ -93,10 +94,11 @@ if options.debug:
     print()
     print("Output in file")
     
-if not os.path.exists(RES_DIR):
-    os.makedirs(RES_DIR)
+
+if not os.path.exists("{}/{}".format(MAIN_DIR, RES_DIR)):
+    os.makedirs("{}/{}".format(MAIN_DIR, RES_DIR))
     
-f = open("{}/{}.json".format(RES_DIR, name), "w")
+f = open("{}/{}/{}.json".format(MAIN_DIR, RES_DIR, name), "w")
 json.dump(res, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
 

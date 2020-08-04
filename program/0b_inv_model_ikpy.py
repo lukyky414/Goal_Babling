@@ -1,7 +1,11 @@
 import numpy
+import os
+import json
 
 from my_files_paths import *
 import my_robot
+import my_option
+import my_json_encoder
 
 
 poppy = my_robot.Robot()
@@ -18,9 +22,10 @@ def inv_mod(goal):
 
 
 #Récupération des options & paramètres
-options = my_option.get_options_result()
+options = my_option.get_options_ikpy()
 
 if options.debug:
+    print("Use IKPY Inverse Model")
     print("Loading config")
 
 g = "{}/{}".format(MAIN_DIR, GOAL_FILE)
@@ -70,7 +75,10 @@ if options.debug:
     print()
     print("Output in file")
 
-f = open("{}/ikpy_{}.json".format(INV_DIR, options.n), "w")
+if not os.path.exists("{}/{}".format(MAIN_DIR, RES_DIR)):
+    os.makedirs("{}/{}".format(MAIN_DIR, RES_DIR))
+
+f = open("{}/{}/ikpy_{}.json".format(MAIN_DIR, RES_DIR, options.n), "w")
 json.dump(res, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
 

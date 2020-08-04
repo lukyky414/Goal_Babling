@@ -22,9 +22,10 @@ import my_json_encoder
 name = ""
 
 #Récupération des options & paramètres
-options = my_option.get_options_learning()
+options = my_option.get_options_learn()
 
 if options.debug:
+    print("Step1:Learning Inverse Model")
     print("Creating filename")
 
 #Création du nom de fichier en fonction des paramètres
@@ -70,7 +71,7 @@ if not os.path.exists(dirs):
 
 for end in [".dat", ".idx"]:
     filename = "{}/{}{}".format(dirs, name, end)
-    if os.path.exist(filename):
+    if os.path.exists(filename):
         os.remove(filename)
 
 nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(dirs,name))

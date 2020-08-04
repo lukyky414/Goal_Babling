@@ -6,6 +6,7 @@ if __name__ != "__main__":
 
 import random
 import os
+import math
 import json
 
 from my_files_paths import *
@@ -40,8 +41,8 @@ for _ in range(1000):
     y = math.sin(theta) * math.sin(phi)
     z = abs(math.cos(phi))
 
-    dist = random.uniform(0,robot.size)
-    goals.append((x*mag, y*mag, z*mag))
+    dist = random.uniform(0,poppy.size)
+    goals.append((x*dist, y*dist, z*dist))
 
 
 if options.debug:

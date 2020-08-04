@@ -28,6 +28,7 @@ RESULTS = {}
 options = my_option.get_options_analyse()
 
 if options.debug:
+    print("Step 3: Analyse results of using the Inverse Model")
     print("Loading Config")
 
 
@@ -40,7 +41,7 @@ if name[-5:] == ".json":
 
 IS_IKPY = "ikpy" in name
     
-if not os.path.isfile("{}/{}.json".format(RES_DIR, name)):
+if not os.path.isfile("{}/{}/{}.json".format(MAIN_DIR, RES_DIR, name)):
     print("No Inverse Model Results '.json' file found for '{}'.".format(name), file=sys.stderr)
     sys.exit(1)
 
@@ -50,7 +51,7 @@ if not os.path.isfile(g):
     sys.exit(1)
 
 
-if not os.path.isfile("{}/{}_ep.json".format(INV_DIR, name)):
+if not IS_IKPY and not os.path.isfile("{}/{}/{}_ep.json".format(MAIN_DIR, INV_DIR, name)):
     print("No End Point List '_ep.json' file found for '{}'.".format(name), file=sys.stderr)
     sys.exit(1)
 
@@ -60,7 +61,7 @@ if options.debug:
     print("Loading files", end="")
 
 #Chargement de la liste des end_points atteint avec le modèle inverse
-f = open("{}/{}.json".format(RES_DIR, name), "r")
+f = open("{}/{}/{}.json".format(MAIN_DIR, RES_DIR, name), "r")
 str_ep_im = json.load(fp=f)
 end_points_im = my_json_encoder.decode(str_ep_im)
 f.close()
@@ -78,7 +79,7 @@ if options.debug:
 
 if not IS_IKPY:
     #Chargement des end_points dans la base du modèle inverse
-    f = open("{}/{}_ep.json".format(INV_DIR, name), "r")
+    f = open("{}/{}/{}_ep.json".format(MAIN_DIR, INV_DIR, name), "r")
     str_ep = json.load(fp=f)
     end_points = my_json_encoder.decode(str_ep)
     f.close()
@@ -124,20 +125,20 @@ theorical_vol = (poppy.size ** 3) * math.pi * 4/3
 RESULTS["rvo"] = vol / theorical_vol
 # RESULTS["tvo"] = theorical_vol
 
+
+RESULTS["min"] = distances.min()
+
+RESULTS["1qa"] = numpy.quantile(distances, 0.25)
+
 RESULTS["moy"] = distances.mean()
 
 RESULTS["med"] = numpy.median(distances)
 
-RESULTS["var"] = distances.var()
-
-RESULTS["min"] = distances.min()
+RESULTS["3qa"] = numpy.quantile(distances, 0.75)
 
 RESULTS["max"] = distances.max()
 
-quantiles = numpy.quantile(distances, 4)
-RESULTS["1qa"] = quantiles[0]
-RESULTS["3qa"] = quantiles[2]
-
+RESULTS["var"] = distances.var()
 ##########
 #Output des résultats
 ##########
@@ -145,10 +146,10 @@ RESULTS["3qa"] = quantiles[2]
 if options.debug:
     print("Output in files")
 
-if not os.path.exists(ANL_DIR):
-    os.makedirs(ANL_DIR)
+if not os.path.exists("{}/{}".format(MAIN_DIR, ANL_DIR)):
+    os.makedirs("{}/{}".format(MAIN_DIR, ANL_DIR))
 
-f = open("{}/{}.json".format(ANL_DIR, name), "w")
+f = open("{}/{}/{}.json".format(MAIN_DIR, ANL_DIR, name), "w")
 json.dump(RESULTS, fp=f)
 f.close()
 

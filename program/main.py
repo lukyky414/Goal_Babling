@@ -14,19 +14,20 @@ import my_robot
 ######################################
 # Comparer deux generations de goals #
 ######################################
-f = sys.argv[1]
+# a1 = sys.argv[1]
+# a2 = sys.argv[2]
 
-f1 = open("{}_g.json".format(f), "r")
-f2 = open("{}_2_g.json".format(f), "r")
+# f1 = open(a1, "r")
+# f2 = open(a2, "r")
 
-goals1 = json.load(fp=f1)
-goals2 = json.load(fp=f2)
+# goals1 = json.load(fp=f1)
+# goals2 = json.load(fp=f2)
 
-for g1, g2 in zip(goals1, goals2):
-    if g1 != g2:
-        print("{} \t {}".format(g1, g2))
-    else:
-        print("same")
+# for g1, g2 in zip(goals1, goals2):
+#     if g1 != g2:
+#         print("{} \t {}".format(g1, g2))
+#     else:
+#         print("same")
 
 ##################################
 # Generation direction aleatoire #
