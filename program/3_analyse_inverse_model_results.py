@@ -7,10 +7,11 @@ if __name__ != "__main__":
 import os.path
 import json
 import math
+import numpy
 
+from my_files_paths import *
 import my_option
 import my_json_encoder
-
 from my_nearest_neighbor import dist
 from my_discretisation import Discretisation
 from my_robot import Robot
@@ -21,15 +22,6 @@ from my_display import draw_discretization
 #Chargement des options, début du programme
 ##########
 
-#Attention, doit etre le meme que DIRECTORY dans main_learning.py
-LEARNING_DIRECTORY = "files/NearestNeighbor"
-#Attention, doit etre le meme que DIRECTORY dans main_learning.py
-INV_MOD_DIRECTORY = "files/InverseModel"
-
-#Attention, doit etre le meme que DIRECTORY dans main_goals.py
-GOAL_DIRECTORY = "files"
-
-DIRECTORY = "files/AnalysisResult"
 RESULTS = {}
 
 #Récupération des options & paramètres
@@ -45,19 +37,21 @@ name = f[f.rfind("/")+1:]
 #Ignorer le .json si présent
 if name[-5:] == ".json":
     name = name[:-5]
+
+IS_IKPY = "ikpy" in name
     
-if not os.path.isfile("{}/{}.json".format(INV_MOD_DIRECTORY, name)):
-    print("No Inverse Model .json file found for '{}'.".format(name), file=sys.stderr)
+if not os.path.isfile("{}/{}.json".format(RES_DIR, name)):
+    print("No Inverse Model Results '.json' file found for '{}'.".format(name), file=sys.stderr)
     sys.exit(1)
 
-g = "{}/Goals.json".format(GOAL_DIRECTORY)
+g = "{}/{}".format(MAIN_DIR, GOAL_FILE)
 if not os.path.isfile(g):
     print("File not found '{}'.".format(g), file=sys.stderr)
     sys.exit(1)
 
 
-if not os.path.isfile("{}/{}_ep.json".format(LEARNING_DIRECTORY, name)):
-    print("No _ep.json file found for'{}'.".format(name), file=sys.stderr)
+if not os.path.isfile("{}/{}_ep.json".format(INV_DIR, name)):
+    print("No End Point List '_ep.json' file found for '{}'.".format(name), file=sys.stderr)
     sys.exit(1)
 
 poppy = Robot()
@@ -65,8 +59,8 @@ poppy = Robot()
 if options.debug:
     print("Loading files", end="")
 
-#Chargement de la liste des end_points atteint
-f = open("{}/{}.json".format(INV_MOD_DIRECTORY, name), "r")
+#Chargement de la liste des end_points atteint avec le modèle inverse
+f = open("{}/{}.json".format(RES_DIR, name), "r")
 str_ep_im = json.load(fp=f)
 end_points_im = my_json_encoder.decode(str_ep_im)
 f.close()
@@ -82,11 +76,12 @@ f.close()
 if options.debug:
     print(".", end="")
 
-#Chargement des end_points dans la base
-f = open("{}/{}_ep.json".format(LEARNING_DIRECTORY, name), "r")
-str_ep = json.load(fp=f)
-end_points = my_json_encoder.decode(str_ep)
-f.close()
+if not IS_IKPY:
+    #Chargement des end_points dans la base du modèle inverse
+    f = open("{}/{}_ep.json".format(INV_DIR, name), "r")
+    str_ep = json.load(fp=f)
+    end_points = my_json_encoder.decode(str_ep)
+    f.close()
 
 if options.debug:
     print(".")
@@ -98,45 +93,50 @@ if options.debug:
 if options.debug:
     print("Getting distances from goals")
 #Calcul des distances des points par rapport aux but
-distances = []
+_distances = []
 #Somme des distances et distances au carré
-s = 0
-s2 = 0
 for ep, g in zip(end_points_im, goals):
     pos = ep.get_pos()
     d = dist(g, pos)
-    distances.append(d)
-    s += d
-    s2 += d**2
+    _distances.append(d)
 
-# RESULTS["distances"] = distances
+distances = numpy.array(_distances)
+# distances.sort()
+# RESULTS["distances"] = distances.to_array()
 
 if options.debug:
     print("Calculating volume")
-grid = Discretisation(options.nb_div, save_visited=False)
-for ep in end_points:
-    grid.add_point(ep)
 
-vol = grid.nb_visited * (grid.size ** 3)
-RESULTS["volume"] = vol
-
-theorical_vol = (poppy.size ** 3) * math.pi * 4/3
-RESULTS["relative_volume"] = vol / theorical_vol
-# RESULTS["theorical_vol"] = theorical_vol
+if IS_IKPY:
+    vol = 0
+else:
+    grid = Discretisation(options.nb_div, save_visited=False)
+    for ep in end_points:
+        grid.add_point(ep)
+    vol = grid.nb_visited * (grid.size ** 3)
 
 if options.debug:
-    print("Calculating other value")
-n = len(distances)
+    print("Generating results")
 
-m = s / n
-RESULTS["moyenne"] = m
+# RESULTS["vol"] = vol
 
-v = (s2 - 2*m*s)/n + m**2
-RESULTS["variance"] = v
+theorical_vol = (poppy.size ** 3) * math.pi * 4/3
+RESULTS["rvo"] = vol / theorical_vol
+# RESULTS["tvo"] = theorical_vol
 
-ec = math.sqrt(v)
-RESULTS["ecart_type"] = ec
+RESULTS["moy"] = distances.mean()
 
+RESULTS["med"] = numpy.median(distances)
+
+RESULTS["var"] = distances.var()
+
+RESULTS["min"] = distances.min()
+
+RESULTS["max"] = distances.max()
+
+quantiles = numpy.quantile(distances, 4)
+RESULTS["1qa"] = quantiles[0]
+RESULTS["3qa"] = quantiles[2]
 
 ##########
 #Output des résultats
@@ -145,12 +145,12 @@ RESULTS["ecart_type"] = ec
 if options.debug:
     print("Output in files")
 
-if not os.path.exists(DIRECTORY):
-    os.makedirs(DIRECTORY)
-f = open("{}/{}.json".format(DIRECTORY, name), "w")
+if not os.path.exists(ANL_DIR):
+    os.makedirs(ANL_DIR)
+
+f = open("{}/{}.json".format(ANL_DIR, name), "w")
 json.dump(RESULTS, fp=f)
 f.close()
-
 
 if options.debug:
     print("Done.")

@@ -27,6 +27,25 @@ def pos_int(value):
 
 #Différentes fonction pour chacun des main
 
+def get_options_ikpy():
+    parser = argparse.ArgumentParser(description='Use Ikpy as Inverse Model')
+
+    parser.add_argument("--nodebug", 
+                        dest="debug",
+                        action='store_false',
+                        default=True,  
+                        help="Do not print debug infos"
+    )
+
+    parser.add_argument("--n",
+                        dest="n",
+                        type=str,
+                        default=0,
+                        help="Number (or else) to add at the end of the filename"
+    )
+
+    return parser.parse_args()
+
 def get_options_goal():
     parser = argparse.ArgumentParser(description='Generate a list of goal to reach for the Inverse Model.')
 
@@ -115,7 +134,7 @@ def get_options_learning():
     parser.add_argument("--n",
                         dest="n",
                         type=str,
-                        default=None,
+                        default=0,
                         help="Number (or else) to add at the end of the filename"
     )
 

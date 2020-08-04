@@ -7,18 +7,12 @@ if __name__ != "__main__":
 import os.path
 import json
 
+from my_files_paths import *
 import my_robot
 import my_nearest_neighbor
 import my_goal_generation
 import my_option
 import my_json_encoder
-
-#Attention, doit etre le meme que DIRECTORY dans main_learning.py
-LEARNING_DIRECTORY = "files/NearestNeighbor"
-#Attention, doit etre le meme que DIRECTORY dans main_goals.py
-GOAL_DIRECTORY = "files"
-
-DIRECTORY = "files/InverseModel"
 
 #Récupération des options & paramètres
 options = my_option.get_options_result()
@@ -28,7 +22,7 @@ if options.debug:
 
 f = options.file
 
-#Récupération du nom de fichier (ignorer les extensions ou les dossiers)
+#Récupération du nom de fichier (ignorer les extensions et les dossiers parents)
 name = f[f.rfind("/")+1:]
 if name[-4:] == ".dat":
     name = name[:-4]
@@ -37,15 +31,15 @@ if name[-8:] == "_ep.json":
 if name[-7:] == "_g.json":
     name = name[:-7]
 
-if not os.path.isfile("{}/{}.dat".format(LEARNING_DIRECTORY, name)):
+if not os.path.isfile("{}/{}.dat".format(INV_DIR, name)):
     print("No .dat file found for '{}'.".format(name), file=sys.stderr)
     sys.exit(1)
-if not os.path.isfile("{}/{}.idx".format(LEARNING_DIRECTORY, name)):
+if not os.path.isfile("{}/{}.idx".format(INV_DIR, name)):
     print("No .idx file found for '{}'.".format(name), file=sys.stderr)
     sys.exit(1)
 
 
-g = "{}/Goals.json".format(GOAL_DIRECTORY)
+g = "{}/{}".format(MAIN_DIR, GOAL_FILE)
 if not os.path.isfile(g):
     print("File not found '{}'.".format(g), file=sys.stderr)
     sys.exit(1)
@@ -56,7 +50,7 @@ nn = None
 
 if options.debug:
     print("Loading files")
-nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(LEARNING_DIRECTORY, name))
+nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(INV_DIR, name))
 
 poppy.set_nn(nn)
 
@@ -98,10 +92,11 @@ for g in goals:
 if options.debug:
     print()
     print("Output in file")
-if not os.path.exists(DIRECTORY):
-    os.makedirs(DIRECTORY)
     
-f = open("{}/{}.json".format(DIRECTORY, name), "w")
+if not os.path.exists(RES_DIR):
+    os.makedirs(RES_DIR)
+    
+f = open("{}/{}.json".format(RES_DIR, name), "w")
 json.dump(res, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
 

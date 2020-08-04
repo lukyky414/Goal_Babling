@@ -8,10 +8,10 @@ import random
 import os
 import json
 
+from my_files_paths import *
 from my_robot import Robot
 from my_option import get_options_goal
 
-DIRECTORY = "files"
 
 options = get_options_goal()
 if options.debug:
@@ -21,7 +21,6 @@ if options.debug:
 poppy = Robot()
 
 random.seed(options.seed)
-
 
 goals = []
 
@@ -47,10 +46,12 @@ for _ in range(1000):
 
 if options.debug:
     print("Output in file")
-if not os.path.exists(DIRECTORY):
-    os.makedirs(DIRECTORY)
+if not os.path.exists(MAIN_DIR):
+    os.makedirs(MAIN_DIR)
 
-f = open("{}/Goals.json".format(DIRECTORY), "w")
+filename = "{}/{}".format(MAIN_DIR, GOAL_FILE)
+
+f = open(filename, "w")
 json.dump(goals, fp=f)
 f.close()
 

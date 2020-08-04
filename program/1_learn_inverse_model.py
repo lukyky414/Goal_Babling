@@ -8,6 +8,7 @@ import random
 import os
 import json
 
+from my_files_paths import *
 import my_robot
 import my_learning
 import my_goal_generation
@@ -16,7 +17,6 @@ import my_nearest_neighbor
 import my_option
 import my_json_encoder
 
-DIRECTORY = "files/NearestNeighbor"
 
 #Dossier des fichiers
 name = ""
@@ -64,15 +64,16 @@ random.seed(options.seed)
 end_points, goals = None, None
 nn = None
 
+dirs = "{}/{}".format(MAIN_DIR, INV_DIR)
+if not os.path.exists(dirs):
+    os.makedirs(dirs)
 
-if not os.path.exists(DIRECTORY):
-    os.makedirs(DIRECTORY)
-if os.path.exists("{}/{}".format(DIRECTORY,name)):
-    os.remove("{}/{}.dat".format(DIRECTORY,name))
-    os.remove("{}/{}.idx".format(DIRECTORY,name))
-    os.remove("{}/{}_ep.json".format(DIRECTORY,name))
-    os.remove("{}/{}_g.json".format(DIRECTORY,name))
-nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(DIRECTORY,name))
+for end in [".dat", ".idx"]:
+    filename = "{}/{}{}".format(dirs, name, end)
+    if os.path.exist(filename):
+        os.remove(filename)
+
+nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(dirs,name))
 
 if options.debug:
     print("Learning")
@@ -116,13 +117,13 @@ else:
 if options.debug:
     print("Saving end_points")
 
-f = open("{}/{}_ep.json".format(DIRECTORY, name), "w")
+f = open("{}/{}_ep.json".format(dirs, name), "w")
 json.dump(end_points, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
 
 if options.debug:
     print("Saving goals")
 
-f = open("{}/{}_g.json".format(DIRECTORY, name), "w")
+f = open("{}/{}_g.json".format(dirs, name), "w")
 json.dump(goals, fp=f)
 f.close()
