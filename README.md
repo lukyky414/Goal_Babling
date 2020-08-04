@@ -4,7 +4,7 @@ Basé sur <a href="https://github.com/benureau/recode/tree/master/benureau2015_g
 Afin de créer un modèle inverse basée sur le remplissage d'une base de points connus et d'un NearestNeighbor, j'utilise plusieurs manières pour remplir cette base: principalement le GoalBabling avec une méthode spécifique pour le Goals On Grid qui est l'algorithme Frontier.
 
 Ce projet fonctionne avec python 3 (3.8.5). J'utilise les bibliothèques suivantes. Celles-ci sont installées de base généralement:
-`sys`, `os`, `math`, `random`, `numpy`, `argparse`
+`sys`, `os`, `math`, `random`, `numpy`, `argparse`, `re`, `glob`
 
 Celles-ci devront surement être installées [`pip install <Name>`].
 `json`, `rtree`, `copy`, `pypot`, `pypot-creature`, `poppy-ergo-jr`
