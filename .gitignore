@@ -11,8 +11,7 @@ program/py_ergojr
 pdf/*
 
 #fichiers résultats du programme
-files/InverseModel
-files/InvModResults
+files
 
 #fichier personnel pour stopper le robot reel
 program/stop.py

@@ -1,8 +1,6 @@
 MAIN_DIR = "files"
 
 GOAL_FILE = "Goals.json"
+IKPY_FILE = "Ikpy.json"
 
-INV_DIR = "InverseModel"
-RES_DIR = "InvModResults"
-ANL_DIR = "Analysis"
-SUM_DIR = "Summary"
+CTL_DIR = "Catalogues"

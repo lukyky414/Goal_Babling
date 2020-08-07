@@ -26,7 +26,6 @@ _size = (600, 600)
 # Couleurs du background [0 - 255] (r, g, b)
 _background_color = (0, 0, 0)
 
-
 def plots_distribution(endpoints : list, precision = 100):
     """Cree quatre plots, un pour chacun des axes et un pour la distance à l'origine, et affiche la distribution des points sur ces graphes
     `endoints` - Liste des endpoints etudiés
@@ -247,7 +246,8 @@ def display_robot(posture_pos : list):
         _event_handler()
         pg.time.wait(10)
 
-def draw_points_cloud(end_points : list, max_dist = 0.3):
+_cloud_point_color = None
+def draw_points_cloud(end_points : list, max_dist = 0.3, robot = None, sphere=0):
     """Dessine un nuage de point 3d.
     `end_points` - les coordonnees des points en (x, y, z) ou liste d'end_points"""
 
@@ -260,14 +260,18 @@ def draw_points_cloud(end_points : list, max_dist = 0.3):
             pos = ep.get_pos()
         else:
             pos = ep
-        d = 0
-        for p in pos:
-            d += p**2
-        d = math.sqrt(d)
+        
+        if _cloud_point_color is None:
+            d = 0
+            for p in pos:
+                d += p**2
+            d = math.sqrt(d)
 
-        fact = d / max_dist
-        color = _get_rainbow_color(fact)
-        points.append((pos, color))
+            fact = d / max_dist
+            color = _get_rainbow_color(fact)
+            points.append((pos, color))
+        else:
+            points.append((pos, _cloud_point_color))
 
     while _StaticVars.is_running:
         gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
@@ -275,12 +279,19 @@ def draw_points_cloud(end_points : list, max_dist = 0.3):
         _draw_axes()
 
         gl.glBegin(gl.GL_POINTS)
-        for p in points:
-            gl.glColor3f(p[1][0], p[1][1], p[1][2])
-
-            gl.glVertex3f(p[0][0], p[0][1], p[0][2])
+        for (p, c) in points:
+            gl.glColor3f(c[0], c[1], c[2])
+            gl.glVertex3f(p[0], p[1], p[2])
 
         gl.glEnd()
+
+        if robot is not None:
+            posture = robot.get_posture_pos((0, 0, 0, 0, 0, 0))
+            _draw_one_robot(posture)
+
+        if sphere != 0:
+            gl.glColor4f(1, 1, 1, 0.1)
+            glu.gluSphere(glu.gluNewQuadric(), sphere, 64, 32)
 
         _draw_fps()
         pg.display.flip()
@@ -372,13 +383,16 @@ class _StaticVars:
     mouse_last_y = 0
     last_time = 0
 
+_section_color = (0, 0, 0, 1)
+_joint_color = (0, 0, 1, 1)
+_hjoint_color = (1, 0, 0, 1)
 def _draw_one_robot(posture_pos : list, highlight=None):
     """Permet de dessiner un robot avec ces link et ses moteurs.
     `posture_pos` - liste de matrice de rotation décrivant le robot dans sa posture"""
 
     # Chaque section est representee par un segment noir
     gl.glBegin(gl.GL_LINE_STRIP)
-    gl.glColor3ui(0, 0, 0)
+    gl.glColor4f(_section_color[0], _section_color[1], _section_color[2], _section_color[3])
 
     for section in posture_pos:
         gl.glVertex3f(section[0][3], section[1][3], section[2][3])
@@ -390,9 +404,9 @@ def _draw_one_robot(posture_pos : list, highlight=None):
     for i in range(len(posture_pos)):
         # Si on veux mettre en valeur un moteur, on l'affiche en rouge (pour l'animation)
         if highlight is not None and i == highlight+1:
-            gl.glColor3ui(255, 0, 0)
+            gl.glColor4f(_hjoint_color[0], _hjoint_color[1], _hjoint_color[2], _hjoint_color[3])
         else:
-            gl.glColor3ui(0, 0, 255)
+            gl.glColor4f(_joint_color[0], _joint_color[1], _joint_color[2], _joint_color[3])
         gl.glPushMatrix()
         gl.glTranslatef(posture_pos[i][0][3], posture_pos[i][1][3], posture_pos[i][2][3])
         glu.gluSphere(glu.gluNewQuadric(), 0.003, 16, 16)
@@ -525,7 +539,6 @@ def _get_rainbow_color(fact : float):
     else:
         return (fact*3-2, 0, 3-fact*3)
 
-
 #Variable contante pour éviter de recréer / calculer à chaque fois
 _x_axe = np.array(( (1, 0, 0, 0),
                     (0, 1, 0, 0),
@@ -621,7 +634,6 @@ def _mouse_event(event):
 
         elif event.button == 3:
             _StaticVars.mouse_right_pressed = False
-
 
 # Rapport entre le déplacement de la souris et la translation du monde
 _translation_factor = 1/120

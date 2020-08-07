@@ -47,8 +47,6 @@ for _ in range(1000):
 
 if options.debug:
     print("Output in file")
-if not os.path.exists(MAIN_DIR):
-    os.makedirs(MAIN_DIR)
 
 filename = "{}/{}".format(MAIN_DIR, GOAL_FILE)
 

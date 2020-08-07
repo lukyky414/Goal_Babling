@@ -16,38 +16,17 @@ import my_discretisation
 import my_nearest_neighbor
 import my_option
 import my_json_encoder
-
-
-#Dossier des fichiers
-name = ""
+import my_name_generator
 
 #Récupération des options & paramètres
 options = my_option.get_options_learn()
 
 if options.debug:
     print("Step1:Learning Inverse Model")
-    print("Creating filename")
 
 #Création du nom de fichier en fonction des paramètres
-if options.mb == 1:
-    options.gg = None
-
-if options.gg is None:
-    if options.mb != 1:
-        print("Cannot use `none` goal generator if using goal babling (mb!=0, gg==none)", file=sys.stderr)
-        sys.exit(1)
-    name += "MotorBabling_"
-else:
-    name += "GoalBabling-{}MotorBabling_{}_".format(options.mb,options.gg)
-    if options.gg == "agnostic":
-        name += "{}_".format(options.exp)
-    elif options.gg == "frontier":
-        name += "{}p-{}div_".format(options.p_exp, options.nb_div)
-
-name += "{}step_{}disturb".format(options.steps, options.pp)
-
-if options.n is not None:
-    name += "_{}".format(options.n)
+name = my_name_generator.get_file_name(options)
+directory = "{}/{}".format(MAIN_DIR, CTL_DIR)
 
 if options.getname:
     print(name)
@@ -56,6 +35,7 @@ if options.getname:
 if options.debug:
     print(name)
     print("Initialising")
+
 #Création du robot
 poppy = my_robot.Robot()
 
@@ -65,16 +45,12 @@ random.seed(options.seed)
 end_points, goals = None, None
 nn = None
 
-dirs = "{}/{}".format(MAIN_DIR, INV_DIR)
-if not os.path.exists(dirs):
-    os.makedirs(dirs)
-
-for end in [".dat", ".idx"]:
-    filename = "{}/{}{}".format(dirs, name, end)
+for end in [".dat", ".idx", "_ep.json", "_g.json"]:
+    filename = "{}/{}{}".format(directory, name, end)
     if os.path.exists(filename):
         os.remove(filename)
 
-nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(dirs,name))
+nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(directory,name))
 
 if options.debug:
     print("Learning")
@@ -83,7 +59,7 @@ if options.debug:
 if options.mb == 1:
     end_points = my_learning.Motor_Babling(
         robot=poppy,
-        steps=options.steps,
+        steps=options.step,
         printing=options.debug
     )
     #Pas de but à suivre pour le motor babling
@@ -109,7 +85,7 @@ else:
         robot=poppy,
         NN=nn,
         GG=gg,
-        steps=options.steps,
+        steps=options.step,
         motor_babling_proportion=options.mb,
         perturbation=options.pp,
         printing=options.debug
@@ -118,13 +94,13 @@ else:
 if options.debug:
     print("Saving end_points")
 
-f = open("{}/{}_ep.json".format(dirs, name), "w")
+f = open("{}/{}_ep.json".format(directory, name), "w")
 json.dump(end_points, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
 
 if options.debug:
     print("Saving goals")
 
-f = open("{}/{}_g.json".format(dirs, name), "w")
+f = open("{}/{}_g.json".format(directory, name), "w")
 json.dump(goals, fp=f)
 f.close()

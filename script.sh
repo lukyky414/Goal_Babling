@@ -1,37 +1,40 @@
 clear;
 
-#Generer fichiers des goals
-if ! test -f "files/Goals.json"; then
-    python program/0a_generate_goals.py
-fi
+#Generer les dossiers et les fichiers de but / ikpy
+# python program/0a_generate_directory.py
+# python program/0b_generate_goals.py
+# python program/0c_inv_model_ikpy.py
 
-#Options generales pour toutes executions
-gen_option="--gg frontier"
-
-#Options par rapport aux user input
-#options = "$options $@"
-
-#Sur quelle option il faut boucler
-for X in 0 0.2 0.4 0.6 0.8
-do
-    #Options pour ce parcour de boucle (ajouter la variable de la boucle)
-    loop_option="$gen_option --mb $X"
-
-    for n in {1..15}; do
-        echo
-        echo $n
-        
-        #Ajouter la valeur de n dans les options
-        this_option="$loop_option --n $n"
-
-        #Recuperer le nom du fichier qui sera genere et utilise pour le reste
-        name=$(python program/1_learn_inverse_model.py --getname $this_option --nodebug);
-
-        #Lancement du programme et des analyses
-        python program/1_learn_inverse_model.py $this_option;
-        echo
-        python program/2_use_inverse_model.py $name;
-        echo
-        python program/3_analyse_inverse_model_results.py $name;
+for step in 1000 100000; do #nb point dans catalogue
+    #motor babling
+    for n in {1..30}; do
+        echo "python program/1_create_catalog.py --mb 1 --step $step --n $n"
     done
+
+    #goal babling
+    for pp in 0.05 0.2; do #perturbation posture
+    for mb in 0.01 0.2; do #motor babling proportion
+
+        #Agnostic
+        for exp in 0.7 1.4; do #coef d'extansion
+            for n in {1..30}; do
+                echo "python program/1_create_catalog.py --step $step --pp $pp --mb $mb --exp $exp --n $n --gg agnostic"
+            done;
+        done;
+
+        #Frontier
+        for nb_div in 10 1000; do #resolution discretisation
+        for p_exp in 0.01 0.5 0.9; do #probabilité d'exploration
+            for n in {1..30}; do
+                echo "python program/1_create_catalog.py --step $step --pp $pp --mb $mb --nb_div $nb_div --p_exp $p_exp --n $n --gg frontier"
+            done;
+        done; done;
+
+    done; done;
+done;
+
+#Pour analyser tous les fichiers catalogues
+FILES=files/Catalogues/*.dat
+for f in $FILES; do
+    echo "python program/2_analyse_catalog $f";
 done

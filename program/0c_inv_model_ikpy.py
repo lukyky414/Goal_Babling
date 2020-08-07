@@ -14,12 +14,12 @@ def inv_mod(goal):
     global poppy
     g = numpy.eye(4)
     g[:3,3] = goal
-    #Max iter = 3 -> default value
-    q = poppy.robot.chain.inverse_kinematics(g, max_iter=3)
+    #Max iter = 3 -> valeur pour temps de calcul faible
+    #Max iter = 1000 -> valeur par defaut pour precision haute
+    q = poppy.robot.chain.inverse_kinematics(g)
     posture = poppy.robot.chain.convert_from_ik_angles(q)
 
     return poppy.get_end_point(posture)
-
 
 #Récupération des options & paramètres
 options = my_option.get_options_ikpy()
@@ -75,10 +75,8 @@ if options.debug:
     print()
     print("Output in file")
 
-if not os.path.exists("{}/{}".format(MAIN_DIR, RES_DIR)):
-    os.makedirs("{}/{}".format(MAIN_DIR, RES_DIR))
 
-f = open("{}/{}/ikpy_{}.json".format(MAIN_DIR, RES_DIR, options.n), "w")
+f = open("{}/{}".format(MAIN_DIR, IKPY_FILE), "w")
 json.dump(res, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
 
