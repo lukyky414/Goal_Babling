@@ -71,12 +71,6 @@ def get_options_learn():
                         default=False,  
                         help="Do not print debug infos"
     )
-    parser.add_argument("--getname", 
-                        dest="getname",
-                        action='store_true',
-                        default=False,  
-                        help="Just print the filename according to options"
-    )
 
     parser.add_argument("--n",
                         dest="n",

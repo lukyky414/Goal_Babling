@@ -16,3 +16,10 @@ def get_file_name(options):
     name += "_{}".format(options.n)
 
     return name
+
+if __name__ == "__main__":
+    import my_option
+
+    options = my_option.get_options_learn()
+
+    print(get_file_name(options))

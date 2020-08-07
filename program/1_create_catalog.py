@@ -7,6 +7,8 @@ if __name__ != "__main__":
 import random
 import os
 import json
+import gzip
+import shutil
 
 from my_files_paths import *
 import my_robot
@@ -21,20 +23,18 @@ import my_name_generator
 #Récupération des options & paramètres
 options = my_option.get_options_learn()
 
+#Création du nom de fichier en fonction des paramètres
+name = my_name_generator.get_file_name(options)
+
 if options.debug:
     print("Step1:Learning Inverse Model")
 
-#Création du nom de fichier en fonction des paramètres
-name = my_name_generator.get_file_name(options)
 if options.mb == 1:
     algo="motor_babling"
 else:
     algo=options.gg
 directory = "{}/{}/{}".format(MAIN_DIR, CTL_DIR, algo)
 
-if options.getname:
-    print(name)
-    sys.exit(0)
 
 if options.debug:
     print(name)
@@ -110,5 +110,16 @@ f.close()
 # f.close()
 
 #Output les fichiers à compresser
+# for end in [".dat", "_ep.json"]:
+#     print("{}/{}{}".format(directory, name, end))
+
+if options.debug:
+    print("Compressing files")
+
 for end in [".dat", "_ep.json"]:
-    print("{}/{}{}".format(directory, name, end))
+    filename="{}/{}{}".format(directory, name, end)
+
+    with open(filename, 'rb') as f_in:
+        with gzip.open("{}{}".format(filename, ".gz"), 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+    os.remove(filename)
