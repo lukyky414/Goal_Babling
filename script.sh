@@ -34,7 +34,7 @@ for step in 1000 100000; do #nb point dans catalogue
 done;
 
 #Pour analyser tous les fichiers catalogues
-FILES=files/Catalogues/*.dat
-for f in $FILES; do
-    echo "python program/2_analyse_catalog $f";
-done
+# FILES=files/Catalogues/*.dat
+# for f in $FILES; do
+#     echo "python program/2_analyse_catalog $f";
+# done

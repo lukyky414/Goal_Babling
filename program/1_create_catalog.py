@@ -26,7 +26,11 @@ if options.debug:
 
 #Création du nom de fichier en fonction des paramètres
 name = my_name_generator.get_file_name(options)
-directory = "{}/{}".format(MAIN_DIR, CTL_DIR)
+if options.mb == 1:
+    algo="motor_babling"
+else:
+    algo=options.gg
+directory = "{}/{}/{}".format(MAIN_DIR, CTL_DIR, algo)
 
 if options.getname:
     print(name)
@@ -107,4 +111,4 @@ f.close()
 
 #Output les fichiers à compresser
 for end in [".dat", "_ep.json"]:
-    print("{}/{}/{}{}".format(MAIN_DIR, CTL_DIR, name, end))
+    print("{}/{}{}".format(directory, name, end))
