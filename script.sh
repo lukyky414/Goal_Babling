@@ -1,3 +1,4 @@
+#!/bin/bash
 # clear;
 
 #Generer les dossiers et les fichiers de but / ikpy
