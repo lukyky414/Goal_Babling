@@ -7,7 +7,7 @@ Ce projet fonctionne avec python 3 (3.8.5). J'utilise les bibliothèques suivant
 `sys`, `os`, `math`, `random`, `numpy`, `argparse`, `re`, `glob`
 
 Celles-ci devront surement être installées [`pip install <Name>`].
-`json`, `rtree`, `copy`, `pypot`, `pypot-creature`, `poppy-ergo-jr`
+`scipy`, `json`, `rtree`, `copy`, `pypot`, `pypot-creature`, `poppy-ergo-jr`
 
 Tout ceci permet de faire tourner le programme. Maintenant, j'utilise d'autres bibliothèques pour l'affichage (non nécessaire si seul le script est lancé):
 `pygame`, `pyopengl`, `matplotlib` (ainsi que `ctypes` qui devrait être présent de base)

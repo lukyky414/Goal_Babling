@@ -8,7 +8,7 @@ clear;
 for step in 1000 100000; do #nb point dans catalogue
     #motor babling
     for n in {1..30}; do
-        echo "python program/1_create_catalog.py --mb 1 --step $step --n $n"
+        echo "python program/1_create_catalog.py --mb 1 --step $step --n $n | xargs gzip"
     done
 
     #goal babling
@@ -18,7 +18,7 @@ for step in 1000 100000; do #nb point dans catalogue
         #Agnostic
         for exp in 0.7 1.4; do #coef d'extansion
             for n in {1..30}; do
-                echo "python program/1_create_catalog.py --step $step --pp $pp --mb $mb --exp $exp --n $n --gg agnostic"
+                echo "python program/1_create_catalog.py --step $step --pp $pp --mb $mb --exp $exp --n $n --gg agnostic | xargs gzip"
             done;
         done;
 
@@ -26,7 +26,7 @@ for step in 1000 100000; do #nb point dans catalogue
         for nb_div in 10 1000; do #resolution discretisation
         for p_exp in 0.01 0.5 0.9; do #probabilité d'exploration
             for n in {1..30}; do
-                echo "python program/1_create_catalog.py --step $step --pp $pp --mb $mb --nb_div $nb_div --p_exp $p_exp --n $n --gg frontier"
+                echo "python program/1_create_catalog.py --step $step --pp $pp --mb $mb --nb_div $nb_div --p_exp $p_exp --n $n --gg frontier | xargs gzip"
             done;
         done; done;
 

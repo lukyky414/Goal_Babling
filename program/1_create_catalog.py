@@ -45,10 +45,10 @@ random.seed(options.seed)
 end_points, goals = None, None
 nn = None
 
-for end in [".dat", ".idx", "_ep.json", "_g.json"]:
-    filename = "{}/{}{}".format(directory, name, end)
-    if os.path.exists(filename):
-        os.remove(filename)
+# for end in [".dat", ".idx", "_ep.json", "_g.json"]:
+#     filename = "{}/{}{}".format(directory, name, end)
+#     if os.path.exists(filename):
+#         os.remove(filename)
 
 nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(directory,name))
 
@@ -98,9 +98,13 @@ f = open("{}/{}_ep.json".format(directory, name), "w")
 json.dump(end_points, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
 
-if options.debug:
-    print("Saving goals")
+# if options.debug:
+#     print("Saving goals")
 
-f = open("{}/{}_g.json".format(directory, name), "w")
-json.dump(goals, fp=f)
-f.close()
+# f = open("{}/{}_g.json".format(directory, name), "w")
+# json.dump(goals, fp=f)
+# f.close()
+
+#Output les fichiers à compresser
+for end in [".dat", "_ep.json"]:
+    print("{}/{}/{}{}".format(MAIN_DIR, CTL_DIR, name, end))

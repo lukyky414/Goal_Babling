@@ -247,7 +247,7 @@ def display_robot(posture_pos : list):
         pg.time.wait(10)
 
 _cloud_point_color = None
-def draw_points_cloud(end_points : list, max_dist = 0.3, robot = None, sphere=0):
+def draw_points_cloud(end_points : list, max_dist = 0.3, robot = None, sphere=0, rota=False):
     """Dessine un nuage de point 3d.
     `end_points` - les coordonnees des points en (x, y, z) ou liste d'end_points"""
 
@@ -275,6 +275,8 @@ def draw_points_cloud(end_points : list, max_dist = 0.3, robot = None, sphere=0)
 
     while _StaticVars.is_running:
         gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
+        if rota:
+            gl.glRotatef(1, 0, 0, 1)
 
         _draw_axes()
 

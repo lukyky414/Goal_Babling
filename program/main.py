@@ -1,6 +1,7 @@
 import json
 import sys
 import random
+import scipy
 import math
 
 import my_json_encoder
@@ -10,18 +11,28 @@ import my_end_point
 import my_goal_generation
 import my_robot
 
+############################################
+# Vérification du volume de la convex hull #
+############################################
+# points = []
+# for _ in range(100000):
+#     points.append(my_goal_generation.FrontierGenerator.get_random_dir())
+
+# print(4 * math.pi / 3)
+# print(scipy.spatial.ConvexHull(points=points).volume)
+
 #######################################################
 # Comparer la sphere robot et la liste des end_points #
 #######################################################
-a = sys.argv[1]
-poppy = my_robot.Robot()
+# a = sys.argv[1]
+# poppy = my_robot.Robot()
 
-f = open(a, "r")
-ep_str = json.load(fp=f)
-end_points = my_json_encoder.decode(ep_str)
-f.close()
+# f = open(a, "r")
+# ep_str = json.load(fp=f)
+# end_points = my_json_encoder.decode(ep_str)
+# f.close()
 
-my_display.draw_points_cloud(end_points, sphere=poppy.size)
+# my_display.draw_points_cloud(end_points, sphere=poppy.size, rota=True)
 
 ######################################
 # Comparer deux generations de goals #
