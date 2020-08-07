@@ -1,12 +1,11 @@
-\documentclass[11pt,french]{article}
+\documentclass[11pt,french]{report}
 \usepackage[utf8]{inputenc}
-\usepackage{titlesec}
 \usepackage[hidelinks]{hyperref}
 \usepackage{babel}
 \usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\graphicspath{{./graphics/}}
 
-% Sauter une page à chaque fin (ou début?) de section
-\titleclass{\section}{top}
 \newcommand\sectionbreak{\clearpage}
 
 \title{Comment découvrir son corps ?}
@@ -41,8 +40,8 @@
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
-\section{Remerciements}
-
+\chapter{Remerciements}
+Contenu du chapitre
 % \underline{Exemple d'une ancienne stagiaire}\\[10pt]
 % Je tiens à remercier toute personne ayant participé de près ou de loin à ce stage.\\[10pt]
 % Tout d’abord mon tuteur,  Monsieur  Boumaza Amine pour m’avoir aiguillé,  accompagné  et  pour avoir répondu à mes questions.\\[10pt]
@@ -56,9 +55,9 @@
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
-\section{Introduction}
+\chapter{Introduction}
 % le sujet de stage tel que formulé initialement
-\subsection{Sujet}
+\section{Sujet}
 
 \noindent\textbf{Motivations}
 
@@ -72,7 +71,7 @@ Le protocole expérimental envisagé s’appuiera sur un robot ErgoJr à plusieu
 
 
 % les modifications opérées pendant le stage
-\subsection{Travail apporté}
+\section{Travail apporté}
 
 Nous proposons d’articuler ce projet en plusieurs étapes.
 \begin{itemize}
@@ -81,7 +80,7 @@ Nous proposons d’articuler ce projet en plusieurs étapes.
 \end{itemize}
 
 % les résultats obtenus pendant le stage
-\subsection{Résultats obtenus}
+\section{Résultats obtenus}
 
 Afficher une démonstration sur robot réel
 
@@ -89,7 +88,7 @@ Afficher une démonstration sur robot réel
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
 % le cadre de travail, le descriptif de l’entreprise/le laboratoire
-\section{Cadre de travail}
+\chapter{Cadre de travail}
 
 % \underline{Exemple d'une ancienne stagiaire}\\[10pt]
 % Depuis 1976, le laboratoire du CRIN (Centre de Recherche en Informatique de Nancy) regroupe des chercheurs dont les problématiques se trouvent autour de deux axes: Théorie et Techniques du Logiciel (TTL) et Reconnaissance des Formes et Intelligence Artificielle (RFIA).
@@ -108,40 +107,95 @@ Afficher une démonstration sur robot réel
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
 % le sujet et son contexte 
-\section{Présentation du stage}
+\chapter{Présentation du stage}
 
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
 % le travail réalisé (résultats obtenus, démarche et méthode suivies, difficultés rencontrées, planning, ...)
-\section{Travail réalisé}
+\chapter{Travail réalisé}
 
-\subsection{Pourquoi / Modèle Géométrique Inverse}
+\section{Pourquoi / Modèle Géométrique Inverse}
 Commencer par expliquer qu'est-ce que la cinématique directe d'un robot, puis la cinématique inverse. Expliquer la modélisation d'un robot, la création d'une modélisation géométrique directe qui peut parfois être difficile (environnement qui change, parties flexible, précision de la physique) -> utiliser le monde réel comme modélisation est utile.
 Montrer les difficultés à créer une modélisation géométrique inverse. Expliquer le principe de l'exploration des espaces moteurs et sensoriels avec la comparaison à un nouveau né. L'avantage est l'autonomie de cet apprentissage ainsi que ce n'est pas limité sur le type de robot.
 
-\subsection{Nearest Neighbor}
-Montrer la construction de la base de donnée des commandes \& observations (posture / position) qui est la base de l'exploration. Le modèle géometrique inverse généré utilisera cette base avec un Nearest Neighbor. Explication du Nearest Neighbor et des manières d'enregistrer les points pour une execution plus rapide de l'algorithme.
+\section{Nearest Neighbor}
+Montrer la construction d'un catalogue avec des commandes \& des observations (posture / position) qui est la base de l'exploration. Le modèle géometrique inverse généré utilisera cette base avec un Nearest Neighbor. Explication du Nearest Neighbor et des manières d'enregistrer les points pour une execution plus rapide de l'algorithme.
 
-\subsection{motor babling}
+\section{motor babling}
 La première manière d'explorer est le motor babling. Expliquer le fonctionnement, algo simple quelque soit le robot. Donner l'exemple d'un robot simple, puis d'un robot compliqué qui n'explore pas entièrement l'espace.
 
-\subsection{goal babling}
-Pour mieux explorer l'espace on crée le goal babling, qui permet de diriger l'apprentissage. Problématique: Nearest Neighbor doit être capable d'ajouter des points dans la base en cours d'execution: exclusion de scikit sklearn.neighbors. Commencer avec un agnostic goal generation, montrer les limites de cet algorithme car explore mal l'espace si mal configuré (concentration de but sur les bords de l'espace de "travail"?)
+\section{goal babling}
+Pour mieux explorer l'espace on crée le goal babling, qui permet de diriger l'apprentissage. Problématique: Nearest Neighbor doit être capable d'ajouter des points dans la base en cours d'execution: exclusion de scikit sklearn.neighbors. 
 
-\subsubsection{goal on grid}
+\subsection{agnostic}
+Commencer avec un agnostic goal generation, montrer les limites de cet algorithme car explore mal l'espace si mal configuré (concentration de but sur les bords de l'espace de "travail"?)
+
+\subsection{goal on grid}
 Une des manières de diriger sans connaitre le modèle du robot mais pour autant sans trop déteriorer l'apprentissage, on peut partitionner l'espace et générer des buts dans une grille. Introduction de la probabilité d'exploration. But dans une zone atteinte: facile. But dans une zone non atteinte: plus difficile.
 
-\subsubsection{frontier}
+\textbf{frontier}
 Une manière de selectionner une cellule dans une zone non atteinte.
 
+\section{Observations}
 
+\subsection{Mesures}
+Pour comparer les différents algorithmes, je vais mesurer la couverture ainsi que la précision de cet apprentissage.
+
+\subsubsection{Couverture}
+Je vais mesurer la couverture avec deux valeurs:
+\begin{itemize}
+    \item[$\bullet$] Le volume qui correspond au volume de l'enveloppe des points du catalogue. Cela permet de mesurer la taille de l'espace couvert par l'algorithme.
+    \item[$\bullet$] Le remplissage qui correspond, après discretisation de l'espace, au nombre de cellules populées par les points du catalogue sur le nombre de cellules théoriquement atteignables, commu une sphère dont le rayon est la taille du bras robotique. Cela permet de mesurer
+\end{itemize}
+
+\subsubsection{Precision}
+La précision est déduite avec l'erreur des algorithmes. Cette erreur est simplement la distance entre un but donné et l'observation générée par le résultat du modèle inverse. Deux listes de buts seront utilisées.
+\begin{itemize}
+    \item[$\bullet$] La première contient des buts générés uniformément dans un espace théoriquement atteignable par le robot. L'espace selectionné est 3/4 d'une demi-sphère. Il est inutile de demander le robot d'atteindre une zone sous sa base, il ne peut pas traverser une table, cela enlève une demi-sphère. Nous ne demandons pas au robot d'essayer d'atteindre une zone "derrière lui", ce qui exclue 1/4 de la demi-sphère restante.
+    
+    \begin{figure}
+        \centering
+        \includegraphics[width=178pt]{Goal_List_Generation_FrontView} \includegraphics[width=178pt]{Goal_List_Generation_TopView}
+        \caption{Generation de liste de but}
+        \label{fig:goal_list}
+    \end{figure}
+    
+    \item[$\bullet$] La deuxième contient les observations faites après utilisation de la bibliothèque Ikpy qui contient un modèle inverse. Cette liste ne contient donc que des observations, donc des point qui ne sont pas seulement théoriquement atteignables mais réellement atteignable. Il est aussi possible de mesurer une différence entre les résultats des algorithmes présentés et les résultats d'un modèle inverse existant.
+\end{itemize}
+
+\subsection{Paramètres}
+
+\subsubsection{Motor Babling}
+
+Pour le Motor Babling, nous pouvons changer la taille du catalogue. A chaque étapes, une posture est choisie en donnant un angle aléatoire à chacun des moteurs généré uniformément sur leur portée. Tout point atteignable possède donc une probabilité non nul d'être dans le catalogue. On peut donc en déduire que la couverture du Motor Babling augmente avec la taille de son catalogue.\\
+-- observation\\
+Plus il y a de points dans ce catalogue, la distance entre un but et les points du catalogue utilisés dans l'interpolation sera petite, donc la précision de l'algorithme augmente aussi avec la taille de son catalogue.\\
+-- observation
+
+\subsubsection{Goal Babling}
+
+Nous avons pour le Goal Babling deux paramètres. Le premier est nombre d'étapes de Motor Babling à executer avant de commencer le Goal Babling.\\
+Le deuxième paramètre est la perturbation apportée à une posture pour ajouter une donnée au catalogue. Avec une perturbation plus elevée, la posture générée sera normalement plus loin de la posture selectionnée. Nous pouvons imaginer que la couverture d'un algorithme augmente avec la perturbation. Cependant, l'observation de la posture générée a plus de chance d'être distante du but demandé, et donc la perturbation peut déteriorer la précision de l'algorithme.\\
+--observations
+
+\subsubsection{Agnostric Goal Generation}
+
+L'agnostic goal generator crée des buts dans une zone calculée à partir de la zone atteinte par les points dans la base et un coefficient d'extansion de celle-ci. Plus le coefficient d'extension est grand, plus la zone dans laquelle les buts sont générés sera grande. Le volume de la couverture devrait donc augmenter avec ce paramètre, mais comme le nombre de points dans le catalogue ne change pas, le remplissage de la couverture ne changera pas. La précision devrait donc être plus faible.\\
+--observations
+
+\subsubsection{Frontier Goal Generation}
+
+Pour la génération de but dans une grille, nous pouvons déterminer la résolution de cette grille.
+
+Nous pouvons aussi changer la probabilité d'exploration de l'algorithme. Avec une probabilité p l'algorithme génère un but pour explorer l'espace non atteint, et avec une probabilité 1-p l'algorithme génère un but pour augmenter la précision dans une zone déjà atteinte. Logiquement, plus ce p augment plus la couverture augmente, mais la précision diminuera.\\
+--observations
 
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
 % les conclusions
-\section{Conslusion}
+\chapter{Conclusion}
 
 
 \end{document}
