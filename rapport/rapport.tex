@@ -5,8 +5,11 @@
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \graphicspath{{./graphics/}}
+\usepackage{titlesec}
 
-\newcommand\sectionbreak{\clearpage}
+\titleformat{\chapter}[display]{\normalfont\bfseries}{}{0pt}{\Huge}
+
+% \newcommand\sectionbreak{\clearpage}
 
 \title{Comment découvrir son corps ?}
 \author{Lucas Schwab}
@@ -41,7 +44,18 @@
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
 \chapter{Remerciements}
-Contenu du chapitre
+
+Je tiens à remercier toutes les personnes qui ont contribué à mon stage et qui m'ont aidé lors de la rédaction de ce rapport.
+
+Je tiens à remercier mes tuteurs de stage, Mr Amine BOUMAZA et Mr Alain DUTECH, enseignants-chercheurs dans l'équipe LARSEN pour leur accompagnement et les précieux conseils qu'ils m'ont donnés.
+
+Je remercie également ma tutrice Mme Isabelle DEBLED-RENNESSON pour m'avoir suivi tout au long de ce stage, ainsi que tous mes professeurs pour les enseignements qu'ils m'ont donné.
+
+% Je tiens à remercier en premier lieu l’entreprise CapGemini, pour avoir accepté de me prendre pour ce stage, et plus particulièrement mes tuteurs de stage Pierre CHIRIOT et Romain RUEZ, pour leur accompagnement tout au long de ce projet et pour les précieux conseils qu’ils m’ont donnés.
+% Je remercie également ma tutrice à l’université, Phuc NGO, pour m’avoir suivi tout au long de ce stage, ainsi que Horatiu CIRSTEA pour ses enseignements pendant ces deux dernières années.
+% Enfin, je remercie évidemment mon père, grâce à qui ce rapport ne contient aucune faute d’orthographe, de grammaire, ou de syntaxe. Si cette lecture vous est agréable, c’est en partie grâce à lui
+
+
 % \underline{Exemple d'une ancienne stagiaire}\\[10pt]
 % Je tiens à remercier toute personne ayant participé de près ou de loin à ce stage.\\[10pt]
 % Tout d’abord mon tuteur,  Monsieur  Boumaza Amine pour m’avoir aiguillé,  accompagné  et  pour avoir répondu à mes questions.\\[10pt]
@@ -82,7 +96,7 @@ Nous proposons d’articuler ce projet en plusieurs étapes.
 % les résultats obtenus pendant le stage
 \section{Résultats obtenus}
 
-Afficher une démonstration sur robot réel
+% Afficher une démonstration sur robot réel
 
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
@@ -115,41 +129,59 @@ Afficher une démonstration sur robot réel
 % le travail réalisé (résultats obtenus, démarche et méthode suivies, difficultés rencontrées, planning, ...)
 \chapter{Travail réalisé}
 
-\section{Pourquoi / Modèle Géométrique Inverse}
-Commencer par expliquer qu'est-ce que la cinématique directe d'un robot, puis la cinématique inverse. Expliquer la modélisation d'un robot, la création d'une modélisation géométrique directe qui peut parfois être difficile (environnement qui change, parties flexible, précision de la physique) -> utiliser le monde réel comme modélisation est utile.
-Montrer les difficultés à créer une modélisation géométrique inverse. Expliquer le principe de l'exploration des espaces moteurs et sensoriels avec la comparaison à un nouveau né. L'avantage est l'autonomie de cet apprentissage ainsi que ce n'est pas limité sur le type de robot.
+L'étude de la biologie afin de créer des machines et des robot représente une part importante dans la recherche. Le contexte de ce stage est de s'inspirer des processus dévelopmentaux des systèmes biologiques afin de les reproduire sur des robots. Nous créons ainsi des robots qui ont une enfance et qui basent leurs décisions sur l'éxpérience acquise au cours du temps. Pour la suite, je n'utiliserais seulement un bras robotique, qui peut être n'importe quel suite de moteurs prenant une certaine position, un angle, reliés par des sections rigides. Le but est de controller un robot en lui donnant une position à atteindre.
+
+En connaissant la forme des sections rigides et l'angle pris par chacun des moteurs, il est assez facile d'estimer la position de l'effecteur du robot, le bout de son bras. Ceci est la modélisation géométrique directe. Il suffit d'appliquer quelques rotations et translations sur une matrice. Mais même cette méthode possède des limites. En effet, si le robot possède des sections flexibles, ou si l'environnement dans lequel il évolue est compliqué, il devient très difficile d'appliquer une modélisation géométrique directe. Mais ce qui nous interesse ici n'est pas de trouver la position de l'effecteur à partir d'une posture, mais plutot de trouver une posture pour atteindre une certaine position. Ceci est la fonction de la modélisation géométrique inverse. Elle est cependant très compliquée à appliquer même à un robot ne possédant que des sections rigide et évoluant dans un environnement simple. La redondance, le fait que le robot peut atteindre une position avec plusieurs posture différentes, est déjà un problème difficile à résoudre. C'est pour cela qu'une autre méthode a été étudiée pendant ce stage.
+
+Nous n'essayons pas de créer une modélisation géométrique inverse, ce qui doit être fait pour chaque robot spécifiquement, mais en s'inspirant du développement d'un système biologique, le robot peut être contrôlé grâce à l'expérience qu'il a acquis. Le principe est simple : donner un maximum d'expérience au robot pour qu'il puisse ensuite construire son propre modèle inverse. Il est possible d'appliquer ce raisonnement qu'avec des observations dans le monde réel, rendant ainsi inutile la mise en place d'une modélisation géométrique et cinématique directe.
+
+\section{Motor Babling}
+
+Une première approche pour que le robot acquière de l'expérience est une exploration de ses espaces moteurs et sensoriels. Ceci est comparable au comportement d'un nouveau né qui ne contrôle pas ses mouvements. Le robot va prendre une posture totalement aléatoire et observer en résultat la position de son effecteur dans le monde. Ceci est un babillage moteur (ou motor babling en anglais). Nous construisons ainsi un catalogue, contenant toutes les postures essayées et les observations associées, ce qui constitue la mémoire et l'expérience du robot.
+
+% TODO exemple robot simple & compliqué pour montrer la limitation.
 
 \section{Nearest Neighbor}
-Montrer la construction d'un catalogue avec des commandes \& des observations (posture / position) qui est la base de l'exploration. Le modèle géometrique inverse généré utilisera cette base avec un Nearest Neighbor. Explication du Nearest Neighbor et des manières d'enregistrer les points pour une execution plus rapide de l'algorithme.
 
-\section{motor babling}
-La première manière d'explorer est le motor babling. Expliquer le fonctionnement, algo simple quelque soit le robot. Donner l'exemple d'un robot simple, puis d'un robot compliqué qui n'explore pas entièrement l'espace.
+Une fois que le catalogue contenant les commandes et les observations est construit, il faut pouvoir l'utiliser pour atteindre des positions demandées. La première manière pour trouver une commande à executer afin d'aller à une position donnée est de prendre l'observation dans le catalogue la plus proche du but et d'appliquer la posture associée. Il est donc indispensable d'avoir un algorithme pour trouver le plus proche voisin efficacement pour avoir un résultat rapidement. Il existe des structure de données comme le KDTree qui partitionne l'espace pour stocker les points et permet une recherche du plus proche voisin plus rapide qu'avec un simple tableau. 
+
+Il y a cependant plusieurs contraintes à appliquer à ce plus proche voisin, ou Nearest Neighbor en anglais, la recherche rapide étant la première. Si nous voulons pouvoir utiliser le catalogue dans un environnement continue, il nous faut une infinité de points dans celui-ci afin de couvrir entièrement l'espace. Une autre solution est aussi de rechercher plusieurs points les plus proches du but, et de renvoyer une posture résultant de la moyenne de toutes les postures trouvées, pondéré par la distances des observations au but. De cette façon il est possible de couvrir un espace continue avec un nombre fini de points dans le catalogue.
+
+Une troisième contrainte au Nearest Neighbor, autre que la recherche rapide et la recherche de plusieurs plus proches voisins, est la possibilité d'ajouter des données dans le catalogue pendant l'utilisation. Ceci est impossible avec le KDTree qui ne peut garantir un équilibre dans la structure de donnée si des points sont ajoutés en cours d'utilisation. C'est pourquoi j'utilise une structure appellée RTree. Cette structure est en forme d'arbre, où chaques points proches sont représentés par un rectangle englobant au niveau supérieur de l'arbre. RTree permet ainsi l'insertion facile de donnée sans dégrader le temps de recherche d'un plus proche voisin.
 
 \section{goal babling}
-Pour mieux explorer l'espace on crée le goal babling, qui permet de diriger l'apprentissage. Problématique: Nearest Neighbor doit être capable d'ajouter des points dans la base en cours d'execution: exclusion de scikit sklearn.neighbors. 
 
-\subsection{agnostic}
-Commencer avec un agnostic goal generation, montrer les limites de cet algorithme car explore mal l'espace si mal configuré (concentration de but sur les bords de l'espace de "travail"?)
+L'exploration de l'espace des moteurs du robot ne remplis pas toujours efficacement le catalogue, et il est possible de diriger l'apprentissage en choisisant des but à atteindre. C'est donc un babillage par but, ou Goal Babling en anglais. La selection d'un but est importante sur la qualité du catalogue résultat. Si le robot est complexe et que le Motor Babling n'explore pas assez l'espace de travail, la selection de but peut forcer cette exploration. Cependant, si tous les buts générés sont mal positionnés, le catalogue perdra en précision d'execution. Il existe plusieurs façon de générer un but.
 
-\subsection{goal on grid}
-Une des manières de diriger sans connaitre le modèle du robot mais pour autant sans trop déteriorer l'apprentissage, on peut partitionner l'espace et générer des buts dans une grille. Introduction de la probabilité d'exploration. But dans une zone atteinte: facile. But dans une zone non atteinte: plus difficile.
+\subsection{Agnostic Goal Generation}
 
-\textbf{frontier}
-Une manière de selectionner une cellule dans une zone non atteinte.
+Générer un but aléatoirement est facile, il suffit de générer uniformément des coordonnées dans un espace défini. Les buts sont générées sans aucune connaissance au préalable sur le robot, c'est donc une génération de but agnostique. Afin de pouvoir gérer le taux d'exploration avec cet algorithme, les positions extrêmes rencontrées lors de l'apprentissage, le minimum et maximum atteint sur chacun des axes, sont enregistrés. Cela donne une zone que le robot pourrais atteindre. Un but sera généré dans cette zone, dont la taille a été mutlipliée par un facteur, qui déterminera ainsi le taux d'exploration.
 
-\section{Observations}
+Cependant cette méthode est assez limitée, surtout que l'espace de travail n'est que rarement proche d'un cube (ou d'un pavé droit).
 
-\subsection{Mesures}
+\subsection{Goals on Grid}
+
+Afin d'approcher l'espace de travail du robot sans avoir de connaissance sur celui-ci, il est possible de partitionner l'espace en une grille. Lors de l'apprentissage, toutes les cellules atteintes par les observations du catalogue sont enregistrée, ce qui nous donne une estimation sur l'espace atteint. Gérer le taux d'exploration ou d'exploitation est donc facile, pour augmenter l'exploitation et la précision, il suffit de générer un but dans une cellule déjà atteinte. Pour augmenter l'exploration et la couverture, il faut générer un but dans une cellule non atteinte. 
+
+\subsubsection{Frontier}
+
+L'algorithme frontier permet de selectionner une cellule non atteinte mais potentiellement atteignable. Premièrement, une observation dans le catalogue est selectionnée. Ensuite, une direction est générée aléatoirement. L'algorithme parcour ensuite la grille à partir de l'observation en suivant la direction jusqu'à rencontrer une cellul qui n'est pas encore atteinte. Cette cellule est donc à la frontière de la zone atteinte par le robot. L'algorithme Frontier permet donc d'explorer un espace plus proche de l'espace de travail que l'algorithme Agnostic.
+
+
+
+\chapter{Observations}
+
+\section{Mesures}
 Pour comparer les différents algorithmes, je vais mesurer la couverture ainsi que la précision de cet apprentissage.
 
-\subsubsection{Couverture}
+\subsection{Couverture}
 Je vais mesurer la couverture avec deux valeurs:
 \begin{itemize}
     \item[$\bullet$] Le volume qui correspond au volume de l'enveloppe des points du catalogue. Cela permet de mesurer la taille de l'espace couvert par l'algorithme.
     \item[$\bullet$] Le remplissage qui correspond, après discretisation de l'espace, au nombre de cellules populées par les points du catalogue sur le nombre de cellules théoriquement atteignables, commu une sphère dont le rayon est la taille du bras robotique. Cela permet de mesurer
 \end{itemize}
 
-\subsubsection{Precision}
+\subsection{Precision}
 La précision est déduite avec l'erreur des algorithmes. Cette erreur est simplement la distance entre un but donné et l'observation générée par le résultat du modèle inverse. Deux listes de buts seront utilisées.
 \begin{itemize}
     \item[$\bullet$] La première contient des buts générés uniformément dans un espace théoriquement atteignable par le robot. L'espace selectionné est 3/4 d'une demi-sphère. Il est inutile de demander le robot d'atteindre une zone sous sa base, il ne peut pas traverser une table, cela enlève une demi-sphère. Nous ne demandons pas au robot d'essayer d'atteindre une zone "derrière lui", ce qui exclue 1/4 de la demi-sphère restante.
@@ -164,27 +196,27 @@ La précision est déduite avec l'erreur des algorithmes. Cette erreur est simpl
     \item[$\bullet$] La deuxième contient les observations faites après utilisation de la bibliothèque Ikpy qui contient un modèle inverse. Cette liste ne contient donc que des observations, donc des point qui ne sont pas seulement théoriquement atteignables mais réellement atteignable. Il est aussi possible de mesurer une différence entre les résultats des algorithmes présentés et les résultats d'un modèle inverse existant.
 \end{itemize}
 
-\subsection{Paramètres}
+\section{Paramètres}
 
-\subsubsection{Motor Babling}
+\subsection{Motor Babling}
 
 Pour le Motor Babling, nous pouvons changer la taille du catalogue. A chaque étapes, une posture est choisie en donnant un angle aléatoire à chacun des moteurs généré uniformément sur leur portée. Tout point atteignable possède donc une probabilité non nul d'être dans le catalogue. On peut donc en déduire que la couverture du Motor Babling augmente avec la taille de son catalogue.\\
 -- observation\\
 Plus il y a de points dans ce catalogue, la distance entre un but et les points du catalogue utilisés dans l'interpolation sera petite, donc la précision de l'algorithme augmente aussi avec la taille de son catalogue.\\
 -- observation
 
-\subsubsection{Goal Babling}
+\subsection{Goal Babling}
 
 Nous avons pour le Goal Babling deux paramètres. Le premier est nombre d'étapes de Motor Babling à executer avant de commencer le Goal Babling.\\
 Le deuxième paramètre est la perturbation apportée à une posture pour ajouter une donnée au catalogue. Avec une perturbation plus elevée, la posture générée sera normalement plus loin de la posture selectionnée. Nous pouvons imaginer que la couverture d'un algorithme augmente avec la perturbation. Cependant, l'observation de la posture générée a plus de chance d'être distante du but demandé, et donc la perturbation peut déteriorer la précision de l'algorithme.\\
 --observations
 
-\subsubsection{Agnostric Goal Generation}
+\subsection{Agnostric Goal Generation}
 
 L'agnostic goal generator crée des buts dans une zone calculée à partir de la zone atteinte par les points dans la base et un coefficient d'extansion de celle-ci. Plus le coefficient d'extension est grand, plus la zone dans laquelle les buts sont générés sera grande. Le volume de la couverture devrait donc augmenter avec ce paramètre, mais comme le nombre de points dans le catalogue ne change pas, le remplissage de la couverture ne changera pas. La précision devrait donc être plus faible.\\
 --observations
 
-\subsubsection{Frontier Goal Generation}
+\subsection{Frontier Goal Generation}
 
 Pour la génération de but dans une grille, nous pouvons déterminer la résolution de cette grille.
 
