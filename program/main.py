@@ -3,13 +3,103 @@ import sys
 import random
 import scipy
 import math
+import gzip
+import shutil
 
+from my_files_paths import *
 import my_json_encoder
 import my_display
 import my_discretisation
 import my_end_point
 import my_goal_generation
 import my_robot
+import my_nearest_neighbor
+
+##################################
+# Reconstruction du .dat et .idx #
+##################################
+# path_ep = sys.argv[1]
+
+# name = path_ep
+# zipped = name[-3:] == ".gz"
+# if zipped:
+#     name = name[:-3]
+# if name[-8:] == "_ep.json":
+#     name = name[:-8]
+
+
+# nn = my_nearest_neighbor.RtreeNeighbor(f=name)
+
+# if zipped:
+#     with gzip.open(path_ep, "rb") as f:
+#         ep_str = json.load(fp=f)
+#         endpoints = my_json_encoder.decode(ep_str)
+# else:
+#     f = open(path_ep)
+#     ep_str = json.load(fp=f)
+#     endpoints = my_json_encoder.decode(ep_str)
+
+# i = 0
+# for ep in endpoints:
+#     print(i, end="\r")
+#     i +=1
+#     nn.add_end_point(ep)
+# print()
+
+##########################################
+# Test inv mod avec plusieurs catalogues #
+##########################################
+# bon_path = "files/Catalogues/agnostic/0.2mb-0.8gb_1000step_0.05pp_agnostic_0.7exp_4"
+# nul_path = "files/Catalogues/agnostic/0.2mb-0.8gb_1000step_0.05pp_agnostic_0.7exp_5"
+
+# for path in [bon_path, nul_path]:
+#     with gzip.open("{}.dat.gz".format(path), 'rb') as f_in:
+#         with open("{}.dat".format(path), 'wb') as f_out:
+#             shutil.copyfileobj(f_in, f_out)
+
+# #point qui pose probleme
+# goal = (-0.004040426215791889, -0.0654527587645495, 0.13110446672187526)
+# #point qui ne pose pas problème
+# # goal = (-0.05856980682214586, -0.08044167892501795, 0.0844014084291754)
+# poppy = my_robot.Robot()
+
+# nn1 = my_nearest_neighbor.RtreeNeighbor(f=bon_path)
+# poppy.set_nn(nn1)
+# poppy.inv_model(goal)
+# print("1e cat OK")
+
+# #Reconstruction du nearest neighbor
+# nn2 = my_nearest_neighbor.RtreeNeighbor(f=None)
+# with gzip.open("{}_ep.json.gz".format(nul_path), "rb") as f:
+#     ep_str = json.load(fp=f)
+#     endpoints = my_json_encoder.decode(ep_str)
+
+# for ep in endpoints:
+#     nn2.add_end_point(ep)
+
+# # nn2 = my_nearest_neighbor.RtreeNeighbor(f=nul_path)
+# poppy.set_nn(nn2)
+# poppy.inv_model(goal)
+# print("2e cat OK")
+
+#########################
+# Comparer Goal et Ikpy #
+#########################
+# gofp = "{}/{}".format(MAIN_DIR, GOAL_FILE)
+# ikfp = "{}/{}".format(MAIN_DIR, IKPY_FILE)
+
+# gof = open(gofp, "r")
+# ikf = open(ikfp, "r")
+
+# goals = json.load(fp=gof)
+# gof.close()
+
+# iks = json.load(fp=ikf)
+# ikpys = my_json_encoder.decode(iks)
+# ikf.close()
+
+# my_display.draw_ep_and_goal(ikpys, goals)
+
 
 ############################################
 # Vérification du volume de la convex hull #
@@ -64,7 +154,7 @@ import my_robot
 # angle = 2*math.pi - (math.pi/2)
 # rot = 3*math.pi/4
 
-# for _ in range(100000):
+# for _ in range(10000):
 #     u = random.uniform(0,1)
 #     v = random.uniform(0,1)
 
@@ -75,14 +165,18 @@ import my_robot
 #     y = math.sin(theta) * math.sin(phi)
 #     z = abs(math.cos(phi))
 
-#     mag = random.uniform(0,poppy.size)
+#     # mag = random.uniform(0,poppy.size)
+#     # mag = math.pow(random.uniform(0,1), 1/3) * poppy.size
+#     mag = poppy.size
+#     # if z < 0.1:
 #     pos.append((x*mag, y*mag, z*mag))
 
-# my_display._background_color = (255, 255, 255)
+# # my_display._background_color = (255, 255, 255)
 # my_display._section_color = (0, 1, 0, 1)
 # my_display._joint_color = (0, 1, 0, 1)
-# my_display._cloud_point_color = (0, 0, 0)
-# my_display.draw_points_cloud(pos, robot=poppy)
+# # my_display._cloud_point_color = (0, 0, 0)
+# # my_display.draw_points_cloud(pos, robot=poppy)
+# my_display.draw_points_cloud(pos)
 
 ######################
 # Animation du robot #

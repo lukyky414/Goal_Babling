@@ -4,3 +4,4 @@ GOAL_FILE = "Goals.json"
 IKPY_FILE = "Ikpy.json"
 
 CTL_DIR = "Catalogues"
+RES_DIR = "Resultats"

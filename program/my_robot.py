@@ -1,11 +1,13 @@
 from pypot.creatures import PoppyErgoJr
 import random
 import math
+import sys
 
 from my_end_point import EndPoint
 from my_nearest_neighbor import NearestNeighbor, dist
 
 #Le robot est basé sur PoppyErgoJr qui est une Pypot.Creature
+
 
 class Robot():
 
@@ -22,6 +24,7 @@ class Robot():
             self.size += link.length
         
         self.motor_range = []
+        self.motor_limit = []
         for m in self.robot.motors:
             mi, ma = m.angle_limit
             if ma < mi:
@@ -30,6 +33,7 @@ class Robot():
                 mi = t
             
             self.motor_range.append(ma - mi)
+            self.motor_limit.append((mi, ma))
     
     def inv_model(self, goal : tuple):
         """Le modèle inverse du robot. Retourne une liste d'angle pour atteindre le point demandé."""
@@ -50,15 +54,16 @@ class Robot():
 
         posture = []
 
-        for i in range(self.nb_joints):
+        for i, limit in zip(range(self.nb_joints), self.motor_limit):
             p = 0
             for ep, c in zip(nears, coefs):
                 p += ep.posture[i] * c
             
-            if p > self.robot.motors[i].angle_limit[1]:
-                p = self.robot.motors[i].angle_limit[1]
-            if p < self.robot.motors[i].angle_limit[0]:
-                p = self.robot.motors[i].angle_limit[0]
+            if p < limit[0]:
+                p = limit[0]
+            if p > limit[1]:
+                p = limit[1]
+
             posture.append(p)
 
         return posture
@@ -91,98 +96,113 @@ class Robot():
     def get_random_angles(self) -> list:
         """Retourne une liste d'angle aléatoire éxecutable par le robot dans les limites de ses moteurs"""
         res = list()
-        for motor in self.robot.motors:
-            res.append(random.uniform(motor.angle_limit[0], motor.angle_limit[1]))
+        for limit in self.motor_limit:
+            res.append(random.uniform(limit[0], limit[1]))
         return res
     
     def randomize_posture(self, angles : list, perturbation : float) -> list:
         """Modifie aléatoirement la posture donnée par `angles` dans les limites des moteurs du robot"""
         res = list()
-        for angle, motor, _range in zip(angles, self.robot.motors, self.motor_range):
+        for angle, limit, _range in zip(angles, self.motor_limit, self.motor_range):
             res.append(random.uniform(
-                max(motor.angle_limit[0], angle - perturbation * _range),
-                min(motor.angle_limit[1], angle + perturbation * _range)
+                max(limit[0], angle - perturbation * _range),
+                min(limit[1], angle + perturbation * _range)
             ))
         
         return res
     
     def get_angle_bounds(self) -> list:
         """Retourne les limites d'angles de chacun des moteurs"""
-        res = list()
-        for motor in self.robot.motors:
-            res.append(motor.angle_limit)
-        return res
+        return self.motor_limit
     
     def set_nn(self, NN : NearestNeighbor):
         """Permet de changer le NearestNeighbor utilisé pour calculer le modèle inverse."""
         self.nn = NN
 
 
-# if __name__ == "__main__":
-
-
-    # #Permet de faire bouger le robot réel.
+if __name__ == "__main__":
+    #Permet de faire bouger le robot réel.
     
-    # from py_ergojr.network.messages import Message
-    # from py_ergojr.network.zmq_publisher import ZmqPublisher
-    # import time
-    # from my_nearest_neighbor import RtreeNeighbor
-    # import sys
+    from py_ergojr.network.messages import Message
+    from py_ergojr.network.zmq_publisher import ZmqPublisher
+    import time
+    from my_nearest_neighbor import RtreeNeighbor
+    import sys
 
-    # poppy = Robot()
+    poppy = Robot()
 
-    # nn = RtreeNeighbor(false, f=sys.argv[1])
+    # nn = RtreeNeighbor(f=sys.argv[1])
+
+    # poppy.set_nn(nn)
     
-    # socket_real = ZmqPublisher("6666", host="poppy", bound=False, debug=True)
-    # socket_simu = ZmqPublisher("6666", host="localhost", bound=False, debug=True)
-    # socket_real.start()
-    # socket_simu.start()
+    socket_real = ZmqPublisher("6666", host="10.0.0.2", bound=False, debug=True)
+    socket_simu = ZmqPublisher("6666", host="localhost", bound=False, debug=True)
+    socket_real.start()
+    socket_simu.start()
 
-    # def send_cmd(cmd, topic):
-    #     socket_simu.pusblish_on_topic(cmd, topic)
+    def send_cmd(cmd, topic):
+        global socket_simu, socket_real
+        socket_simu.publish_on_topic(cmd, topic)
 
-    #     res = input("Is command valid?")
+        res = input("Is command valid?")
 
-    #     if res == y:
-    #         socket_real.publish_on_topic(cmd, topic)
+        if res == "y":
+            print("Sending to real robot")
+            socket_real.publish_on_topic(cmd, topic)
 
-    # msg_handler = Message()
-
-    # # msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
-    # #  send_cmd(msg_handler.make("stiff",msg), "EJTELEOP")
-
-    # # msg = "dt:2|m1:0|m2:0|m3:-45|m4:0|m5:-45|m6:0"
-    # #  send_cmd(msg_handler.make("move",msg,"Q"), "EJTELEOP")
-
-    # # input("Enter")
-
-
-    # for i in range(12):
-    #     msg = "m{}:off".format((i-1)%5+2)
-    #     msg += "|m{}:blue".format(i%5+2)
-    #     msg += "|m{}:white".format((i+1)%5+2)
-    #     msg += "|m{}:red".format((i+2)%5+2)
-    #     send_cmd(msg_handler.make("led",msg), "EJTELEOP")
-    #     time.sleep(0.5)
-
-    # # msg = "dance:start"
-    # #  send_cmd(msg_handler.make("invoke", msg), 'EJPRIM')
-
-    # # input("Enter")
-
-    # # msg = "dance:stop"
-    # #  send_cmd(msg_handler.make("invoke", msg), 'EJPRIM')
-
-
-    # input("Enter")
-
-    # # msg = "dt:2|m1:-180|m4:0|m5:35|m6:35|m2:-120|m3:50"
-    # #  send_cmd(msg_handler.make("move",msg,"Q"), "EJTELEOP")
-    # # time.sleep(2)
+    msg_handler = Message()
 
     # msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
-    #  send_cmd(msg_handler.make("stiff",msg), "EJTELEOP")
-    # msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
-    #  send_cmd(msg_handler.make("led",msg), "EJTELEOP")
+    # send_cmd(msg_handler.make("stiff",msg), "EJTELEOP")
 
-    # socket.close()
+    msg = "dt:2|m1:0|m2:0|m3:-45|m4:0|m5:-45|m6:0"
+    socket_real.publish_on_topic(msg_handler.make("move",msg,"Q"), "EJTELEOP")
+    # send_cmd(msg_handler.make("move",msg,"Q"), "EJTELEOP")
+
+    input("Enter")
+
+
+    for i in range(12):
+        msg = "m{}:off".format((i-1)%5+2)
+        msg += "|m{}:blue".format(i%5+2)
+        msg += "|m{}:white".format((i+1)%5+2)
+        msg += "|m{}:red".format((i+2)%5+2)
+        socket_real.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
+        time.sleep(0.5)
+
+    input("Enter")
+
+    # rep = "r"
+    # while rep == "r":
+    #     pos = input("Enter 3 coordinates:")
+    #     x, y, z = pos.split(" ")
+    #     posture = poppy.inv_model((float(x), float(y), float(z)))
+
+    #     msg = "dt:2"
+    #     for i in range(6):
+    #         msg += "|m{}:{}".format(i+1, posture[i])
+        
+    #     send_cmd(msg_handler.make("move", msg, "Q"), "EJTELEOP")
+
+    #     rep = input("Enter r to restart. ")
+
+    msg = "dance:start"
+    socket_real.publish_on_topic(msg_handler.make("invoke", msg), 'EJPRIM')
+
+    input("Enter")
+
+    msg = "dance:stop"
+    socket_real.publish_on_topic(msg_handler.make("invoke", msg), 'EJPRIM')
+
+    # msg = "dt:2|m1:-180|m4:0|m5:35|m6:35|m2:-120|m3:50"
+    # socket_real.publish_on_topic(msg_handler.make("move",msg,"Q"), "EJTELEOP")
+
+    input("Enter")
+
+    msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
+    socket_real.publish_on_topic(msg_handler.make("stiff",msg), "EJTELEOP")
+    msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
+    socket_real.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
+
+    socket_real.close()
+    socket_simu.close()

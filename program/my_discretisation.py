@@ -69,3 +69,8 @@ class Discretisation():
         b = n&7
 
         self.table[c] = self.table[c] | 1<<b
+    
+    def reset(self):
+        del self.table
+        self.table = bytearray(math.floor(self.nb_divs**3 /8)+1)
+        self.nb_visited = 0

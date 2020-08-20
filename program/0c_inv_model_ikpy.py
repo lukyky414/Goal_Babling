@@ -6,6 +6,7 @@ from my_files_paths import *
 import my_robot
 import my_option
 import my_json_encoder
+import my_nearest_neighbor
 
 
 poppy = my_robot.Robot()
@@ -57,15 +58,14 @@ res = []
 for g in goals:
     #Affichage de la barre de chargement
     if options.debug:
+        print("[", end='')
+        for j in range(nb_batch-1):
+            if j < i/batch_size:
+                print("#", end='')
+            else:
+                print(" ", end='')
+        print("] {}/{}".format(i,len(goals)), end='\r')
         i=i+1
-        if i%batch_size == 0 or i%1000 == 0:
-            print("[", end='')
-            for j in range(nb_batch-1):
-                if j < i/batch_size:
-                    print("#", end='')
-                else:
-                    print(" ", end='')
-            print("] {}/{}".format(i,len(goals)), end='\r')
     #Execution du modele inverse
     endpoint = inv_mod(g)
     res.append(endpoint)

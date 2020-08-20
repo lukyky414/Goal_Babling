@@ -1,4 +1,4 @@
-from rtree import index
+import rtree
 import copy
 
 from my_end_point import EndPoint
@@ -34,15 +34,14 @@ class NearestNeighbor:
 
 
 class RtreeNeighbor(NearestNeighbor):
-    def __init__(self, f):
+    def __init__(self):
 
         # Initialisation de Rtree
-        p = index.Property()
+        p = rtree.index.Property()
         p.dimension = 3
-        p.overwrite = False
 
         # Si un nom de fichier est donné, Rtree enregitre automatiquement
-        self.my_rtree = index.Rtree(f, properties=p)
+        self.my_rtree = rtree.index.Rtree(properties=p)
         self.nb_neighbor = 0
 
     def nearest(self, position : tuple):

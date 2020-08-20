@@ -41,7 +41,7 @@ for _ in range(1000):
     y = math.sin(theta) * math.sin(phi)
     z = abs(math.cos(phi))
 
-    dist = random.uniform(0,poppy.size)
+    dist = math.pow(random.uniform(0,1), 1/3) * poppy.size
     goals.append((x*dist, y*dist, z*dist))
 
 

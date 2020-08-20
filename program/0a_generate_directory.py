@@ -8,6 +8,7 @@ def create(path):
 
 create(MAIN_DIR)
 create("{}/{}".format(MAIN_DIR, CTL_DIR))
+create("{}/{}".format(MAIN_DIR, RES_DIR))
 
 for algo in ["motor_babling", "agnostic", "frontier"]:
     create("{}/{}/{}".format(MAIN_DIR, CTL_DIR, algo))

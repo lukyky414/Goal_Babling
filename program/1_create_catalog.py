@@ -23,6 +23,13 @@ import my_name_generator
 #Récupération des options & paramètres
 options = my_option.get_options_learn()
 
+
+
+
+##########################
+# Chargement des options #
+##########################
+
 #Création du nom de fichier en fonction des paramètres
 name = my_name_generator.get_file_name(options)
 
@@ -49,12 +56,14 @@ random.seed(options.seed)
 end_points, goals = None, None
 nn = None
 
-# for end in [".dat", ".idx", "_ep.json", "_g.json"]:
-#     filename = "{}/{}{}".format(directory, name, end)
-#     if os.path.exists(filename):
-#         os.remove(filename)
+nn = my_nearest_neighbor.RtreeNeighbor()
 
-nn = my_nearest_neighbor.RtreeNeighbor(f="{}/{}".format(directory,name))
+
+
+
+#################
+# Apprentissage #
+#################
 
 if options.debug:
     print("Learning")
@@ -95,31 +104,39 @@ else:
         printing=options.debug
     )
 
+
+
+
+#########################
+# Ecriture des fichiers #
+#########################
+
 if options.debug:
     print("Saving end_points")
 
-f = open("{}/{}_ep.json".format(directory, name), "w")
+filename="{}/{}.json".format(directory, name)
+
+f = open(filename, "w")
 json.dump(end_points, fp=f, cls=my_json_encoder.EP_Encoder)
 f.close()
 
 # if options.debug:
 #     print("Saving goals")
 
-# f = open("{}/{}_g.json".format(directory, name), "w")
+# f = open("{}_g.json".format(directory, name), "w")
 # json.dump(goals, fp=f)
 # f.close()
 
-#Output les fichiers à compresser
-# for end in [".dat", "_ep.json"]:
-#     print("{}/{}{}".format(directory, name, end))
 
 if options.debug:
     print("Compressing files")
 
-for end in [".dat", "_ep.json"]:
-    filename="{}/{}{}".format(directory, name, end)
-
-    with open(filename, 'rb') as f_in:
-        with gzip.open("{}{}".format(filename, ".gz"), 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
+with open(filename, 'rb') as f_in:
+    with gzip.open("{}{}".format(filename, ".gz"), 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
     os.remove(filename)
+
+# with open("{}_g.json".format(directory, name), 'rb') as f_in:
+#     with gzip.open("{}{}".format("{}_g.json".format(directory, name), ".gz"), 'wb') as f_out:
+#         shutil.copyfileobj(f_in, f_out)
+#     os.remove("{}_g.json".format(directory, name))
