@@ -250,6 +250,7 @@ _cloud_point_color = None
 def draw_points_cloud(end_points : list, max_dist = 0.3, robot = None, sphere=0, rota=False):
     """Dessine un nuage de point 3d.
     `end_points` - les coordonnees des points en (x, y, z) ou liste d'end_points"""
+    global _cloud_point_color
 
     _init_display()
 
@@ -295,7 +296,7 @@ def draw_points_cloud(end_points : list, max_dist = 0.3, robot = None, sphere=0,
             gl.glColor4f(1, 1, 1, 0.1)
             glu.gluSphere(glu.gluNewQuadric(), sphere, 64, 32)
 
-        _draw_fps()
+        # _draw_fps()
         pg.display.flip()
         _event_handler()
         pg.time.wait(10)
@@ -333,11 +334,13 @@ def draw_ep_and_goal(end_points : list, goals : list):
         _event_handler()
         pg.time.wait(10)
 
+_window = None
 def _init_display():
     """Initialise l'affichage."""
+    global _window, _size, _background_color
     glut.glutInit()
     pg.init()
-    pg.display.set_mode(_size, pg.OPENGL)
+    _window = pg.display.set_mode(_size, pg.OPENGL)
 
     # Perspective de vue du modele: fov, ratio, near & far clipping plane
     glu.gluPerspective(45, (_size[0]/_size[1]), 0.1, 50.0)
@@ -391,6 +394,7 @@ _hjoint_color = (1, 0, 0, 1)
 def _draw_one_robot(posture_pos : list, highlight=None):
     """Permet de dessiner un robot avec ces link et ses moteurs.
     `posture_pos` - liste de matrice de rotation décrivant le robot dans sa posture"""
+    global _section_color, _joint_color, _hjoint_color
 
     # Chaque section est representee par un segment noir
     gl.glBegin(gl.GL_LINE_STRIP)
@@ -541,20 +545,6 @@ def _get_rainbow_color(fact : float):
     else:
         return (fact*3-2, 0, 3-fact*3)
 
-#Variable contante pour éviter de recréer / calculer à chaque fois
-_x_axe = np.array(( (1, 0, 0, 0),
-                    (0, 1, 0, 0),
-                    (0, 0, 1, 0),
-                    (1, 0, 0, 1)))
-_y_axe = np.array(( (1, 0, 0, 0),
-                    (0, 1, 0, 0),
-                    (0, 0, 1, 0),
-                    (0, 1, 0, 1)))
-_z_axe = np.array(( (1, 0, 0, 0),
-                    (0, 1, 0, 0),
-                    (0, 0, 1, 0),
-                    (0, 0, 1, 1)))
-
 def _event_handler():
     """Prend en charge les evenements pygame"""
     _mouse_handler()
@@ -565,6 +555,7 @@ def _event_handler():
 
 def _keyboard_event(event):
     """Trie les event pour prendre en compte les touches du clavier utilisée"""
+    global _window
     #Relachement d'une touche
     if event.type == pg.KEYUP:
         #Relachement de la touche controle
@@ -595,11 +586,15 @@ def _keyboard_event(event):
 
 
         #Si controle est appuyé, verification du + et -
-        if _StaticVars.keyboard_ctrl_pressed:
+        elif _StaticVars.keyboard_ctrl_pressed:
             if event.key == pg.K_PLUS or event.key == pg.K_KP_PLUS:
                 gl.glScalef(1.5, 1.5, 1.5)
             elif event.key == pg.K_MINUS or event.key == pg.K_KP_MINUS:
                 gl.glScalef(0.6, 0.6, 0.6)
+        
+        elif event.key == pg.K_s:
+            pg.image.save(_window, "capture.png")
+            print("Capture saved.")
 
 def _closing_event(event):
     """Toutes les manières de quitter l'appli"""
@@ -640,7 +635,22 @@ def _mouse_event(event):
 # Rapport entre le déplacement de la souris et la translation du monde
 _translation_factor = 1/120
 
+#Variable contante pour éviter de recréer / calculer à chaque fois
+_x_axe = np.array(( (1, 0, 0, 0),
+                    (0, 1, 0, 0),
+                    (0, 0, 1, 0),
+                    (1, 0, 0, 1)))
+_y_axe = np.array(( (1, 0, 0, 0),
+                    (0, 1, 0, 0),
+                    (0, 0, 1, 0),
+                    (0, 1, 0, 1)))
+_z_axe = np.array(( (1, 0, 0, 0),
+                    (0, 1, 0, 0),
+                    (0, 0, 1, 0),
+                    (0, 0, 1, 1)))
+
 def _mouse_handler():
+    global _translation_factor, _x_axe, _y_axe, _z_axe
     if _StaticVars.mouse_left_pressed or _StaticVars.mouse_right_pressed:# Position actuelle de la souris
         curr_x, curr_y = pg.mouse.get_pos()
 

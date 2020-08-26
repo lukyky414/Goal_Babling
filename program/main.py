@@ -165,15 +165,15 @@ import my_nearest_neighbor
 #     y = math.sin(theta) * math.sin(phi)
 #     z = abs(math.cos(phi))
 
-#     # mag = random.uniform(0,poppy.size)
-#     # mag = math.pow(random.uniform(0,1), 1/3) * poppy.size
-#     mag = poppy.size
+#     mag = random.uniform(0,poppy.size)
+#     mag = math.pow(random.uniform(0,1), 1/3) * poppy.size
+#     # mag = poppy.size
 #     # if z < 0.1:
 #     pos.append((x*mag, y*mag, z*mag))
 
 # # my_display._background_color = (255, 255, 255)
-# my_display._section_color = (0, 1, 0, 1)
-# my_display._joint_color = (0, 1, 0, 1)
+# # my_display._section_color = (0, .3, 0, 1)
+# # my_display._joint_color = (0, .3, 0, 1)
 # # my_display._cloud_point_color = (0, 0, 0)
 # # my_display.draw_points_cloud(pos, robot=poppy)
 # my_display.draw_points_cloud(pos)
