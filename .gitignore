@@ -19,6 +19,7 @@ program/stop.py
 #fichier temporaires pour latex
 rapport/*
 !rapport/rapport.tex
+!rapport/graphics/
 
 
 tmp.txt
