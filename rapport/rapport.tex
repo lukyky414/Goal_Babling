@@ -7,6 +7,7 @@
 % \setfoot[\thepage][][]{}{}{\thepage}
 % }%
 % \pagestyle{plain}
+\usepackage{float}
 \usepackage[utf8]{inputenc}
 \usepackage[hidelinks]{hyperref}
 \usepackage{babel}
@@ -145,26 +146,53 @@ Ces compétences sont basées sur des interactions physiques et sociales.
 % le sujet et son contexte 
 \chapter{Présentation du stage}
 
-Le robot Poppy Ergo Jr, qui est un bras robotique, est composé d'une base, d'une suite de sections rigides et de moteurs, puis d'un effecteur.
+Le robot Poppy Ergo Jr, qui est un bras robotique, est composé d'une base, d'une suite de sections rigides et de moteurs, puis d'un effecteur (voir figure \ref{fig:SchemaPoppyErgoJr}).
+
+\phantom{INVISIBLE LINE}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=140pt]{Poppy_Diagram} 
+    \caption{Annotations sur le Poppy Ergo Jr}
+    \label{fig:SchemaPoppyErgoJr}
+\end{figure}
 
 Le but de l'apprentissage n'est pas de controller la vitesse du robot mais seulement la position de son effecteur.
 Donc la modélisation de ce robot ne sera pas cinétique mais uniquement géométrique.
 
+\phantom{INVISIBLE LINE}
+
 Afin de déterminer la position de l'effecteur d'un bras robotique à partir d'une commande, donc d'une suite d'angle à appliquer à chacun de ses moteurs, il suffit de calculer le résultat des translations (les sections rigides) et des rotations (les moteurs).
 Cela est simple lorsqu'il n'y a que des sections rigides et que le robot n'est pas soumis à beaucoup de contraintes, mais deviens très compliqué dans le cas contraire.
+
 Passer d'une commande à la position de l'effecteur est le rôle de la modélisation géométrique directe.
 Si la modélisation est difficile à construire, il est possible d'utiliser le monde réel comme modélisation: on donne la commande au robot et on observe la position de l'effecteur en résultat.
 La réalité est le meilleure modèle physique que l'homme connaisse.
 
+\phantom{INVISIBLE LINE}
+
 Afin de déterminer quel est la commande à executer afin d'atteindre avec l'effecteur une position donnée est le rôle de la modélisation géométrique inverse.
 Il n'existe pas de modélisation géométrique inverse universelle, elle est à calculer pour chaque robots.
+
 De plus, lorsque le robot le permet comme le Poppy Ergo Jr, il faut résoudre les problèmes de redondance: plusieurs commandes / plusieurs postures permettent d'arriver à la même position de l'effecteur.
+
 La construction du modèle géométrique inverse est souvent très compliquée, surtout si le robot est complexe.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[height=140pt]{Modelisation_geometrique_diagram} 
+    \caption{Modèle géométrique Directe et Inverse}
+    \label{fig:SchemaModelisation}
+\end{figure}
+
+\phantom{INVISIBLE LINE}
 
 L'idée de ce stage est d'éviter de construire ces modèles, en s'inspirant de la nature.
 Aucune forme de vie ne fonctionne à partir d'une modélisation directe ou inverse.
 Un nouveau né ne va pas se déplacer autant et aussi précisément qu'un adulte car celui-ci possède de l'expérience qu'il a acquis de son vivant.
-C'est de ces processus dévelopementaux des systèmes biologiques que va s'inspirer un nouvel apprentissage pour créer des robots qui ont une enfance et qui basent leurs décisions sur l'expérience acquise au cours du temps.
+
+C'est de ces processus dévelopementaux de systèmes biologiques que va s'inspirer un nouvel apprentissage pour créer des robots qui ont une enfance et qui basent leurs décisions sur l'expérience acquise au cours du temps.
 Le but est donc de créer un apprentissage qui permet d'acquérir de l'expérience et de la réutiliser afin de pouvoir controller le corps (ici un bras robotique).
 
 %%%%%%%%%%%%%%%%%%%
