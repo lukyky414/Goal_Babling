@@ -14,6 +14,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \graphicspath{{./graphics/}}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 
 %Désactiver l'écriture de "Chapter 1" avant le chapter.
 \usepackage[pagestyles]{titlesec}
@@ -103,20 +104,20 @@ Je tiens à remercier toutes les personnes qui ont contribué à mon stage et qu
 %Activer la numérotation des pages
 \pagenumbering{arabic}
 
-Dans le cadre de mon stage au sein du laboratoire de recherche Loria, j'ai travaillé sur un bras robotique appellé Poppy Ergo Jr (fig. \ref{fig:PoppyErgoJr}).
-Le but est d'utiliser une nouvelle méthode pour controller ce robot.
+Dans le cadre de mon stage au sein du laboratoire de recherche Loria, j'ai travaillé sur un bras robotique appellé Ergo Jr (fig. \ref{fig:ErgoJr}).
+Le but est, pour controller ce robot d'utiliser une méthode basée sur de l'expérience appellée Goal Babling \cite{GoalBabling}.
 Durant cette période, j'ai pu créer une modélisation de ce robot et tester ce nouvel apprentissage.
 
 \phantom{INVISIBLE LINE}
 
 \begin{figure}
     \centering
-    \includegraphics[width=178pt]{Robot_Poppy_Ergo_Jr_abat_jour} 
-    \caption{Robot Poppy Ergo Jr avec un abat jour}
-    \label{fig:PoppyErgoJr}
+    \includegraphics[width=178pt]{Ergo_Jr_abat_jour} 
+    \caption{Le robot Ergo Jr avec un abat jour}
+    \label{fig:ErgoJr}
 \end{figure}
 
-Dans ce rapport je vais d'abord présenter comment peut-on controller le Poppy Ergo Jr ou un autre robot, puis je vais détailler une nouvelle méthode de contrôle et comment se déroule l'apprentissage.
+Dans ce rapport je vais d'abord présenter comment peut-on controller Ergo Jr ou un autre robot, puis je vais détailler une autre méthode de contrôle et comment se déroule l'apprentissage.
 Je terminerais ce rapport par montrer les résultats obtenus.
 
 %%%%%%%%%%%%%%%%%%%
@@ -146,19 +147,19 @@ Ces compétences sont basées sur des interactions physiques et sociales.
 % le sujet et son contexte 
 \chapter{Présentation du stage}
 
-Le robot Poppy Ergo Jr, qui est un bras robotique, est composé d'une base, d'une suite de sections rigides et de moteurs, puis d'un effecteur (voir figure \ref{fig:SchemaPoppyErgoJr}).
+Le robot Ergo Jr, qui est un bras robotique, est composé d'une base, d'une suite de sections rigides et de moteurs, puis d'un effecteur (voir figure \ref{fig:SchemaErgoJr}).
 
 \phantom{INVISIBLE LINE}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[height=140pt]{Poppy_Diagram} 
-    \caption{Annotations sur le Poppy Ergo Jr}
-    \label{fig:SchemaPoppyErgoJr}
+    \includegraphics[height=140pt]{Ergo_Diagram} 
+    \caption{Annotations sur le Ergo Jr}
+    \label{fig:SchemaErgoJr}
 \end{figure}
 
 Le but de l'apprentissage n'est pas de controller la vitesse du robot mais seulement la position de son effecteur.
-Donc la modélisation de ce robot ne sera pas cinétique mais uniquement géométrique.
+Donc la modélisation de ce robot ne sera pas cinétique mais géométrique.
 
 \phantom{INVISIBLE LINE}
 
@@ -172,9 +173,9 @@ La réalité est le meilleure modèle physique que l'homme connaisse.
 \phantom{INVISIBLE LINE}
 
 Afin de déterminer quel est la commande à executer afin d'atteindre avec l'effecteur une position donnée est le rôle de la modélisation géométrique inverse.
-Il n'existe pas de modélisation géométrique inverse universelle, elle est à calculer pour chaque robots.
+Il n'existe pas de modélisation géométrique universelle (directe ou inverse), elle est à calculer pour chaque robots.
 
-De plus, lorsque le robot le permet comme le Poppy Ergo Jr, il faut résoudre les problèmes de redondance: plusieurs commandes / plusieurs postures permettent d'arriver à la même position de l'effecteur.
+De plus, lorsque le robot le permet comme le Ergo Jr, il faut résoudre les problèmes de redondance: plusieurs commandes / plusieurs postures permettent d'arriver à la même position de l'effecteur.
 
 La construction du modèle géométrique inverse est souvent très compliquée, surtout si le robot est complexe.
 
@@ -189,7 +190,7 @@ La construction du modèle géométrique inverse est souvent très compliquée, 
 \phantom{INVISIBLE LINE}
 
 L'idée de ce stage est d'éviter de construire ces modèles, en s'inspirant de la nature.
-Aucune forme de vie ne fonctionne à partir d'une modélisation directe ou inverse.
+Il n'y as pas de modèle géométrique qui dirige les mouvements d'un être vivant.
 Un nouveau né ne va pas se déplacer autant et aussi précisément qu'un adulte car celui-ci possède de l'expérience qu'il a acquis de son vivant.
 
 C'est de ces processus dévelopementaux de systèmes biologiques que va s'inspirer un nouvel apprentissage pour créer des robots qui ont une enfance et qui basent leurs décisions sur l'expérience acquise au cours du temps.
@@ -202,21 +203,23 @@ Le but est donc de créer un apprentissage qui permet d'acquérir de l'expérien
 \chapter{Travail réalisé}
 
 Toute l'expérience acquise par le robot sera représentée par un catalogue liant des commandes et des observations.
-Dans le cas du Poppy Ergo Jr, une commande est une suite d'angle donnée aux moteurs, et l'observation est la position dans l'espace de l'effecteur.
+Dans le cas du Ergo Jr, une commande est une liste d'angle donnée aux moteurs, et l'observation est la position dans l'espace de l'effecteur.
 Tout le but de l'apprentissage est de créer, remplir et utiliser ce catalogue.
 
 \section{Utilisation du catalogue}
 
-Une fois un catalogue crée et remplis, nous pouvons l'utiliser afin de controller le robot.
+Une fois un catalogue créé et rempli, nous pouvons l'utiliser afin de controller le robot.
 Lorsque l'utilisateur (ou le robot) décide d'atteindre une certaine position avec l'effecteur, il suffit de recherche l'observation dans le catalogue la plus proche du point demandé, et d'exécuter la commande associée.
-Le robot reçoit donc une suite d'angle pour déterminer sa posture et son effecteur arrivera donc à l'observation qui est proche du point demandé.
+Le robot reçoit donc une liste d'angle pour déterminer sa posture et son effecteur arrivera donc à l'observation qui est proche du point demandé.
+
+\phantom{INVISIBLE LINE}
 
 Le problème de cette solution est que le robot s'approche du point demandé sans l'atteindre.
-Le catalogue contient un nombre fini de points, ce qui ne remplis pas continuellement l'espace.
+Le catalogue contient un nombre fini de points, ce qui ne rempli pas continuellement l'espace.
 
 Une deuxième solution qui permet d'utiliser le catalogue et d'offrir un résultat continu dans l'espace est de rechercher plusieurs observations les plus proches de la position demandée.
 Il faut ensuite faire une moyenne sur les commandes associées pondérés par la distance entre l'observation et le but.
-Le robot peut ainsi atteindre un espace continue à partir d'un catalogue de taille finie.
+Le robot peut ainsi atteindre un espace continu à partir d'un catalogue de taille finie.
 
 \phantom{INVISIBLE LINE}
 
@@ -235,59 +238,179 @@ Cette dernière contraintes est importante car lors de l'apprentissage, donc pen
 Je vais ici présenter les trois méthodes utilisées pour remplir le catalogue.
 Toutes sont basée sur le babillage des mouvements d'un nouveau né.
 La premère méthode est le Motor Babling pour babillage moteur.
-Ensuite nous verrons la catégorie Goal Babling, pour un babillage par but.
+Elle permet d'explorer l'espace moteur du robot et est simple à mettre en place.
+
+\phantom{INVISIBLE LINE}
+
+Ensuite nous verrons la catégorie Goal Babling \cite{GoalBabling}, pour un babillage par but.
 Dans cette catégorie, l'apprentissage génère des buts, et il existe plusieurs algorithmes permettant de générer des buts.
-L'un d'eux est le Agnostic Goal Generator (génération agnostique de but).
+Cette décision, choisir un but, permet de diriger l'apprentissage et d'explorer l'espace de travail plutôt que l'espace moteur.
+L'un d'eux est le Agnostic Goal Generator (génération agnostique de but) .
 Ensuite je présenterais une catégorie de générateur de but, les Goals on Grid.
 Ces algorithmes se basent sur une discrétisation de l'espace pour générer des but, d'où la grille de but.
 Ici la difficultée sera de choisir une certaine cellule dans la grille, ce qui peut être fait avec l'algorithme Frontier.
+
+\begin{algorithm}[h]
+    \DontPrintSemicolon
+    \LinesNumbered
+    $cat \leftarrow Catalogue$\;
+    \For { $1 \le i \le N $} {
+        $c \leftarrow newCommand(cat)$ \;
+        $o \leftarrow Robot.execute(c)$\;
+        $cat.add(c, o)$ \;
+    }
+    \caption{\label{alg:Fill} Fill}
+\end{algorithm}
+
+\clearpage
 
 \subsection{Motor Babling}
 
 Une première approche pour que le robot acquière de l'expérience est une exploration de ses espaces moteurs et sensoriels.
 Ceci est comparable au comportement d'un nouveau né qui ne contrôle pas ses mouvements.
-Le robot va prendre une posture totalement aléatoire et observer en résultat la position de son effecteur dans le monde.
-Ceci est un babillage moteur (ou motor babling en anglais).
-Nous construisons ainsi un catalogue, contenant toutes les postures essayées et les observations associées, ce qui constitue la mémoire et l'expérience du robot.
-
-\subsection{Goal Babling}
-
-L'exploration de l'espace des moteurs du robot ne remplis pas toujours efficacement le catalogue, et il est possible de diriger l'apprentissage en choisisant des but à atteindre.
-C'est donc un babillage par but, ou Goal Babling en anglais.
-La selection d'un but est importante sur la qualité du catalogue résultat.
-Si le robot est complexe et que le Motor Babling n'explore pas assez l'espace de travail, la selection de but peut forcer cette exploration.
-Cependant, si tous les buts générés sont mal positionnés, le catalogue perdra en précision d'execution.
-Il existe plusieurs façon de générer un but.
-
-\subsubsection{Agnostic Goal Generation}
-
-Générer un but aléatoirement est facile, il suffit de générer uniformément des coordonnées dans un espace défini.
-Les buts sont générées sans aucune connaissance au préalable sur le robot, c'est donc une génération de but agnostique.
-Afin de pouvoir gérer le taux d'exploration avec cet algorithme, les positions extrêmes rencontrées lors de l'apprentissage, le minimum et maximum atteint sur chacun des axes, sont enregistrés.
-Cela donne une zone que le robot pourrais atteindre.
-Un but sera généré dans cette zone, dont la taille a été mutlipliée par un facteur, qui déterminera ainsi le taux d'exploration.
-
-Cependant cette méthode est assez limitée, surtout que l'espace de travail n'est que rarement proche d'un cube (ou d'un pavé droit).
-
-\subsubsection{Goals on Grid et Frontier}
-
-Afin d'approcher l'espace de travail du robot sans avoir de connaissance sur celui-ci, il est possible de partitionner l'espace en une grille.
-Lors de l'apprentissage, toutes les cellules atteintes par les observations du catalogue sont enregistrée, ce qui nous donne une estimation sur l'espace atteint.
-Gérer le taux d'exploration ou d'exploitation est donc facile, pour augmenter l'exploitation et la précision, il suffit de générer un but dans une cellule déjà atteinte.
-Pour augmenter l'exploration et la couverture, il faut générer un but dans une cellule non atteinte.
 
 \phantom{INVISIBLE LINE}
 
-\textbf{Frontier}
+Le robot va prendre une posture aléatoire, donc choisir pour chaque moteurs et dans leurs limites un angle aléatoire selon une distribution uniforme, et observer en résultat la position de son effecteur dans le monde.
+Ceci est un babillage moteur (ou motor babling en anglais).
+Nous construisons ainsi un catalogue, contenant toutes les postures essayées et les observations associées, ce qui constitue la mémoire et l'expérience du robot.
+
+\begin{algorithm}[h]
+    \DontPrintSemicolon
+    \LinesNumbered
+    $command \leftarrow \emptyset$ \;
+    \ForEach{$m \in Robot.Motors$}{
+        $c \leftarrow random(m.min, \hspace{5pt} m.max)$ \;
+        $command.append( c )$\;
+    }
+    \Return{command}
+    \caption{\label{alg:MotorBabling} MotorBabling}
+\end{algorithm}
+
+\pagebreak
+
+\subsection{Goal Babling}
+
+L'exploration de l'espace des moteurs du robot ne permet pas toujours d'explorer efficacement l'espace de travail du robot.
+La distribution des observations du catalogue dans l'espace de travail ne sera pas uniforme.
+Si certaines zones sont facilement atteignable et qu'il existe un grand nombre de redondance pour atteindre les points de cette zone, une exploration de l'espace moteur va automatiquement se concentrer sur cette zone.
+
+\phantom{INVISIBLE LINE}
+
+Cepentant, il est possible de diriger l'apprentissage en choisisant des but à atteindre.
+C'est donc un babillage par but, ou Goal Babling en anglais.
+Cette méthode est une manière de représenter la motivation intresèque: la décision qui est de choisir le but est prise par le robot et non par un utilisateur extérieure, afin de maximiser l'expérience acquise \cite{Intrinsic_motivation}.
+
+\phantom{INVISIBLE LINE}
+
+La sélection de but permet donc de diriger l'exploration pour sortir des zones facilement atteignable et d'atteindre ainsi tout l'espace de travail.
+Cependant, si tous les buts générés sont mal positionnés, l'utilisation du catalogue donnera des résultats peu précis.
+
+\phantom{INVISIBLE LINE}
+
+Il existe plusieurs façon de générer un but et je vais décrire deux méthodes: la génération de but agnostique, et la génération de but sur une grille à l'aide de l'algorithme Frontier.
+
+\begin{algorithm}[h]
+    \DontPrintSemicolon
+    \LinesNumbered
+    $cat \leftarrow Catalogue$\;
+    $goal \leftarrow GenerateGoal(cat)$ \;
+    $c, o \leftarrow cat.nearest(goal)$ \;
+    $command \leftarrow c.perturb()$ \;
+    \Return{command}
+    \caption{\label{alg:GoalBabling} GoalBabling}
+\end{algorithm}
+
+\subsubsection{Agnostic Goal Generation}
+
+Afin d'explorer uniformément l'espace de travail, il est possible de créer des but uniformément sur cet espace.
+Cepandant les buts sont générées sans aucune connaissance au préalable sur le robot, donc aucune connaissance sur son espace de travail.
+C'est pour cela que ce générateur de but est agnostique.
+
+\phantom{INVISIBLE LINE}
+
+Afin de pouvoir approximer l'espace de travail du robot, les positions extrêmes, les minimums et maximums sur chacun des axes, sont enregistrées.
+Cela donne une zone que le robot peut potentiellement atteindre.
+Un but sera généré dans cette zone, dont la taille sera été mutlipliée par un facteur, qui déterminera ainsi le taux d'exploration.
+
+\phantom{INVISIBLE LINE}
+
+Cependant cette méthode ne fait qu'approximer l'espace de travail qui est rarement un simple cube (ou pavé droit).
+
+\begin{algorithm}[h]
+    \DontPrintSemicolon
+    \LinesNumbered
+    $Cat \leftarrow Catalogue$ \;
+    $Ext \leftarrow CoefExtension$ \;
+    $goal \leftarrow \emptyset$ \;
+    \ForEach{$\{x, y, z\}$ }{
+        $min \leftarrow Cat.min() \times Ext$ \;
+        $max \leftarrow Cat.max() \times Ext$ \;
+        $val \leftarrow random(min, \hspace{5pt} max)$ \;
+        $goal.append(val)$ \;
+    }
+    \Return{goal}
+    \caption{\label{alg:Agnostic} Agnostic}
+\end{algorithm}
+
+\subsubsection{Goals on Grid et Frontier}
+
+Afin d'approcher encore plus l'espace de travail du robot sans avoir de connaissance sur celui-ci, il est possible de partitionner l'espace en une grille.
+Lors de l'apprentissage, toutes les cellules atteintes par les observations du catalogue sont enregistrées, ce qui nous donne une estimation sur l'espace atteint.
+On obtient ainsi, avec une certaine résolution, une représentation de l'espace atteint pendant l'apprentissage.
+
+\phantom{INVISIBLE LINE}
+
+Une fois cette représentation obtenue, si il faut augmenter la précision du catalogue, et donc exploiter les données présente, le prochain but sera généré dans une cellule déjà atteinte.
+Si, au contraire, il faut augmenter la couverture et donc explorer l'espace, le prochain but sera généré dans une cellule non atteinte.
+
+\begin{algorithm}[h]
+    \DontPrintSemicolon
+    \LinesNumbered
+    $Cat \leftarrow Catalogue$ \;
+    $p \leftarrow ExplorationProbability$ \;
+    $visited \leftarrow VisitedCells$ \;
+    $r \leftarrow random()$ \;
+    \If{$r \le p$}{
+        $c \leftarrow selectNonVisitedCell(visited)$ \;
+        $visited.append(c)$ \;
+    }
+    \Else{
+        $c \leftarrow random(visited)$ \;
+    }
+    $goal \leftarrow GenerateGoalInCell(c)$ \;
+    \Return{goal}
+    \caption{\label{alg:GoalsOnGrid} GoalsOnGrid}
+\end{algorithm}
+
+\pagebreak
+
+\textbf{Frontier Goal Generation}
 
 \phantom{INVISIBLE LINE}
 
 L'algorithme frontier permet de selectionner une cellule non atteinte mais potentiellement atteignable.
-Premièrement, une observation dans le catalogue est selectionnée.
-Ensuite, une direction est générée aléatoirement.
-L'algorithme parcour ensuite la grille à partir de l'observation en suivant la direction jusqu'à rencontrer une cellul qui n'est pas encore atteinte.
+Premièrement, une observation dans le catalogue est selectionnée aléatoirement.
+Ensuite, une direction est aussi générée aléatoirement en selectionnant uniformément un point sur la surface d'une sphère.
+
+L'algorithme parcours ensuite la grille à partir de l'observation en suivant la direction jusqu'à rencontrer une cellule qui n'est pas encore atteinte.
 Cette cellule est donc à la frontière de la zone atteinte par le robot.
 L'algorithme Frontier permet donc d'explorer un espace plus proche de l'espace de travail que l'algorithme Agnostic.
+
+\begin{algorithm}[h]
+    \DontPrintSemicolon
+    \LinesNumbered
+    $visited \leftarrow VisitedCells$ \;
+    $Cat \leftarrow Catalogue$ \;
+    $_, o \leftarrow random(Cat)$ \;
+    $cell \leftarrow o \div Cell.size$ \;
+    $dir \leftarrow generateRandomDir()$ \;
+    \While{$cell \in visited$}{
+        $cell \leftarrow nextCell(cell, \hspace{5pt} dir)$ \;
+    }
+    \Return{cell}
+    \caption{\label{alg:Frontier} Frontier}
+\end{algorithm}
 
 
 %%%%%%%%%%%%%%%%%%%
@@ -309,9 +432,9 @@ La couverture sera mesurée à partir de ces deux valeurs:
 
 \begin{itemize}
     \item[$\bullet$] Le volume, qui correspond au volume de l'enveloppe convexe des points du catalogue.
-Cela permet de mesurer la taille de l'espace couvert par l'algorithme et déterminer un taux d'exploration.
-    \item[$\bullet$] Le remplissage, qui est le ratio entre le nombre de cellules de la discretisation de l'espace populées par les points du catalogue et le nombre de cellules théoriquement atteignables, comme par exemple les cellules dans une sphère dont le rayon est la taille du bras robotique.
-Cela permet de mesurer le taux de remplissage de l'espace couvert.
+    Cela permet de mesurer la taille de l'espace couvert par l'algorithme et déterminer un taux d'exploration.
+    \item[$\bullet$] Le remplissage, qui est le ratio entre le nombre de cellules de la discretisation de l'espace qui contiennent au moins une observation du catalogue et le nombre de cellules théoriquement atteignables, comme par exemple les cellules dans une sphère dont le rayon est la taille du bras robotique.
+    Cela permet de mesurer le taux de remplissage de l'espace couvert.
 \end{itemize}
 
 \phantom{INVISIBLE LINE}
@@ -320,16 +443,16 @@ Cela permet de mesurer le taux de remplissage de l'espace couvert.
 
 \phantom{INVISIBLE LINE}
 
-La précision sera déduite à partir de l'erruer, qui est la distance entre un but donné et l'observation générée par le résultat du modèle inverse.
+La précision sera déduite à partir de l'erreur, qui est la distance entre un but donné et l'observation générée par le résultat du modèle inverse.
 Les mêmes buts seront utilisés pour comparer tous les algorithmes.
 Deux listes de but ont été retenues:
 
 \begin{itemize}
-    \item[$\bullet$] La première contient des buts générés uniformément dans un espace théoriquement atteignable par le robot.
-L'espace selectionné est 3/4 d'une demi-sphère.
-Il est inutile de demander le robot d'atteindre une zone sous sa base, il ne peut pas traverser une table, cela enlève une demi-sphère.
-Nous ne demandons pas au robot d'essayer d'atteindre une zone "derrière lui", ce qui exclue 1/4 de la zone restante.
-Voir figure \ref{fig:goal_list} pour une représentation du dessus et de face.
+    \item[$\bullet$] La première liste contient des buts générés aléatoirement selon une distribution uniforme dans un espace théoriquement atteignable par le robot.
+    L'espace selectionné est 3/4 d'une demi-sphère.
+    Il est inutile de demander le robot d'atteindre une zone sous sa base, il ne peut pas traverser une table, cela enlève une demi-sphère.
+    Nous ne demandons pas au robot d'essayer d'atteindre une zone "derrière lui", ce qui exclue 1/4 de la zone restante.
+    Voir figure \ref{fig:goal_list} pour une représentation du dessus et de face.
     
     \begin{figure}
         \centering
@@ -338,34 +461,38 @@ Voir figure \ref{fig:goal_list} pour une représentation du dessus et de face.
         \label{fig:goal_list}
     \end{figure}
     
-    \item[$\bullet$] La deuxième contient les observations faites après utilisation de la bibliothèque Ikpy qui contient un modèle inverse.
-Cette liste ne contient que des observations, donc des point qui sont réellement atteignable.
-Avec ce modèle inverse il est possible de comparer l'efficacité d'un modèle inverse existant, ici Ikpy, avec le modèle inverse généré par les algorithmes.
+    \item[$\bullet$] La deuxième liste contient les observations faites après utilisation d'un modèle inverse existant dans une bibliothèque appellée Ikpy.
+    Cette liste ne contient que des observations, donc des points qui sont réellement atteignables.
+    Avec ce modèle inverse il est possible de comparer l'efficacité d'un modèle inverse existant, ici Ikpy, avec le modèle inverse généré par les algorithmes.
 \end{itemize}
+
+\pagebreak
 
 \section{Paramètres}
 
 Il existe plusieurs paramètres aux différents algorithmes utilisés.
 Afin de pouvoir les comparer, il faut d'abord trouver les paramètres les plus optimisés pour chacune des instances.
 L'apprentissage se résume à remplir de la manière la plus efficace possible un catalogue qui représente la vie d'un robot.
+
 Un paramètre commun à tous ces apprentissage est donc la taille du catalogue.
-On peut facilement imaginer qu'un catalogue plus grand permet d'avoir une meilleure précision et une meilleure couverture de l'espace.
+
+
 Deux valeurs de ce paramètre ont étées testées pour ne pas avoir un nombre trop important de version à tester.
-Afin de vérifier l'hypothèses, ces deux paramètres sont 1 000 entrées dans le catalogue pour représenter une borne inférieure, ainsi que 100 000 entrées dans le catalogue.
+Afin de vérifier l'hypothèse, ces deux paramètres sont 1 000 entrées dans le catalogue pour représenter une borne inférieure, ainsi que 100 000 entrées dans le catalogue.
 
 \subsection{Motor Babling}
 
 \`A chaque étape du Motor Babling, une posture est choisie en donnant un angle aléatoire à chacun des moteurs généré uniformément sur leur portée.
-C'est une exploration de tout l'espace moteur du robot, donc tout point atteignable par ce robot possède donc une probabilité non nul d'être dans le catalogue.
+C'est une exploration de tout l'espace moteur du robot, donc tout point atteignable par ce robot possède donc une probabilité non nulle d'être dans le catalogue.
 J'en déduis que la couverture du Motor Babling augmente avec la taille de son catalogue.
 
 Plus il y a de points dans ce catalogue, la distance entre un but et les points du catalogue utilisés dans l'interpolation sera petite, donc la précision de l'algorithme augmente aussi avec la taille de son catalogue.
 
 \subsection{Goal Babling}
 
-Quelque soit l'algorithme de génération du but, pour initier le Goal Babling il faut exécuter un certain nombre d'étape de Motor Babling.
+Quelque soit l'algorithme de génération du but, pour initier le Goal Babling il faut exécuter un certain nombre d'étapes de Motor Babling.
 C'est donc un paramètre à prendre en compte.
-Comme il faut commencer par un certain nombre d'étapes de Motor Babling, la borne inférieure testée pour ce paramètre est une proportion de 0.01 étapes sur le nombre total d'entrée du catalogue.
+Comme il faut commencer par un certain nombre d'étapes de Motor Babling, la borne inférieure testée pour ce paramètre est une proportion de 0.01 étapes sur le nombre total d'entrées du catalogue.
 Si la proportion est trop grande, cela reviens à faire simplement du Motor Babling.
 La deuxième valeur testée pour ce paramètre sera donc une proportion de 0.2 sur le nombre total d'entrée du catalogue.
 
@@ -373,7 +500,7 @@ Lorsqu'un but est choisi, une nouvelle entrée dans le catalogue est crée à pa
 Cette perturbation est un autre paramètre à prendre en compte pour du Goal Babling.
 Avec une perturbation plus elevée, la posture générée sera normalement plus loin de la posture selectionnée.
 La couverture d'un algorithme augmente donc avec la perturbation.
-Cependant, l'observation de la posture générée a plus de chance d'être distante du but demandé, et donc la perturbation peut déteriorer la précision de l'algorithme.
+Cependant, l'observation de la posture générée a plus de chance d'être distante du but demandé, et donc la perturbation peut détériorer la précision de l'algorithme.
 Les valeurs utilisées pour ce paramètre sont une proportion de 0.05 de la portée du moteur, ainsi qu'une proportion de 0.2 de la portée du moteur.
 
 \subsection{Agnostric Goal Generation}
@@ -391,12 +518,12 @@ Le robot se forcerait à n'atteindre que les extrémités de son espace de trava
 \subsection{Frontier Goal Generation}
 
 Lors de l'utilisation du Frontier Goal Generator, ou plus largement du Goals on Grid, il existe un coefficient d'exploration p.
-Avec une probabilité p l'algorithme va choisir d'explorer l'espace, et avec une probabilité p-1, l'alogirthme choisi d'exploiter le catalogue.
+Avec une probabilité p l'algorithme va choisir d'explorer l'espace, et avec une probabilité 1-p, l'algorithme choisi d'exploiter le catalogue.
 Trois valeurs de p ont étées testées.
-Les dornes 0.01 et 0.9, ainsi qu'une valeur intermédiaire 0.5.
+Les bornes 0.01 et 0.9, ainsi qu'une valeur intermédiaire 0.5.
 
 Il est aussi possible de changer la taille d'une cellule pour l'utilisation de Goals on Grid.
-Une taille de cellule plus petite représentera plus présicemment la zone atteinte par le catalogue, mais rendra l'exploration de l'espace plus lente.
+Une taille de cellule plus petite représentera plus précisemment la zone atteinte par le catalogue, mais rendra l'exploration de l'espace plus lente.
 Une taille de cellule trop grande et l'algorithme devient une simple génération agnostique.
 J'ai choisi de fixer la taille de l'espace, et je détermine la taille d'une cellule à partir d'un certain nombre de division de cet espace.
 Deux valeurs pour ce paramètre ont été testée: 10 divisions (ce qui reviens à des cellules de tailles de 10cm\up3), et 1 000 divisions (ce qui reviens à des cellules de 1mm\up3).
@@ -407,5 +534,11 @@ Deux valeurs pour ce paramètre ont été testée: 10 divisions (ce qui reviens 
 % les conclusions
 \chapter{Conclusion}
 
+
+%%%%%%%%%%%%%%%%
+% BIBLIOGRAPHY %
+%%%%%%%%%%%%%%%%
+\bibliographystyle{unsrt}
+\bibliography{sample}
 
 \end{document}
