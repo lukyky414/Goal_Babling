@@ -104,8 +104,8 @@ Je tiens à remercier toutes les personnes qui ont contribué à mon stage et qu
 %Activer la numérotation des pages
 \pagenumbering{arabic}
 
-Dans le cadre de mon stage au sein du laboratoire de recherche Loria, j'ai travaillé sur un bras robotique appellé Ergo Jr (fig. \ref{fig:ErgoJr}).
-Le but est, pour controller ce robot d'utiliser une méthode basée sur de l'expérience appellée Goal Babling \cite{GoalBabling}.
+Dans le cadre de mon stage au sein du laboratoire de recherche Loria, j'ai travaillé sur un bras robotique appellé Poppy Ergo Jr \cite{PoppyErgoJr} (fig. \ref{fig:ErgoJr}).
+Le but est, pour contrôler ce robot d'utiliser une méthode basée sur de l'expérience appellée Goal Babling \cite{GoalBabling}.
 Durant cette période, j'ai pu créer une modélisation de ce robot et tester ce nouvel apprentissage.
 
 \phantom{INVISIBLE LINE}
@@ -117,7 +117,7 @@ Durant cette période, j'ai pu créer une modélisation de ce robot et tester ce
     \label{fig:ErgoJr}
 \end{figure}
 
-Dans ce rapport je vais d'abord présenter comment peut-on controller Ergo Jr ou un autre robot, puis je vais détailler une autre méthode de contrôle et comment se déroule l'apprentissage.
+Dans ce rapport je vais d'abord présenter dans quel cadre j'ai pu travailler, puis je décrirais comment contrôler Ergo Jr ou un autre robot pour ensuite je vais détailler une autre méthode de contrôle et comment se déroule l'apprentissage.
 Je terminerais ce rapport par montrer les résultats obtenus.
 
 %%%%%%%%%%%%%%%%%%%
@@ -178,7 +178,6 @@ Il n'existe pas de modélisation géométrique universelle (directe ou inverse),
 De plus, lorsque le robot le permet comme le Ergo Jr, il faut résoudre les problèmes de redondance: plusieurs commandes / plusieurs postures permettent d'arriver à la même position de l'effecteur.
 
 La construction du modèle géométrique inverse est souvent très compliquée, surtout si le robot est complexe.
-
 
 \begin{figure}
     \centering
@@ -287,7 +286,7 @@ Nous construisons ainsi un catalogue, contenant toutes les postures essayées et
     \caption{\label{alg:MotorBabling} MotorBabling}
 \end{algorithm}
 
-\pagebreak
+% \pagebreak
 
 \subsection{Goal Babling}
 
@@ -305,8 +304,6 @@ Cette méthode est une manière de représenter la motivation intresèque: la d�
 
 La sélection de but permet donc de diriger l'exploration pour sortir des zones facilement atteignable et d'atteindre ainsi tout l'espace de travail.
 Cependant, si tous les buts générés sont mal positionnés, l'utilisation du catalogue donnera des résultats peu précis.
-
-\phantom{INVISIBLE LINE}
 
 Il existe plusieurs façon de générer un but et je vais décrire deux méthodes: la génération de but agnostique, et la génération de but sur une grille à l'aide de l'algorithme Frontier.
 
@@ -353,11 +350,18 @@ Cependant cette méthode ne fait qu'approximer l'espace de travail qui est rarem
     \caption{\label{alg:Agnostic} Agnostic}
 \end{algorithm}
 
+\pagebreak
+
 \subsubsection{Goals on Grid et Frontier}
 
 Afin d'approcher encore plus l'espace de travail du robot sans avoir de connaissance sur celui-ci, il est possible de partitionner l'espace en une grille.
 Lors de l'apprentissage, toutes les cellules atteintes par les observations du catalogue sont enregistrées, ce qui nous donne une estimation sur l'espace atteint.
 On obtient ainsi, avec une certaine résolution, une représentation de l'espace atteint pendant l'apprentissage.
+
+\phantom{INVISIBLE LINE}
+
+L'algorithme de Goals on Grid est une adaptation en 3 dimensions de celui présenté dans la thèse de Fabien C. Y. Benureau \cite{TheseBenureau}.
+L'idée de partitionner l'espace pour le Goal Babling a été utilisé dans le contexte de l'algorithme SAGG-RIAC \cite{Intrinsic_motivation}.
 
 \phantom{INVISIBLE LINE}
 
@@ -383,15 +387,16 @@ Si, au contraire, il faut augmenter la couverture et donc explorer l'espace, le 
     \caption{\label{alg:GoalsOnGrid} GoalsOnGrid}
 \end{algorithm}
 
-\pagebreak
-
 \textbf{Frontier Goal Generation}
 
 \phantom{INVISIBLE LINE}
 
-L'algorithme frontier permet de selectionner une cellule non atteinte mais potentiellement atteignable.
+L'algorithme frontier permet de selectionner une cellule non atteinte mais potentiellement atteignable. L'idée principale de cet algorithme, décrit dans la thèse de F. Benureau \cite{TheseBenureau} peut être reconnue dans l'algorithme Goal Directionnal Sampling de Rolf \cite{Frontier}.
+
 Premièrement, une observation dans le catalogue est selectionnée aléatoirement.
 Ensuite, une direction est aussi générée aléatoirement en selectionnant uniformément un point sur la surface d'une sphère.
+
+\phantom{INVISIBLE LINE}
 
 L'algorithme parcours ensuite la grille à partir de l'observation en suivant la direction jusqu'à rencontrer une cellule qui n'est pas encore atteinte.
 Cette cellule est donc à la frontière de la zone atteinte par le robot.
@@ -463,7 +468,7 @@ Deux listes de but ont été retenues:
     
     \item[$\bullet$] La deuxième liste contient les observations faites après utilisation d'un modèle inverse existant dans une bibliothèque appellée Ikpy.
     Cette liste ne contient que des observations, donc des points qui sont réellement atteignables.
-    Avec ce modèle inverse il est possible de comparer l'efficacité d'un modèle inverse existant, ici Ikpy, avec le modèle inverse généré par les algorithmes.
+    Avec ce modèle inverse il est possible de comparer l'efficacité d'un modèle inverse existant, ici Ikpy \cite{IKPy}, avec le modèle inverse généré par les algorithmes.
 \end{itemize}
 
 \pagebreak
