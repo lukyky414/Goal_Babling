@@ -495,7 +495,7 @@ La couverture sera mesurée à partir de ces deux valeurs:
 \begin{itemize}
     \item[$\bullet$] Le volume, qui est le volume de l'enveloppe convexe des points du catalogue et le volume d'une zone théoriquement atteignable par le robot.
     Cela permet de mesurer la taille de l'espace couvert par l'algorithme et déterminer un taux d'exploration.
-    \item[$\bullet$] Le remplissage, qui est le le nombre de cellules de la discretisation de l'espace qui contiennent au moins une observation du catalogue.
+    \item[$\bullet$] Le remplissage, qui est le le nombre de cellules de la discrétisation de l'espace qui contiennent au moins une observation du catalogue.
     Cela permet de mesurer le taux de remplissage de l'espace couvert.
 \end{itemize}
 Ces valeurs sont normalisées avec un volume (ou un nombre de cellules) théoriquement atteignable.
@@ -564,13 +564,13 @@ Sur la figure \ref{fig:MB_couv_remp}, il y as une différence très significativ
 
 Avec plus d'entrée dans le catalogue, il y aura plus d'observations proche d'un but. L'interpolation utilisera donc des points plus proches, ce qui augmente la précision du résultat de l'algorithme.
 
-Sur la figue \ref{fig:MB_dis_moy_ik}, il y aussi une différence très significative. Cela confirme que plus d'entrées dans la base donnent une distance moyenne entre résultat et but plus petite donc une meilleure précision.
+Sur la figue \ref{fig:MB_dis_moy}, il y aussi une différence très significative. Cela confirme que plus d'entrées dans la base donnent une distance moyenne entre résultat et but plus petite donc une meilleure précision.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=178pt]{1mb_1k-100kstep_moy_ik.png}
-    \caption{Distance moyenne des observations à la liste Ikpy pour 1000 et 100 000 entrées.}
-    \label{fig:MB_dis_moy_ik}
+    \includegraphics[width=178pt]{1mb_1k-100kstep_moy_ik.png} \includegraphics[width=178pt]{1mb_1k-100kstep_moy_gl.png}
+    \caption{Distance moyenne des observations à la liste des but (gauche), et à la liste Ikpy (droite) pour 1000 et 100 000 entrées.}
+    \label{fig:MB_dis_moy}
 \end{figure}
 
 %%% SUB - SECTION %%%
@@ -583,6 +583,18 @@ Comme il faut commencer par un certain nombre d'étapes de Motor Babling, la bor
 Si la proportion est de 1, cela revient à faire simplement du Motor Babling. Une proportion trop grande pollue trop le catalogue avec du Motor Babling, ce qui va cacher les résultats de l'algorithme utilisé pour le Goal Babling.
 La deuxième valeur testée pour ce paramètre est une proportion de 0.2 sur le nombre total d'entrée du catalogue.
 
+La figure \ref{fig:effet_mb_prop}, les différences entre les couvertures et les précisions sont très significatives.
+La meilleure couverture avec 0.01 ou 0.2 en proportion de motor babling change peu.
+Ce n'est que dans certains cas qu'une mauvaise initialisation perturbe le Goal Babling.
+La même observation peut être faite sur la précision.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=160pt]{0.2-.01mb_couver.png} \includegraphics[width=160pt]{0.2-.01mb_moy_gl.png}
+    \caption{Couverture (gauche) et Précision (droite) pour deux proportions de Motor Babling.}
+    \label{fig:effet_mb_prop}
+\end{figure}
+
 \phantom{INVISIBLE LINE}
 
 Lorsqu'un but est choisi, une nouvelle entrée dans le catalogue est crée à partir d'une perturbation de donnée existante.
@@ -594,6 +606,18 @@ Une observation sur une posture grandement perturbée a plus de chance d'être d
 Cette perturbation peut donc détériorer la précision de l'algorithme.
 Les valeurs utilisées pour ce paramètre sont une proportion de 0.05 de la portée du moteur, ainsi qu'une proportion de 0.2 de la portée du moteur.
 
+Sur la figure \ref{fig:effet_pp}, Les résultats sont similaires à l'impacte de la proportion de Motor Babling.
+Une bonne perturbation est necessaire pour explorer correctement l'espace.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=160pt]{0.05-.2pp_couver.png} \includegraphics[width=160pt]{0.05-.2pp_moy_gl.png}
+    \caption{Couverture (gauche) et Précision (droite) pour deux perturbations de posture.}
+    \label{fig:effet_pp}
+\end{figure}
+
+\pagebreak
+
 %%% SUB - SECTION %%%
 \subsection{Agnostric Goal Generation}
 
@@ -604,11 +628,21 @@ Plus le coefficient d'extention de cette zone est grand, plus la zone de génér
 Or le nombre d'entrée du catalogue ne change pas, ils sont donc plus dispersés.
 Ce coefficient impacte donc positivement la couverture mais négativement la précision.
 
-\phantom{INVISIBLE LINE}
-
 Deux valeurs sont utilisées pour ce paramètre.
 La première est de 0.7, une borne inférieure qui permet d'illustrer si un autre paramètre impacte plus l'exploration que celui-ci.
 La deuxième est 1.4, valeur supposée non extrême: une valeur trop grande donne une génération de but impossible à atteindre.
+
+Sur la figure \ref{fig:effet_exp}, un coefficient d'extension plus grand donne une meilleure couverture avec une différence très significative sur les données (****).
+La précision est un peu moins impactée mais est meilleure avec une extension plus faible.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=178pt]{Agn_.7-1.4exp_couver.png} \includegraphics[width=178pt]{Agn_.7-1.4exp_moy_ik.png}
+    \caption{Couverture (gauche) et Précision (droite) pour deux coefficients d'extension.}
+    \label{fig:effet_exp}
+\end{figure}
+
+\pagebreak
 
 %%% SUB - SECTION %%%
 \subsection{Frontier Goal Generation}
@@ -618,17 +652,39 @@ Avec une probabilité p l'algorithme va choisir d'explorer l'espace, et avec une
 Trois valeurs de p ont été testées.
 Les bornes 0.01 et 0.9, ainsi qu'une valeur intermédiaire 0.5.
 
+Cependant, comme le montre la figure \ref{fig:effet_pexp}, ce paramètre n'impacte pas les résultats.
+Il n'y a pas (ou très peu <*>) de différences entre les distributions de couverture et de précision (\textbf{N}o \textbf{D}ifference).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=178pt]{Fro_.01-.5-.9pexp_couver.png} \includegraphics[width=178pt]{Fro_.01-.5-.9pexp_moy_gl.png}
+    \caption{Couverture (gauche) et Précision (droite) pour deux probabilités d'exploration.}
+    \label{fig:effet_pexp}
+\end{figure}
+
 Il est aussi possible de changer la taille d'une cellule pour l'utilisation de Goals on Grid.
 Une taille de cellule plus petite représentera plus précisemment la zone atteinte par le catalogue, mais rendra l'exploration de l'espace plus lente.
 Avec une taille de cellule trop grande, l'algorithme se résume à une génération de but dans une zone spécifié: la cellule englobant le robot.
 J'ai choisi de fixer la taille de l'espace, et je détermine la taille d'une cellule à partir d'un certain nombre de division de cet espace.
 Deux valeurs pour ce paramètre ont été testée: 10 divisions (pour des cellules de 10cm\up3), et 1 000 divisions (pour des cellules de 1mm\up3).
 
+La résolution de la discrétisation possède par contre un effect plus significatif sur les résultats, comme le montre la figure \ref{fig:effet_res}.
+Une résolution plus grande, et donc des cellules plus petites, rend plus difficile l'exploration. La précision est aussi impactée négativement avec l'augmentation de la résolution.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=178pt]{Fro_10-1kres_couver.png} \includegraphics[width=178pt]{Fro_10-1kres_moy_gl.png}
+    \caption{Couverture (gauche) et Précision (droite) pour deux résolution de discrétisation.}
+    \label{fig:effet_res}
+\end{figure}
+
 %%%%%%%%%%%%%%%%%%%
 % % % SECTION % % %
 %%%%%%%%%%%%%%%%%%%
 % les conclusions
 \chapter{Conclusion}
+
+L'objectif du 
 
 
 %%%%%%%%%%%%%%%%
