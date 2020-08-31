@@ -54,22 +54,40 @@
 % PAGE DE GARDE %
 %%%%%%%%%%%%%%%%%
 \begin{titlepage}
-    \centering
-    \vspace*{0.3\textheight}
-
-    {\huge\bfseries Rapport de Stage Master 2\par}
-    \vspace{2cm}
-    
-    {\Large\itshape Lucas Schwab\par}
-    \vspace{1,5cm}
-
-    Supervisé par\par
-    Amine Boumaza et Alain Dutech
-
-    \vfill
-
-    % Bottom of the page
-    {\large \today\par}
+    \begin{center}
+        \vspace*{1cm}
+            
+        \Huge
+        \textbf{Reconstruction de billon}
+            
+        \vspace{0.5cm}
+        \LARGE
+        Rapport de stage M2 AVR
+        \vspace{1.5cm}
+            
+        \textbf{Lucas SCWHAB}
+            
+        \vfill
+        
+        \vspace{0.8cm}
+            
+        \Large
+        Encadrants : 
+        Amine BOUMAZA et Alain DUTECH
+        
+        Equipe : 
+        LARSEN
+        
+        Du 16 mars 2020 au 14 août 2020
+        
+        \vspace{0.5cm}
+        
+        \begin{figure}
+            \includegraphics[scale = 0.15]{logo_loria_complet.jpg}
+            \includegraphics[scale = 0.32]{logo-fst-haut.png}
+        \end{figure}
+            
+    \end{center}
 \end{titlepage}
 
 
@@ -519,7 +537,6 @@ Deux listes de but ont été retenues:
 
 Il existe plusieurs paramètres aux différents algorithmes utilisés.
 Afin de pouvoir les comparer, il faut d'abord trouver les paramètres les plus optimisés pour chacune des instances.
-L'apprentissage se résume à remplir de la manière la plus efficace possible un catalogue qui représente la vie d'un robot.
 
 \phantom{INVISIBLE LINE}
 
@@ -536,7 +553,25 @@ La deuxième est 100 000 entrées dans le catalogue, qui est une borne supérieu
 C'est une exploration de tout l'espace moteur du robot, donc tout point atteignable par ce robot possède donc une probabilité non nulle d'être dans le catalogue.
 J'en déduis que la couverture du Motor Babling augmente avec la taille de son catalogue.
 
+Sur la figure \ref{fig:MB_couv_remp}, il y as une différence très significative (****) entre les données, et plus d'étapes montrent une meilleure couverture et un meilleure remplissage
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=178pt]{1mb_1k-100kstep_couver.png} \includegraphics[width=178pt]{1mb_1k-100kstep_rempli.png}
+    \caption{Couverture (gauche) et Remplissage (droite) des catalogues pour 1000 et 100 000 entrées sur du Motor Babling.}
+    \label{fig:MB_couv_remp}
+\end{figure}
+
 Avec plus d'entrée dans le catalogue, il y aura plus d'observations proche d'un but. L'interpolation utilisera donc des points plus proches, ce qui augmente la précision du résultat de l'algorithme.
+
+Sur la figue \ref{fig:MB_dis_moy_ik}, il y aussi une différence très significative. Cela confirme que plus d'entrées dans la base donnent une distance moyenne entre résultat et but plus petite donc une meilleure précision.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=178pt]{1mb_1k-100kstep_moy_ik.png}
+    \caption{Distance moyenne des observations à la liste Ikpy pour 1000 et 100 000 entrées.}
+    \label{fig:MB_dis_moy_ik}
+\end{figure}
 
 %%% SUB - SECTION %%%
 \subsection{Goal Babling}
