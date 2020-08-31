@@ -675,8 +675,9 @@ Avec une taille de cellule trop grande, l'algorithme se résume à une générat
 J'ai choisi de fixer la taille de l'espace, et je détermine la taille d'une cellule à partir d'un certain nombre de division de cet espace.
 Deux valeurs pour ce paramètre ont été testée: 10 divisions (pour des cellules de 10cm\up3), et 1 000 divisions (pour des cellules de 1mm\up3).
 
-La résolution de la discrétisation possède par contre un effect plus significatif sur les résultats, comme le montre la figure \ref{fig:effet_res}.
-Une résolution plus grande, et donc des cellules plus petites, rend plus difficile l'exploration. La précision est aussi impactée négativement avec l'augmentation de la résolution.
+La résolution de la discrétisation possède par contre un effect plus significatif sur les résultats que la probabilité d'exploration, comme le montre la figure \ref{fig:effet_res}.
+Une résolution plus grande, et donc des cellules plus petites, rend plus difficile l'exploration.
+La précision est aussi impactée négativement avec l'augmentation de la résolution.
 
 \begin{figure}[h]
     \centering
@@ -691,7 +692,29 @@ Une résolution plus grande, et donc des cellules plus petites, rend plus diffic
 % les conclusions
 \chapter{Conclusion}
 
-L'objectif de ce stage était d'utiliser la méthode du Goal Babling sur le robot Poppy Ergo Jr.
+% Rappel du sujet, 
+L'objectif de ce stage est d'appliquer la méthode du Goal Babling \cite{GoalBabling} sur le robot Poppy Ergo Jr \cite{PoppyErgoJr}.
+
+J'ai débuté par une introduction au Goal Babling présenté par Fabien Benureau \cite{TutoGoalBabling}.
+Puis j'ai adapté cette solution pour un espace de dimension 3, en ajoutant des méthodes pour l'affichage.
+J'ai effectué des recherches sur une bibliothèque de Nearest Neighbor la plus adaptée à cet apprentissage.
+J'ai ensuite appliqué une méthode présenté dans la thèse de Mr Benureau \cite{TheseBenureau}, en adaptant le principe au programme.
+Enfin, j'ai appris l'utilisation de certains outils afin d'effectuer efficacement plusieurs apprentissage pour obtenir les résultats.
+
+% rappel des résultats, 
+Les résultats obetnus sont encore à travailler, car les contraintes physiques ont été ignorées pendant l'apprentissage.
+Certaines postures sont impossible à réaliser par exemple quand le bras robotique se traverse pour atteindre sa posture.
+
+% vers quoi ça va mener (ouverture pour toi, pour moi c'est la suite du sujet etc),
+En ajoutant des contraintes et en donnant plus de temps à l'apprentissage, un robot pourrait être contrôllé avec une grande précision et en mettant en oeuvre toutes ses capacités.
+Ajouter aussi une orientation à l'apprentissage est possible, du moment que le calcul de distance et le Nearest Neighbor soit adapté.
+
+\phantom{INVISIBLE LINE}
+
+% ce que ça m'a appris,
+Grâce à ce stage j'ai pu appercevoir le travail de chercheur malgré les conditions de travail exeptionelles.
+% si c'est en accord avec ma formation, 
+% en quoi ma formation m'a aidé à être opérationnelle sur mon sujet
 
 
 %%%%%%%%%%%%%%%%
