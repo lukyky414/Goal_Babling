@@ -692,30 +692,27 @@ La précision est aussi impactée négativement avec l'augmentation de la résol
 % les conclusions
 \chapter{Conclusion}
 
-% Rappel du sujet, 
+% Rappel du sujet,
 L'objectif de ce stage est d'appliquer la méthode du Goal Babling \cite{GoalBabling} sur le robot Poppy Ergo Jr \cite{PoppyErgoJr}.
+Pour ce projet j'ai utilisé Python et certaines bibliothèques comme Ikpy \cite{IKPy}, RTree \cite{RTree} et OpenGL.
 
 J'ai débuté par une introduction au Goal Babling présenté par Fabien Benureau \cite{TutoGoalBabling}.
 Puis j'ai adapté cette solution pour un espace de dimension 3, en ajoutant des méthodes pour l'affichage.
-J'ai effectué des recherches sur une bibliothèque de Nearest Neighbor la plus adaptée à cet apprentissage.
-J'ai ensuite appliqué une méthode présenté dans la thèse de Mr Benureau \cite{TheseBenureau}, en adaptant le principe au programme.
-Enfin, j'ai appris l'utilisation de certains outils afin d'effectuer efficacement plusieurs apprentissage pour obtenir les résultats.
+J'ai effectué des recherches sur une bibliothèque de Nearest Neighbor la plus adaptée à cet apprentissage, pour enfin utiliser un RTree \cite{RTree}.
+J'ai ensuite appliqué une méthode présentée dans la thèse de Mr Benureau \cite{TheseBenureau}, en adaptant le principe au programme.
+Enfin, j'ai appris l'utilisation de certains outils afin d'effectuer efficacement plusieurs apprentissages pour obtenir les résultats.
 
-% rappel des résultats, 
-Les résultats obetnus sont encore à travailler, car les contraintes physiques ont été ignorées pendant l'apprentissage.
-Certaines postures sont impossible à réaliser par exemple quand le bras robotique se traverse pour atteindre sa posture.
+Les résultats obtenus ne sont pas utilisables sur le robot réel, car les contraintes physiques ont été ignorées pendant l'apprentissage.
+Certaines postures sont impossibles à réaliser par exemple quand le bras robotique se traverse pour atteindre sa posture.
+La précision est aussi assez faible, les résultats donnés étant distants en moyenne à 0.04 unités du but demandé, qui correspond normalement à 4 cm.
 
-% vers quoi ça va mener (ouverture pour toi, pour moi c'est la suite du sujet etc),
-En ajoutant des contraintes et en donnant plus de temps à l'apprentissage, un robot pourrait être contrôllé avec une grande précision et en mettant en oeuvre toutes ses capacités.
-Ajouter aussi une orientation à l'apprentissage est possible, du moment que le calcul de distance et le Nearest Neighbor soit adapté.
+En ajoutant des contraintes et en donnant plus de temps à l'apprentissage, un robot pourrait être contrôlé avec une grande précision et en mettant en oeuvre toutes ses capacités.
+Ajouter aussi une orientation à l'apprentissage est possible, du moment que le calcul de distance et le Nearest Neighbor soientt adaptés.
 
-\phantom{INVISIBLE LINE}
+Avec ce sujet j'ai pu explorer une autre façon de contrôler un robot que celles qui m'ont été présentées lors de mon année scolaire.
+Cette méthode d'apprentissage est aussi nouvelle pour moi.
 
-% ce que ça m'a appris,
-Grâce à ce stage j'ai pu appercevoir le travail de chercheur malgré les conditions de travail exeptionelles.
-% si c'est en accord avec ma formation, 
-% en quoi ma formation m'a aidé à être opérationnelle sur mon sujet
-
+Même si les conditions de travail étaient exceptionnelle, ce stage m'a permis de conclure mes années d'études et m'a donné un apperçu du travail de chercheur.
 
 %%%%%%%%%%%%%%%%
 % BIBLIOGRAPHY %
