@@ -1,0 +1,133 @@
+\documentclass[french]{beamer}
+
+%Coloration des frames avec mathrice.sty
+\usepackage{mathrice}
+\usepackage{tikz}
+\usepackage{caption}
+\usepackage{graphicx}
+\graphicspath{{./graphics/}}
+
+% Enlève les boutons de navigation des frames
+\beamertemplatenavigationsymbolsempty
+
+% Ajoute le logo FST sur chaque slides
+\setbeamertemplate{background}{
+    \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=south west] at (current page.south west) {\includegraphics[height=1cm]{Logo_FST.jpg}};
+\end{tikzpicture}}
+
+% Numérotation des slides
+\setbeamertemplate{footline}[frame number]
+
+% % Frame section dans un rectangle bleu foncé
+% \AtBeginSection[]{
+%   \begin{frame}
+%     \vfill
+%     \centering
+%     \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+%         \usebeamerfont{title}\insertsectionhead\par
+%     \end{beamercolorbox}
+%     \vfill
+%   \end{frame}
+% }
+
+% Page de garde
+\title{Comment découvrir son corps?}
+\author{Lucas SCHWAB}
+\date{Mars - Août 2019}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%% Document %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+% Page de garde
+\begin{frame}
+    \begin{center}
+        \begin{beamercolorbox}[sep=8pt,center]{title}
+            \usebeamerfont{title}
+            \Huge \textbf{Stage Master 2}
+
+            \huge Comment découvrir son corps?
+        \end{beamercolorbox}
+        \vfill
+        
+        Lucas SCHWAB
+
+        \vfill
+
+        Encadrants:
+
+        Amine BOUMAZA
+        \&
+        Alain DUTECH
+    \end{center}
+\end{frame}
+
+%-----------------------------------
+
+% Sommaire
+\begin{frame}
+    \tableofcontents
+\end{frame}
+
+%###################################
+\section{Introduction}
+
+% Le Robot
+\begin{frame}
+    \frametitle{Poppy Ergo Jr}
+    Présenter le robot
+    Base
+    Suite de moteur et de sections rigides
+    Effecteur
+\end{frame}
+
+%-----------------------------------
+
+% Modèle directe et inverse
+
+%-----------------------------------
+
+% Problèmes des modèles
+
+%-----------------------------------
+
+% Inspiration du vivant
+
+
+%###################################
+%section apprentissage
+
+% Catalogue, expérience, contenu
+
+%-----------------------------------
+
+% Interpolation, pourquoi
+
+%-----------------------------------
+
+% Motor Babling
+
+%-----------------------------------
+
+% Goal Babling, corrige l'exploration non uniforme du motor babling
+% Dirige l'apprentissage
+
+%-----------------------------------
+
+% Comment générer une observation à partir d'un boutons
+
+%-----------------------------------
+
+% Generation de but agnostique
+
+%-----------------------------------
+
+% Goals on grid, corrige l'approximation trop grossière de l'agnostique
+
+%-----------------------------------
+
+
+
+\end{document}
