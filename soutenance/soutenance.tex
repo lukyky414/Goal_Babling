@@ -1,5 +1,6 @@
 \documentclass[french]{beamer}
 
+\usepackage{changepage}
 %Coloration des frames avec mathrice.sty
 \usepackage{mathrice}
 \usepackage{tikz}
@@ -19,17 +20,17 @@
 % Numérotation des slides
 \setbeamertemplate{footline}[frame number]
 
-% % Frame section dans un rectangle bleu foncé
-% \AtBeginSection[]{
-%   \begin{frame}
-%     \vfill
-%     \centering
-%     \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
-%         \usebeamerfont{title}\insertsectionhead\par
-%     \end{beamercolorbox}
-%     \vfill
-%   \end{frame}
-% }
+% Frame section dans un rectangle bleu foncé
+\AtBeginSection[]{
+  \begin{frame}
+    \vfill
+    \centering
+    \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+        \usebeamerfont{title}\insertsectionhead\par
+    \end{beamercolorbox}
+    \vfill
+  \end{frame}
+}
 
 % Page de garde
 \title{Comment découvrir son corps?}
@@ -51,7 +52,7 @@
             \huge Comment découvrir son corps?
         \end{beamercolorbox}
         \vfill
-        
+
         Lucas SCHWAB
 
         \vfill
@@ -68,66 +69,265 @@
 
 % Sommaire
 \begin{frame}
-    \tableofcontents
+    \hfill
+    \parbox[t]{.88\textwidth}{
+        \begin{minipage}[c][0.75\textheight]{0.88\textwidth}
+        \tableofcontents
+        \end{minipage}
+    }
+    % Introduction
+    %     Contexte
+    %     Babling
+    % Travail Realise
+    %     Principe
+    %     Algorithmes
+    % Apprentissage
+    %     Processus
+    %     Resultats
+    % Conclusion
 \end{frame}
 
 %###################################
 \section{Introduction}
 
-% Le Robot
+%###
+\subsection{Contexte}
+
+% Contexte
 \begin{frame}
-    \frametitle{Poppy Ergo Jr}
-    Présenter le robot
-    Base
-    Suite de moteur et de sections rigides
-    Effecteur
+    \frametitle{Contexte}
+    % Le but est d'apprendre à un robot à découvrir son corps. Le robot vit dans le monde réel, on lui donne une position à atteindre, on ne connait pas les angles à lui donner. Trouver la commande à exécuter pour atteindre un but donnée est le rôle de la cinématique inverse.
+
+    % image bébé et robot
 \end{frame}
 
 %-----------------------------------
 
-% Modèle directe et inverse
+% Comment calculer, cinématique inverse
+\begin{frame}
+    \frametitle{Cinématique Inverse}
+    % Il y a plusieurs espaces particuliers pour un robot. On a l'espace de travail qui, dans le cas d'un bras robotique, est tout l'espace que peut atteindre le robot. Une position dans cet espace est caractérisée par les coordonnées cartésiennes de l'effecteur. On a ici l'espace de configuration, qui est tous les angles que peuvent prendre les moteurs du robot. Une position ici est caractérisée par les angles de chacun des moteurs.
+    % Pour passer d'une position dans l'espace de configuration à une position dans l'espace de travail, on utilise la cinématique directe.
+    % Dans l'autre sens, pour obtenir la pose associée permettant d'atteindre une position dans l'espace de travail, on utilise la cinématique inverse.
+
+    % Lorsqu'un robot ne permet pas de redondance, done atteindre la même position avec plusieurs poses différentes, il est possible d'avoir la cinématique inverse de manière déterministe. Il existe une solution analytique permettant de trouver quelle sera la commande à donner pour atteindre une position demandée.
+    % Si le robot est redondant, il n'y as pas de solution analytique pour le modèle inverse comme c'est le cas pour Poppy Ergo Jr. Pourtant il existe une bibliothèque appellée Ikpy qui propose une cinématique inverse. Celle ci est calculée en utilisant un algorithme d'optimisation L-BFGS, en donnant chaques angles des moteurs à optimiser, et la distance entre la position de l'effecteur (obtenue avec la cinématique directe) et le but à minimiser.
+
+    % Je vais explorer une autre manière de générer une cinématique inverse.
+    \includegraphics[width=\textwidth]{Modelisation_Diagram_w_espaces.png}
+\end{frame}
+
+%###
+\subsection{Babling}
+
+% Mon travail -> Babling & Ergo
+\begin{frame}
+    \frametitle{Poppy Ergo Jr}
+
+    % Le robot utilisé pendant ce stage est le Poppy Ergo Jr. Il est composé d'une base et d'un effecteur en forme d'abat-jour, ainsi qu'une suite de moteur et de sections rigides. J'ai utilisé une méthode de babillage (babling en anglais) pour générer une cinématique inverse pour ce robot.
+    
+    % La méthode babling s'inspire du processus développementale des systèmes biologiques. Cad qu'il s'inspire de la manière dont un nouveau né se développe    e comment son corps bouge.
+    \center
+    \includegraphics[width=0.5\textwidth]{Poppy_Ergo_Jr.png}
+    % poppy
+    % mise en place du Babling
+\end{frame}
 
 %-----------------------------------
 
-% Problèmes des modèles
+% Babling: inspiration du processus développementale
+\begin{frame}
+    % Le principe du babling consiste à acquérir de l'expérience lors d'une étape qui s'apparente à l'enfance. Cette expérience sera ensuite utilisée comme une cinématique inverse. L'apprentissage consiste donc à générer de l'expérience et à l'utiliser pour créer une cinématique inverse.
+
+    processus développementale (texte)
+
+    bébé couché pis qui marche (image)
+\end{frame}
+
+%###################################
+\section{Travail Réalisé}
+
+%###
+\subsection{Principe}
+
+% Expliquer la fonction f: X -> Q
+\begin{frame}
+    % La cinématique inverse est une fonction qui prend un effet en paramètre, ici une position cartésienne. Elle retourne une commande, les angles pour les moteurs.
+    % Cette fonction est basée sur l'expérience du robot, acquise de manière aléatoire. Je vais caractériser cette expérience par un catalogue, qui contient une liste de commande et des effets associés
+
+    Grosse fonction, tableau catalogue
+
+    % Effet, mouvement
+    % Aleatoire
+    % Fo : Q..., effet
+\end{frame}
 
 %-----------------------------------
 
-% Inspiration du vivant
+% Comment construire F
+\begin{frame}
+    % Pour construire ce catalogue, je vais utiliser plusieurs méthode de babling. Premièrement le Motor Babling, pour babillage moteur. On donne une pose totalemet aléatoire au robot, et on ajoute la commande et son observation au catalogue.
+    % Ensuite je vais parler du Goal Babling qui possède plusieurs variante. Le Goal babling, pour babillage par but, consiste à générer un but qui permet de diriger l'apprentissage. Je vais ensuite prendre l'observation dans le catalogue la plus proche de ce but, et la perturber, cad la modifier aléatoirement, afin de générer une nouvelle observation.
+    % Je vais donc présenter les différents algorithmes.
+
+    arbre
+
+    motor babling     goal Babling
+    
+
+
+
+    % Motor Babling
+    %Goal Babling : plusieurs variantes
+\end{frame}
+
+%###
+\subsection{Algorithmes}
+
+% Motor Babling
+\begin{frame}
+    % Le Motor babling, qui consise à générer une pose aléatoire uniformément sur l'espace de configuration du robot, et ajoute cette commande au catalogue.
+    % Comme la pose est générée uniformément dans l'espace de configuration, tout l'espace de travail a une probabilité non nul d'être couvert par le catalogue. Cependant, il existe des zones plus facile à atteindre pour le robot. En générant une pose aléatoire, le robot a plus de chance d'être replié sur lui-même que d'être tendu. L'espace de travail n'est donc pas uniformément exploré.
+    %C'est pour cela que j'ai utilisé une autre méthode, le Goal Babling.
+
+    Gif robot qui prend des positions
+    
+
+    % Algorithme
+
+\end{frame}
+
+%-----------------------------------
+
+% Goal Babling: Agnostique
+\begin{frame}
+    \frametitle{Agnostic Goal Generator}
+    % L'agnostic goal generator est une instantiation du goal babling. La génération de but se fait de manière agnostic, cad il est impossible de tout connaitre, comme les limites de l'espace de l'espace du travail du robot.
+    % Lors du remplissage du catalogue, je vais retenir les positions extrêmes rencontrées. cad le minimum et maximum sur chacun des axes. Cette zone est une estimation de l'espace de travail du robot. Afin d'avoir de l'exploration, dans le cas où la portée du catalogue est une sous-estimation de l'espace de travail, je vais agrandir cette zone et y générer un but.
+
+    Boite, montrer les minimums \& maximum
+    montrer l'agrandissement de la boite
+
+\end{frame}
+
+%-----------------------------------
+
+% Goal babling: Frontier
+\begin{frame}
+    \frametitle{Goals on Grid \& Frontier}
+    % L'estimation de l'espace de travail faite par l'Agnostic Goal Generator n'est qu'un cube grossier. Afin de mieux l'approcher, j'ai discrétisé l'espace. J'ai donc une grille, où il me suffit de noter quelles cellules sont visitées par le catalogue. J'obtiens ainsi une approximation de la portée du robot avec une résolution que je peux choisir.
+    % L'algorithme Goals on Grid peut donc générer un but dans n'importe quelle cellule de cette grille. Une probabilité p permet de contrôler l'exploration de l'algorithme. Avec une probabilité p, je vais générer un but dans une cellule non explorée afin d'augmenter la portée du catalogue. Et avec une probabilité 1-p, je vais générer une but dans une cellule déjà explorée. Ainsi, si le catalogue a déjà remplis l'espace de travail, je peux continuer à générer des but pertinents. 
+
+    % La selection d'une cellule non explorée est le rôle de l'algorithme Frontier.
+    % Afin de trouver quelle est la frontière des cellules visités, je pars d'une observation du catalogue choisie aléatoirement. Je choisis ensuite une direction, aléatoirement. Je vais suivre cette direction à partir de l'observation jusqu'à rencontrer une cellule non visitée. C'est dans celle-ci que le prochain but sera généré.
+
+    Grille, point dedans, frontière mise en valeur, direction etc etc
+
+    % La grille etc, chercher la frontière
+\end{frame}
+
 
 
 %###################################
-%section apprentissage
+\section{Apprentissage}
+% Maintenant que j'ai décris les algorithme, je vais maintenant décrire le déroulement d'un apprentissage
 
-% Catalogue, expérience, contenu
+
+%###
+\subsection{Processus}
+
+% Experience - lancer - mesurer
+\begin{frame}
+    % Une execution d'algorithme est une expérience qui contient certains paramètres. Je vais lancer une expérience et mesurer les résultats.
+    % La mesure des résultats se fait en calculant la couverture et la précision de mon catalogue.
+    
+    exp -> lancer ->  mesurer
+
+    % Pour connaitre la couverture d'un catalogue, j'ai choisis de prendre le volume de l'enveloppe convexe de toutes les observations du catalogue. J'ai aussi calculé le volume occupé par toutes les cellules visitées. J'ai le volume de l'enveloppe convexe, et j'ai le remplissage de ce volume.
+    
+    Enveloppe convexe, remplissage?
+
+    % Pour connaitre maintenant la précision du catalogue, j'ai généré une liste de but théoriquement atteignable, cad à la portée du robot. Je mesure ensuite l'erreur de la cinématique inverse pour exprimer la précision. L'erreur c'est la distance entre le but et le résultat de la cinématique inverse.
+    % J'ai aussi utilisé Ikpy, la bibliothèque présente pour controller le robot, pour atteindre tout les buts de cette liste. J'obtiens une autre liste, cette fois-ci d'observation. Cad que ces points ne sont pas seulement théoriquement atteignable, ils sont atteignables.
+    
+    liste des buts
+
+    % L'apprentissage se résume à préparer une expérience, donc choisir les paramètres. Puis démarrer l'expérience et mesurer le résultat. Et ce, pour tous les paramètres des algorithmes.
+
+
+
+
+    % Quelles mesures: couverture / précision
+    % Décrire comment mesurer
+    % Décrire qu'ils faut lancer pour des paramètres différents
+    % Interpolation?
+\end{frame}
+
+%###
+\subsection{Résultats}
+% Je vais maintenant présenter les résultats de mon apprentissage
+
+% Resultats Motor Babling
+\begin{frame}
+    schéma
+\end{frame}
 
 %-----------------------------------
 
-% Interpolation, pourquoi
+% Résultats Agnostique
+\begin{frame}
+    schéma
+
+\end{frame}
 
 %-----------------------------------
 
-% Motor Babling
+% Résultats Frontier
+\begin{frame}
+    schéma
+
+\end{frame}
 
 %-----------------------------------
 
-% Goal Babling, corrige l'exploration non uniforme du motor babling
-% Dirige l'apprentissage
+% Comparer les 3 algorithmes
+\begin{frame}
+    schéma
 
-%-----------------------------------
+\end{frame}
 
-% Comment générer une observation à partir d'un boutons
+%###################################
+\section{Conclusion}
 
-%-----------------------------------
+% Conclusion
+\begin{frame}
+    % Le but du stage est de calculer la cinématique inverse pour le Poppy Ergo Jr.
+    % J'ai tuilisé la méthode de Babling pour la calculer.
+    % Pour cela, j'ai testé trois algorithmes. Le motor babling, qui consiste à générer une pose aléatoire, nous donne une couverture moyenne mais une bonne précision
+    % Ensuite il y a l'Agnostic Goal Generator, où un but est généré dans la portée du catalogue. Celui-ci nous donne une bonne couverture
+    % Enfin, il y a l'algorithme Frontier, qui après discrétisation de l'espace, recherche les cellules à la frontière de la portée du catalogue. C'est ici que j'ai les meilleurs résultats.
 
-% Generation de but agnostique
+    % Les résultats ne sont pas utilisables sur le robot, car les contraintes physiques ont été ignorés. Le robot peut, lors de l'apprentissage, se traverser lui-même. 
 
-%-----------------------------------
-
-% Goals on grid, corrige l'approximation trop grossière de l'agnostique
-
-%-----------------------------------
+    % J'ai choisi le Master AVR par passion pour les matières qui y sont enseginées, et pour découvrir le monde de la recherche. Je suis donc satisfait de ce stage, avec un sujet et un robot que je trouve intéressant.
 
 
+    mots clés
+
+    % Rappeller le problème: calculer la cinématique inverse pour le poppy
+    % Utilisation de l'algorithme du babling
+    % Tester les 3 variantes expérience
+        % Expliquer Motor babling, couverture & précision
+        % Expliquer Agnostique, couverture & précision
+        % Expliquer Frontier, couverture & précision
+    % Comparaison des 3
+\end{frame}
+
+\begin{frame}
+    \center
+    \Huge Merci de votre attention
+    
+    Avez-vous des questions ?
+\end{frame}
 
 \end{document}
