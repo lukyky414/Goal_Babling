@@ -181,9 +181,9 @@ import my_nearest_neighbor
 ######################
 # Animation du robot #
 ######################
-# poppy = my_robot.Robot()
+poppy = my_robot.Robot()
 
-# my_display.animation(poppy)
+my_display.animation(poppy)
 
 #############################################
 # Affichage des points / goals d'un fichier #

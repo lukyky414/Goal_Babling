@@ -126,83 +126,139 @@ if __name__ == "__main__":
     from py_ergojr.network.messages import Message
     from py_ergojr.network.zmq_publisher import ZmqPublisher
     import time
-    from my_nearest_neighbor import RtreeNeighbor
+    import my_nearest_neighbor
     import sys
+    import json
+    import my_json_encoder
+    import gzip
+
+    filename = sys.argv[1]
+
+    with gzip.open("{}".format(filename), "rb") as f:
+        ep_str = json.load(fp=f)
+        end_points = my_json_encoder.decode(ep_str)
+
+    nn = my_nearest_neighbor.RtreeNeighbor()
+
+    #Taille de barre de chargement
+    nb_batch = 10
+    #arrondis a l'inferieur
+    i_tot = len(end_points)
+    batch_size = int( i_tot / nb_batch)
+    if batch_size == 0:
+        batch_size = 1
+    i=0
+    for ep in end_points:
+        #Affichage de la barre de chargement
+        if i%batch_size == 0 or i%1000 == 0:
+            print("[", end='')
+            for j in range(nb_batch-1):
+                if j < i/batch_size:
+                    print("#", end='')
+                else:
+                    print(" ", end='')
+            print("] {}/{}".format(i,i_tot), end='\r')
+        i=i+1
+        #Ajout du point dans la base
+        nn.add_end_point(ep)
 
     poppy = Robot()
-
-    # nn = RtreeNeighbor(f=sys.argv[1])
-
-    # poppy.set_nn(nn)
+    poppy.set_nn(nn)
     
-    socket_real = ZmqPublisher("6666", host="10.0.0.2", bound=False, debug=True)
+    # socket_real = ZmqPublisher("6666", host="10.0.0.2", bound=False, debug=True)
     socket_simu = ZmqPublisher("6666", host="localhost", bound=False, debug=True)
-    socket_real.start()
+    # socket_real.start()
     socket_simu.start()
 
     def send_cmd(cmd, topic):
         global socket_simu, socket_real
         socket_simu.publish_on_topic(cmd, topic)
 
-        res = input("Is command valid?")
+        # res = input("Is command valid?")
 
-        if res == "y":
-            print("Sending to real robot")
-            socket_real.publish_on_topic(cmd, topic)
+        # if res == "y":
+        #     print("Sending to real robot")
+        #     socket_real.publish_on_topic(cmd, topic)
 
     msg_handler = Message()
 
     # msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
     # send_cmd(msg_handler.make("stiff",msg), "EJTELEOP")
 
-    msg = "dt:2|m1:0|m2:0|m3:-45|m4:0|m5:-45|m6:0"
-    socket_real.publish_on_topic(msg_handler.make("move",msg,"Q"), "EJTELEOP")
+    # msg = "dt:2|m1:0|m2:0|m3:-45|m4:0|m5:-45|m6:0"
+    # socket_real.publish_on_topic(msg_handler.make("move",msg,"Q"), "EJTELEOP")
     # send_cmd(msg_handler.make("move",msg,"Q"), "EJTELEOP")
 
-    input("Enter")
+    # input("Enter")
 
 
-    for i in range(12):
-        msg = "m{}:off".format((i-1)%5+2)
-        msg += "|m{}:blue".format(i%5+2)
-        msg += "|m{}:white".format((i+1)%5+2)
-        msg += "|m{}:red".format((i+2)%5+2)
-        socket_real.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
-        time.sleep(0.5)
+    # for i in range(12):
+    #     msg = "m{}:off".format((i-1)%5+2)
+    #     msg += "|m{}:blue".format(i%5+2)
+    #     msg += "|m{}:white".format((i+1)%5+2)
+    #     msg += "|m{}:red".format((i+2)%5+2)
+    #     socket_real.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
+    #     time.sleep(0.5)
 
-    input("Enter")
+    input("Enter pour rest")
 
-    # rep = "r"
-    # while rep == "r":
-    #     pos = input("Enter 3 coordinates:")
-    #     x, y, z = pos.split(" ")
-    #     posture = poppy.inv_model((float(x), float(y), float(z)))
+    rep = "r"
+    while rep == "r":
+        # pos = input("Enter 3 coordinates:")
+        # x, y, z = pos.split(" ")
 
-    #     msg = "dt:2"
-    #     for i in range(6):
-    #         msg += "|m{}:{}".format(i+1, posture[i])
+        x = 0
+        y = 0
+        z = 0.3
+
+        posture = poppy.inv_model((x, y, z))
+        # g = (float(x), float(y), float(z))
+        # q = poppy.robot.chain.inverse_kinematics(g
+        # posture = poppy.robot.chain.convert_from_ik_angles(q)
         
-    #     send_cmd(msg_handler.make("move", msg, "Q"), "EJTELEOP")
+        msg = "dt:2"
+        socket_simu.publish_on_topic(msg_handler.make("rest",msg), "EJTELEOP")
 
-    #     rep = input("Enter r to restart. ")
+        input("Enter pour ikpy")
+        
+        send_cmd(msg_handler.make("move", "dt:2|x:{}|y:{}|z:{}".format(x, y, z), "X"), "EJTELEOP")
+        # send_cmd(msg_handler.make("move", msg, "Q"), "EJTELEOP")
 
-    msg = "dance:start"
-    socket_real.publish_on_topic(msg_handler.make("invoke", msg), 'EJPRIM')
+        input("Enter pour rest")
 
-    input("Enter")
+        msg = "dt:2"
+        socket_simu.publish_on_topic(msg_handler.make("rest",msg), "EJTELEOP")
 
-    msg = "dance:stop"
-    socket_real.publish_on_topic(msg_handler.make("invoke", msg), 'EJPRIM')
+        input("Enter pour catalogue")
+
+        msg = "dt:2"
+        for i in range(6):
+            msg += "|m{}:{}".format(i+1, posture[i])
+        
+        send_cmd(msg_handler.make("move", msg, "Q"), "EJTELEOP")
+
+
+        # rep = input("Enter r to restart. ")
+        rep = "n"
+
+
+    # msg = "dance:start"
+    # socket_real.publish_on_topic(msg_handler.make("invoke", msg), 'EJPRIM')
+
+    # input("Enter")
+
+    # msg = "dance:stop"
+    # socket_real.publish_on_topic(msg_handler.make("invoke", msg), 'EJPRIM')
 
     # msg = "dt:2|m1:-180|m4:0|m5:35|m6:35|m2:-120|m3:50"
     # socket_real.publish_on_topic(msg_handler.make("move",msg,"Q"), "EJTELEOP")
 
-    input("Enter")
+    # input("Enter")
 
-    msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
-    socket_real.publish_on_topic(msg_handler.make("stiff",msg), "EJTELEOP")
-    msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
-    socket_real.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
+    # msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
+    # socket_real.publish_on_topic(msg_handler.make("stiff",msg), "EJTELEOP")
+    # msg = "m1:off|m2:off|m3:off|m4:off|m5:off|m6:off"
+    # socket_real.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
 
-    socket_real.close()
+    # socket_real.close()
     socket_simu.close()
