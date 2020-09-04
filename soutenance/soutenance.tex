@@ -1,5 +1,12 @@
 \documentclass[french]{beamer}
 
+% Animations
+\usepackage{xmpmulti}
+%Arbre pour goal babling
+\usepackage{tikz}
+\usetikzlibrary{trees}
+%Centrer verticalement les tableaux
+\usepackage{array}
 \usepackage{changepage}
 %Coloration des frames avec mathrice.sty
 \usepackage{mathrice}
@@ -92,14 +99,7 @@
 
 %###
 \subsection{Contexte}
-
-% Contexte
-\begin{frame}
-    \frametitle{Contexte}
-    % Le but est d'apprendre à un robot à découvrir son corps. Le robot vit dans le monde réel, on lui donne une position à atteindre, on ne connait pas les angles à lui donner. Trouver la commande à exécuter pour atteindre un but donnée est le rôle de la cinématique inverse.
-
-    % image bébé et robot
-\end{frame}
+% Le but est d'apprendre à un robot à découvrir son corps. Le robot vit dans le monde réel, on lui donne une position à atteindre, on ne connait pas les angles à lui donner. Trouver la commande à exécuter pour atteindre un but donnée est le rôle de la cinématique inverse.
 
 %-----------------------------------
 
@@ -137,25 +137,53 @@
 
 % Babling: inspiration du processus développementale
 \begin{frame}
+    \frametitle{Babling}
     % Le principe du babling consiste à acquérir de l'expérience lors d'une étape qui s'apparente à l'enfance. Cette expérience sera ensuite utilisée comme une cinématique inverse. L'apprentissage consiste donc à générer de l'expérience et à l'utiliser pour créer une cinématique inverse.
 
-    processus développementale (texte)
-
-    bébé couché pis qui marche (image)
+    \center
+    \begin{tabular}[]{m{0.4\textwidth} m{0.4\textwidth}}
+        \includegraphics[width=0.4\textwidth]{baby-walk.jpg}  &  \center Processus Développemental
+    \end{tabular}
 \end{frame}
 
 %###################################
 \section{Travail Réalisé}
+% Je vais donc vous présenté le travail que j'ai réalisé pour créer cette cinématique inverse.
 
 %###
 \subsection{Principe}
 
 % Expliquer la fonction f: X -> Q
 \begin{frame}
+    \frametitle{Cinématique Inverse}
     % La cinématique inverse est une fonction qui prend un effet en paramètre, ici une position cartésienne. Elle retourne une commande, les angles pour les moteurs.
-    % Cette fonction est basée sur l'expérience du robot, acquise de manière aléatoire. Je vais caractériser cette expérience par un catalogue, qui contient une liste de commande et des effets associés
+    % Cette fonction est basée sur l'expérience du robot, acquise de manière autonome et aléatoire. Je vais caractériser cette expérience par un catalogue, qui contient une liste de commande et des effets associés
 
-    Grosse fonction, tableau catalogue
+
+    \center
+    \begin{tabular}{m{0.4\textwidth} m{0.5\textwidth}}
+        \Large
+        \begin{align}
+            f: X \rightarrow Q \nonumber
+        \end{align}
+
+        &
+
+        \center
+        Catalogue
+
+        \begin{tabular}{||c | c ||}
+            \hline
+            Commande (Q) & Effet (X) \\
+            \hline
+            $\theta_{a1}, \theta_{b1}, ...$ & x, y, z\\
+            $\theta_{a2}, \theta_{b2}, ...$ & x, y, z\\
+            $\theta_{a3}, \theta_{b3}, ...$ & x, y, z\\
+            ... & ...\\
+            \hline
+        \end{tabular}
+    \end{tabular}
+
 
     % Effet, mouvement
     % Aleatoire
@@ -170,9 +198,24 @@
     % Ensuite je vais parler du Goal Babling qui possède plusieurs variante. Le Goal babling, pour babillage par but, consiste à générer un but qui permet de diriger l'apprentissage. Je vais ensuite prendre l'observation dans le catalogue la plus proche de ce but, et la perturber, cad la modifier aléatoirement, afin de générer une nouvelle observation.
     % Je vais donc présenter les différents algorithmes.
 
-    arbre
-
-    motor babling     goal Babling
+    \tikzstyle{every node}=[draw=black,thick,anchor=west]
+    \tikzstyle{selected}=[draw=red,fill=red!30]
+    \tikzstyle{optional}=[dashed,fill=gray!50]
+    \begin{tikzpicture}[
+        grow via three points={one child at (0.5,-0.7) and
+        two children at (0.5,-0.7) and (0.5,-1.4)},
+        edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+            \node {Cinématique Inverse}
+            child { node [selected] {Babling}
+                child { node {Motor Babling} }
+                child { node {Goal Babling} }
+            }
+            child [missing] {}
+            child [missing] {}
+            child { node { Solution Analytique } }
+            child { node { Optimisation } }
+            child { node { ... } };
+    \end{tikzpicture}
     
 
 
@@ -186,12 +229,24 @@
 
 % Motor Babling
 \begin{frame}
+    \frametitle{Motor Babling}
     % Le Motor babling, qui consise à générer une pose aléatoire uniformément sur l'espace de configuration du robot, et ajoute cette commande au catalogue.
     % Comme la pose est générée uniformément dans l'espace de configuration, tout l'espace de travail a une probabilité non nul d'être couvert par le catalogue. Cependant, il existe des zones plus facile à atteindre pour le robot. En générant une pose aléatoire, le robot a plus de chance d'être replié sur lui-même que d'être tendu. L'espace de travail n'est donc pas uniformément exploré.
     %C'est pour cela que j'ai utilisé une autre méthode, le Goal Babling.
 
-    Gif robot qui prend des positions
-    
+    \begin{tabular}{c c c}
+        \includegraphics[width=.28\textwidth]{poppy_motor_babling/frame-0.png}
+        &
+        \includegraphics[width=.28\textwidth]{poppy_motor_babling/frame-1.png}
+        &
+        \includegraphics[width=.28\textwidth]{poppy_motor_babling/frame-2.png}
+        \\
+        \includegraphics[width=.28\textwidth]{poppy_motor_babling/frame-3.png}
+        &
+        \includegraphics[width=.28\textwidth]{poppy_motor_babling/frame-4.png}
+        &
+        \includegraphics[width=.28\textwidth]{poppy_motor_babling/frame-5.png}
+    \end{tabular}
 
     % Algorithme
 
@@ -204,9 +259,9 @@
     \frametitle{Agnostic Goal Generator}
     % L'agnostic goal generator est une instantiation du goal babling. La génération de but se fait de manière agnostic, cad il est impossible de tout connaitre, comme les limites de l'espace de l'espace du travail du robot.
     % Lors du remplissage du catalogue, je vais retenir les positions extrêmes rencontrées. cad le minimum et maximum sur chacun des axes. Cette zone est une estimation de l'espace de travail du robot. Afin d'avoir de l'exploration, dans le cas où la portée du catalogue est une sous-estimation de l'espace de travail, je vais agrandir cette zone et y générer un but.
-
-    Boite, montrer les minimums \& maximum
-    montrer l'agrandissement de la boite
+    
+    \center
+    \multiinclude[<+>][format=png, graphics={width=.7\textwidth}]{agnostic_gg/frame}
 
 \end{frame}
 
@@ -221,7 +276,9 @@
     % La selection d'une cellule non explorée est le rôle de l'algorithme Frontier.
     % Afin de trouver quelle est la frontière des cellules visités, je pars d'une observation du catalogue choisie aléatoirement. Je choisis ensuite une direction, aléatoirement. Je vais suivre cette direction à partir de l'observation jusqu'à rencontrer une cellule non visitée. C'est dans celle-ci que le prochain but sera généré.
 
-    Grille, point dedans, frontière mise en valeur, direction etc etc
+
+    \center
+    \multiinclude[<+>][format=png, graphics={width=.7\textwidth}]{frontier/frame}
 
     % La grille etc, chercher la frontière
 \end{frame}
@@ -238,19 +295,38 @@
 
 % Experience - lancer - mesurer
 \begin{frame}
+    \frametitle{Expérience}
     % Une execution d'algorithme est une expérience qui contient certains paramètres. Je vais lancer une expérience et mesurer les résultats.
     % La mesure des résultats se fait en calculant la couverture et la précision de mon catalogue.
+    % Le catalogue ne contient qu'un nombre fini d'entrées. Afin de couvrir l'espace réel qui est continue, j'utilise une interpolation des 3 observations les plus proches du but.
     
-    exp -> lancer ->  mesurer
+    Choisir paramètres $\Rightarrow$ Lancer apprentissage $\Rightarrow$ Mesurer résultat
+\end{frame}
 
+\begin{frame}
+    \frametitle{Couverture}
     % Pour connaitre la couverture d'un catalogue, j'ai choisis de prendre le volume de l'enveloppe convexe de toutes les observations du catalogue. J'ai aussi calculé le volume occupé par toutes les cellules visitées. J'ai le volume de l'enveloppe convexe, et j'ai le remplissage de ce volume.
     
-    Enveloppe convexe, remplissage?
+    \center
+    \includegraphics[width=.45\textwidth]{couverture/volu-1.png}
+    \includegraphics[width=.45\textwidth]{couverture/remp-1.png}
+
+
+    Enveloppe convexe remplissage
+\end{frame}
+
+\begin{frame}
+    \frametitle{Précision}
 
     % Pour connaitre maintenant la précision du catalogue, j'ai généré une liste de but théoriquement atteignable, cad à la portée du robot. Je mesure ensuite l'erreur de la cinématique inverse pour exprimer la précision. L'erreur c'est la distance entre le but et le résultat de la cinématique inverse.
     % J'ai aussi utilisé Ikpy, la bibliothèque présente pour controller le robot, pour atteindre tout les buts de cette liste. J'obtiens une autre liste, cette fois-ci d'observation. Cad que ces points ne sont pas seulement théoriquement atteignable, ils sont atteignables.
     
-    liste des buts
+    \begin{tabular}{c c}
+        Vue de face & Vue du dessus
+        \\
+        \includegraphics[width=.45\textwidth]{goal_list_front.png} &
+        \includegraphics[width=.45\textwidth]{goal_list_top.png}
+    \end{tabular}
 
     % L'apprentissage se résume à préparer une expérience, donc choisir les paramètres. Puis démarrer l'expérience et mesurer le résultat. Et ce, pour tous les paramètres des algorithmes.
 
@@ -269,31 +345,65 @@
 
 % Resultats Motor Babling
 \begin{frame}
-    schéma
+    \frametitle{Motor Babling}
+    \begin{tabular}{c c}
+        Couverture (volume) & Précision (distance liste ikpy)
+        \\
+        \includegraphics[width = 0.45\textwidth]{1mb_1k-100kstep_couver.png} &
+        \includegraphics[width = 0.45\textwidth]{1mb_1k-100kstep_moy_ik.png}
+    \end{tabular}
+\end{frame}
+
+%-----------------------------------
+
+% Resultats Goal Babling
+\begin{frame}
+    \frametitle{Goal Babling}
+    \begin{tabular}{c c}
+        Couverture (volume) & Précision (distance liste ikpy)
+        \\
+        \includegraphics[width = 0.45\textwidth]{0.2-.01mb_couver.png} &
+        \includegraphics[width = 0.45\textwidth]{0.2-.01mb_moy_ik.png}
+    \end{tabular}
 \end{frame}
 
 %-----------------------------------
 
 % Résultats Agnostique
 \begin{frame}
-    schéma
-
+    \frametitle{Agnostic Goal Generator}
+    \begin{tabular}{c c}
+        Couverture (volume) & Précision (distance liste ikpy)
+        \\
+        \includegraphics[width = 0.45\textwidth]{Agn_.7-1.4exp_couver.png} &
+        \includegraphics[width = 0.45\textwidth]{Agn_.7-1.4exp_moy_ik.png}
+    \end{tabular}
 \end{frame}
 
 %-----------------------------------
 
 % Résultats Frontier
 \begin{frame}
-    schéma
-
+    \frametitle{Frontier}
+    \begin{tabular}{c c}
+        Couverture (volume) & Précision (distance liste ikpy)
+        \\
+        \includegraphics[width = 0.45\textwidth]{Fro_.01-.5-.9pexp_couver.png} &
+        \includegraphics[width = 0.45\textwidth]{Fro_.01-.5-.9pexp_moy_gl.png}
+    \end{tabular}
 \end{frame}
 
 %-----------------------------------
 
 % Comparer les 3 algorithmes
 \begin{frame}
-    schéma
-
+    \frametitle{Tous les algorithmes}
+    \begin{tabular}{c c}
+        Couverture (volume) & Précision (distance liste but)
+        \\
+        \includegraphics[width = 0.45\textwidth]{ALL_couver.png} &
+        \includegraphics[width = 0.45\textwidth]{ALL_moy_gl.png}
+    \end{tabular}
 \end{frame}
 
 %###################################
@@ -309,10 +419,18 @@
 
     % Les résultats ne sont pas utilisables sur le robot, car les contraintes physiques ont été ignorés. Le robot peut, lors de l'apprentissage, se traverser lui-même. 
 
-    % J'ai choisi le Master AVR par passion pour les matières qui y sont enseginées, et pour découvrir le monde de la recherche. Je suis donc satisfait de ce stage, avec un sujet et un robot que je trouve intéressant.
+    % J'ai choisi le Master AVR par passion pour les matières qui y sont enseginées, et pour découvrir le monde de la recherche. Je suis donc satisfait de ce stage, avec un sujet et un robot que je trouve intéressant, qui permet de conclure ces années d'étude.
 
-
-    mots clés
+    \begin{itemize}
+        \item Cinématique Inverse pour Poppy
+        \item babling
+        \begin{itemize}
+            \item Motor Babling
+            \item Agnostic Goal Generator
+            \item Frontier
+        \end{itemize}
+        \item Résultats
+    \end{itemize}
 
     % Rappeller le problème: calculer la cinématique inverse pour le poppy
     % Utilisation de l'algorithme du babling
