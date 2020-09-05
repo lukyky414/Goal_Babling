@@ -151,9 +151,9 @@ def draw_discretization(grid : Discretisation, alpha_per_point = 0.01, d=None):
         _draw_axes()
 
         for cell in grid.visited:
-            x = cell[0] * size + mins[0]
-            y = cell[1] * size + mins[1]
-            z = cell[2] * size + mins[2]
+            x = cell[0] * size + mins
+            y = cell[1] * size + mins
+            z = cell[2] * size + mins
 
             a = grid.get_cell(cell) * alpha_per_point
             if a > 1:
@@ -349,8 +349,8 @@ def _init_display():
     gl.glTranslatef(0.0, 0.0, -3)
 
     # De base, Z est un axe de profondeur (il viens vers la camera) et Y est vertical.
-    gl.glRotatef(-90, 1, 0, 0) # Mettre Z vers le haut, mais du coup Y est "loin"
-    gl.glRotatef(180, 0, 0, 1) # Mettre Y vers la camera
+    gl.glRotatef(-70, 1, 0, 0) # Mettre Z vers le haut, mais du coup Y est "loin"
+    gl.glRotatef(-30, 0, 0, 1) # Mettre Y vers la camera
 
     # Avoir le X (rouge) qui part a droite
     gl.glScalef(-1, 1, 1)

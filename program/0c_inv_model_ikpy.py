@@ -11,17 +11,6 @@ import my_nearest_neighbor
 
 poppy = my_robot.Robot()
 
-def inv_mod(goal):
-    global poppy
-    g = numpy.eye(4)
-    g[:3,3] = goal
-    #Max iter = 3 -> valeur pour temps de calcul faible
-    #Max iter = 1000 -> valeur par defaut pour precision haute
-    q = poppy.robot.chain.inverse_kinematics(g)
-    posture = poppy.robot.chain.convert_from_ik_angles(q)
-
-    return poppy.get_end_point(posture)
-
 #Récupération des options & paramètres
 options = my_option.get_options_ikpy()
 
@@ -67,7 +56,7 @@ for g in goals:
         print("] {}/{}".format(i,len(goals)), end='\r')
         i=i+1
     #Execution du modele inverse
-    endpoint = inv_mod(g)
+    endpoint = poppy.get_end_point(poppy.ik_inv_model(g))
     res.append(endpoint)
 
 

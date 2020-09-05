@@ -5,6 +5,10 @@ import scipy
 import math
 import gzip
 import shutil
+import numpy
+
+from py_ergojr.network.messages import Message
+from py_ergojr.network.zmq_publisher import ZmqPublisher
 
 from my_files_paths import *
 import my_json_encoder
@@ -15,72 +19,68 @@ import my_goal_generation
 import my_robot
 import my_nearest_neighbor
 
-##################################
-# Reconstruction du .dat et .idx #
-##################################
-# path_ep = sys.argv[1]
 
-# name = path_ep
-# zipped = name[-3:] == ".gz"
-# if zipped:
-#     name = name[:-3]
-# if name[-8:] == "_ep.json":
-#     name = name[:-8]
-
-
-# nn = my_nearest_neighbor.RtreeNeighbor(f=name)
-
-# if zipped:
-#     with gzip.open(path_ep, "rb") as f:
-#         ep_str = json.load(fp=f)
-#         endpoints = my_json_encoder.decode(ep_str)
-# else:
-#     f = open(path_ep)
-#     ep_str = json.load(fp=f)
-#     endpoints = my_json_encoder.decode(ep_str)
-
-# i = 0
-# for ep in endpoints:
-#     print(i, end="\r")
-#     i +=1
-#     nn.add_end_point(ep)
-# print()
-
-##########################################
-# Test inv mod avec plusieurs catalogues #
-##########################################
-# bon_path = "files/Catalogues/agnostic/0.2mb-0.8gb_1000step_0.05pp_agnostic_0.7exp_4"
-# nul_path = "files/Catalogues/agnostic/0.2mb-0.8gb_1000step_0.05pp_agnostic_0.7exp_5"
-
-# for path in [bon_path, nul_path]:
-#     with gzip.open("{}.dat.gz".format(path), 'rb') as f_in:
-#         with open("{}.dat".format(path), 'wb') as f_out:
-#             shutil.copyfileobj(f_in, f_out)
-
-# #point qui pose probleme
-# goal = (-0.004040426215791889, -0.0654527587645495, 0.13110446672187526)
-# #point qui ne pose pas problème
-# # goal = (-0.05856980682214586, -0.08044167892501795, 0.0844014084291754)
 # poppy = my_robot.Robot()
+# socket_simu = ZmqPublisher("6666", host="localhost", bound=False, debug=True)
+# socket_simu.start()
+# msg_handler = Message()
 
-# nn1 = my_nearest_neighbor.RtreeNeighbor(f=bon_path)
-# poppy.set_nn(nn1)
-# poppy.inv_model(goal)
-# print("1e cat OK")
+# while True:
+#     pos = input("Enter 3 coordinates:")
+#     x, y, z = pos.split(" ")
 
-# #Reconstruction du nearest neighbor
-# nn2 = my_nearest_neighbor.RtreeNeighbor(f=None)
-# with gzip.open("{}_ep.json.gz".format(nul_path), "rb") as f:
-#     ep_str = json.load(fp=f)
-#     endpoints = my_json_encoder.decode(ep_str)
+#     goal = (float(x), float(y), float(z))
+#     g = numpy.eye(4)
+#     g[:3,3] = goal
+#     q = poppy.robot.chain.inverse_kinematics(g)
 
-# for ep in endpoints:
-#     nn2.add_end_point(ep)
+#     print(q)
+#     posture = poppy.robot.chain.convert_from_ik_angles(q)
+#     print(q)
 
-# # nn2 = my_nearest_neighbor.RtreeNeighbor(f=nul_path)
-# poppy.set_nn(nn2)
-# poppy.inv_model(goal)
-# print("2e cat OK")
+#     msg = "dt:2"
+#     for i in range(6):
+#         msg += "|m{}:{}".format(i+1, posture[i])
+    
+#     socket_simu.publish_on_topic(msg_handler.make("move", msg, "Q"), "EJTELEOP")
+
+
+#     ep = poppy.get_end_point(posture)
+#     r = ep.matrix
+#     p = ep.get_pos()
+#     a = ep.posture
+
+#     print(a)
+#     print()
+
+#     print(g)
+#     print()
+#     for l in r:
+#         for x in l:
+#             if x < 0.01:
+#                 print("0                 \t", end="")
+#             elif x == 1:
+#                 print("1                 \t", end="")
+#             else:
+#                 print(x, end="\t")
+#         print()
+#     print()
+#     for x in p:
+#         if x < 0.01:
+#             print("0                 \t", end="")
+#         elif x == 1:
+#             print("1                 \t", end="")
+#         else:
+#             print(x, end="\t")
+#     print()
+#     print()
+#     print()
+#     print()
+#     print()
+#     print()
+#     print()
+#     print()
+#     print()
 
 #########################
 # Comparer Goal et Ikpy #
@@ -124,27 +124,6 @@ import my_nearest_neighbor
 
 # my_display.draw_points_cloud(end_points, sphere=poppy.size, rota=True)
 
-######################################
-# Comparer deux generations de goals #
-######################################
-# a1 = sys.argv[1]
-# a2 = sys.argv[2]
-
-# f1 = open(a1, "r")
-# f2 = open(a2, "r")
-
-# goals1 = json.load(fp=f1)
-# goals2 = json.load(fp=f2)
-
-# f1.close()
-# f2.close()
-
-# for g1, g2 in zip(goals1, goals2):
-#     if g1 != g2:
-#         print("{} \t {}".format(g1, g2))
-#     else:
-#         print("same")
-
 ############################
 # Generation but aleatoire #
 ############################
@@ -181,88 +160,51 @@ import my_nearest_neighbor
 ######################
 # Animation du robot #
 ######################
-poppy = my_robot.Robot()
+# poppy = my_robot.Robot()
 
-my_display.animation(poppy)
-
-#############################################
-# Affichage des points / goals d'un fichier #
-#############################################
-# f = sys.argv[1]
-# end_points = []
-# goals = []
-
-# the_file = "{}_ep.json".format(f)
-# stream = open(the_file, "r")
-# string_ep = json.load(fp=stream)
-# end_points = my_json_encoder.decode(string_ep)
-# stream.close()
-
-# the_file = "{}_g.json".format(f)
-# stream = open(the_file, "r")
-# goals = json.load(fp=stream)
-# stream.close()
-
-# my_display.draw_ep_and_goal(end_points, goals)
+# my_display.animation(poppy)
 
 #############################################
 # Suivre direction d'algo FrontierGenerator #
 #############################################
-# class false_grid(my_discretisation.Discretisation):
-#     def __init__(self):
-#         #Recréation du init pour changer le min & max
-#         self.min = (-1.5, -1.5, -1.5)
-#         self.max = (1.5, 1.5, 1.5)
+my_discretisation._MIN = -1
+my_discretisation._MAX = 1
+class false_grid(my_discretisation.Discretisation):
+    def __init__(self):
+        super().__init__(10, True)
+        self.display = False
 
-#         self.precision = [
-#             math.floor((ma-mi)/cell_size)+1
-#             for mi, ma in zip(_MIN, _MAX)
-#         ]
+    def get_cell(self, pos):
+        if self.display:
+            return super().get_cell(pos)
 
-#         Le tableau contenant les données de la discrétisation
-#         self.table = [[[0
-#             for _ in range(self.precision[2])]
-#             for _ in range(self.precision[1])]
-#             for _ in range(self.precision[0])]
-#         # La taille d'une cellule
-#         self.size = cell_size
-#         # Garde en mémoire les cellules visitées
-#         self.visited = []
+        for i in range(3):
+            if pos[i] < 0 or pos[i] >= self.nb_divs :
+                return 0
 
-#         # Retour au comportement normal pendant l'affichage
-#         self.display = False
+        if super().get_cell(pos)==0:
+            self.visited.append(pos)
+            self.add_to_pos(pos)
 
-#     def get_cell(self, pos, override = False):
-#         if self.display or override:
-#             return super().get_cell(pos)
+            return 1
 
-#         for i in range(3):
-#             if pos[i] < 0 or pos[i] >= self.precision[i]:
-#                 return 0
+ep = my_end_point.EndPoint(
+    [],
+    (
+        (0, 0, 0, 0.003),
+        (0, 0, 0, 0.003),
+        (0, 0, 0, 0.003),
+        (0, 0, 0, 0)
+    )
+)
 
-#         if super().get_cell(pos)==0:
-#             self.visited.append(pos)
-#             self.add_to_pos(pos)
+grid = false_grid()
+gg = my_goal_generation.FrontierGenerator(1, grid)
+gg.init([ep])
+d = gg.newGoal()
 
-#             return 1
-
-# ep = my_end_point.EndPoint(
-#     [],
-#     (
-#         (0, 0, 0, 0.003),
-#         (0, 0, 0, 0.003),
-#         (0, 0, 0, 0.003),
-#         (0, 0, 0, 0)
-#     )
-# )
-
-# grid = false_grid()
-# gg = my_goal_generation.FrontierGenerator(1, grid)
-# gg.init([ep])
-# d = gg.newGoal()
-
-# grid.display = True
-# my_display.draw_discretization(grid, 0.2, d)
+grid.display = True
+my_display.draw_discretization(grid, 0.2, d)
 
 
 ###############################

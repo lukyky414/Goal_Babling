@@ -34,6 +34,18 @@ class Robot():
             
             self.motor_range.append(ma - mi)
             self.motor_limit.append((mi, ma))
+        
+    def ik_inv_model(self, goal : tuple):
+        g = [[1, 0, 0, goal[0]],
+        [0, 1, 0, goal[1]],
+        [0, 0, 1, goal[2]],
+        [0, 0, 0, 1]]
+        #Max iter = 3 -> valeur pour temps de calcul faible
+        #Max iter = 1000 -> valeur par defaut pour precision haute
+        q = self.robot.chain.inverse_kinematics(g)
+        posture = self.robot.chain.convert_from_ik_angles(q)
+
+        return posture
     
     def inv_model(self, goal : tuple):
         """Le modèle inverse du robot. Retourne une liste d'angle pour atteindre le point demandé."""
@@ -71,23 +83,15 @@ class Robot():
     
     def get_end_point(self, angles : list) -> EndPoint:
         """Retourne le `end_point` du robot en executant les `angles` donnés en degré"""
-        list_angles = list()
-        list_angles.append(0)
-        for a in angles:
-            list_angles.append(a/180*math.pi)
-        list_angles.append(0)
+        res_list = self.get_posture_pos(angles)
 
-        res = EndPoint(angles, self.robot.chain.forward_kinematics(joints=list_angles, full_kinematics=False))
+        ep = EndPoint(angles, res_list[-1])
 
-        return res
+        return ep
 
     def get_posture_pos(self, angles : list) -> list:
         """Retourne la liste des matrices de rotation de chacunes des sections en executant les `angles` donnés en degré"""
-        list_angles = list()
-        list_angles.append(0)
-        for a in angles:
-            list_angles.append(a/180*math.pi)
-        list_angles.append(0)
+        list_angles = self.robot.chain.convert_to_ik_angles(angles)
 
         res = self.robot.chain.forward_kinematics(joints=list_angles, full_kinematics=True)
 
@@ -122,6 +126,15 @@ class Robot():
 
 if __name__ == "__main__":
     #Permet de faire bouger le robot réel.
+    def send_cmd(cmd, topic):
+        global socket_simu, socket_real
+        socket_simu.publish_on_topic(cmd, topic)
+
+        res = input("Is command valid?")
+
+        if res == "y":
+            print("Sending to real robot")
+            socket_real.publish_on_topic(cmd, topic)
     
     from py_ergojr.network.messages import Message
     from py_ergojr.network.zmq_publisher import ZmqPublisher
@@ -170,15 +183,6 @@ if __name__ == "__main__":
     # socket_real.start()
     socket_simu.start()
 
-    def send_cmd(cmd, topic):
-        global socket_simu, socket_real
-        socket_simu.publish_on_topic(cmd, topic)
-
-        # res = input("Is command valid?")
-
-        # if res == "y":
-        #     print("Sending to real robot")
-        #     socket_real.publish_on_topic(cmd, topic)
 
     msg_handler = Message()
 
@@ -200,29 +204,47 @@ if __name__ == "__main__":
     #     socket_real.publish_on_topic(msg_handler.make("led",msg), "EJTELEOP")
     #     time.sleep(0.5)
 
-    input("Enter pour rest")
+
+    # msg = "dt:2|m1:0|m2:0|m3:0|m4:0|m5:0|m6:0"
+    # socket_simu.publish_on_topic(msg_handler.make("move",msg,"Q"), "EJTELEOP")
+    # input ("Enter to start")
+
+    # rep = "y"
+    # while rep != "n":
+    #     posture = poppy.get_random_angles()
+
+    #     msg = "dt:2"
+    #     for i in range(6):
+    #         msg += "|m{}:{}".format(i+1, posture[i])
+        
+    #     socket_simu.publish_on_topic(msg_handler.make("move", msg, "Q"), "EJTELEOP")
+    #     rep = input(":")
+
 
     rep = "r"
     while rep == "r":
-        # pos = input("Enter 3 coordinates:")
-        # x, y, z = pos.split(" ")
+        pos = input("Enter 3 coordinates:")
+        x, y, z = pos.split(" ")
+        x, y, z = float(x), float(y), float(z)
 
-        x = 0
-        y = 0
-        z = 0.3
+        # x = 0
+        # y = 0
+        # z = 0.3
 
-        posture = poppy.inv_model((x, y, z))
-        # g = (float(x), float(y), float(z))
-        # q = poppy.robot.chain.inverse_kinematics(g
-        # posture = poppy.robot.chain.convert_from_ik_angles(q)
+        input("Enter pour rest")
         
         msg = "dt:2"
         socket_simu.publish_on_topic(msg_handler.make("rest",msg), "EJTELEOP")
 
         input("Enter pour ikpy")
         
-        send_cmd(msg_handler.make("move", "dt:2|x:{}|y:{}|z:{}".format(x, y, z), "X"), "EJTELEOP")
-        # send_cmd(msg_handler.make("move", msg, "Q"), "EJTELEOP")
+        posture = poppy.ik_inv_model((x,y,z))
+        msg = "dt:2"
+        for i in range(6):
+            msg += "|m{}:{}".format(i+1, posture[i])
+
+        # send_cmd(msg_handler.make("move", "dt:2|x:{}|y:{}|z:{}".format(x, y, z), "X"), "EJTELEOP")
+        socket_simu.publish_on_topic(msg_handler.make("move", msg, "Q"), "EJTELEOP")
 
         input("Enter pour rest")
 
@@ -231,15 +253,15 @@ if __name__ == "__main__":
 
         input("Enter pour catalogue")
 
+        posture = poppy.inv_model((x,y,z))
         msg = "dt:2"
         for i in range(6):
             msg += "|m{}:{}".format(i+1, posture[i])
         
-        send_cmd(msg_handler.make("move", msg, "Q"), "EJTELEOP")
+        socket_simu.publish_on_topic(msg_handler.make("move", msg, "Q"), "EJTELEOP")
 
-
-        # rep = input("Enter r to restart. ")
-        rep = "n"
+        rep = input("Enter r to restart. ")
+        # rep = "n"
 
 
     # msg = "dance:start"
