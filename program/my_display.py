@@ -235,11 +235,11 @@ def display_robot(posture_pos : list):
 
         _draw_axes()
 
-        if isinstance(posture[0], list):
-            for r in posture:
-                _draw_one_robot(posture=r)
+        if isinstance(posture_pos[0], list):
+            for r in posture_pos:
+                _draw_one_robot(posture_pos=r)
         else:
-            _draw_one_robot(posture=posture)
+            _draw_one_robot(posture_pos=posture_pos)
 
         _draw_fps()
         pg.display.flip()
@@ -247,6 +247,7 @@ def display_robot(posture_pos : list):
         pg.time.wait(10)
 
 _cloud_point_color = None
+_sphere_color = (1, 1, 1, 0.1)
 def draw_points_cloud(end_points : list, max_dist = 0.3, robot = None, sphere=0, rota=False):
     """Dessine un nuage de point 3d.
     `end_points` - les coordonnees des points en (x, y, z) ou liste d'end_points"""
@@ -293,7 +294,7 @@ def draw_points_cloud(end_points : list, max_dist = 0.3, robot = None, sphere=0,
             _draw_one_robot(posture)
 
         if sphere != 0:
-            gl.glColor4f(1, 1, 1, 0.1)
+            gl.glColor4f(_sphere_color[0], _sphere_color[1], _sphere_color[2], _sphere_color[3])
             glu.gluSphere(glu.gluNewQuadric(), sphere, 64, 32)
 
         # _draw_fps()
@@ -349,10 +350,10 @@ def _init_display():
     gl.glTranslatef(0.0, 0.0, -3)
 
     # De base, Z est un axe de profondeur (il viens vers la camera) et Y est vertical.
-    gl.glRotatef(-70, 1, 0, 0) # Mettre Z vers le haut, mais du coup Y est "loin"
-    gl.glRotatef(-30, 0, 0, 1) # Mettre Y vers la camera
+    gl.glRotatef(-70, 1, 0, 0) # Mettre Z vers le haut
+    gl.glRotatef(-30, 0, 0, 1) # Tourner legerement pour mieux voir les axes
 
-    # Avoir le X (rouge) qui part a droite
+    # Avoir l'axe X dans le bon sens
     gl.glScalef(-1, 1, 1)
 
     # Pour garder cet etat de base
@@ -517,8 +518,11 @@ def _draw_axes():
     gl.glEnd()
     gl.glPopAttrib()
 
+_draw_fps_bool = True
 def _draw_fps():
     """Dessine les fps à l'écran"""
+    if not _draw_fps_bool:
+        return
     gl.glColor3ui(0, 255, 0)
 
     t = time.time()
@@ -573,15 +577,31 @@ def _keyboard_event(event):
         elif event.key == pg.K_UP:
             gl.glPopMatrix()
             gl.glPushMatrix()
+            #Centrer sur un axe (pas vue en diagonale)
+            gl.glRotatef(-30, 0, 0, 1)
+            gl.glRotatef(-20, 1, 0, 0)
+
             gl.glRotatef(90, 1, 0, 0)
-        #down = cacher axe y (bleu)
+        #down = reset
         elif event.key == pg.K_DOWN:
             gl.glPopMatrix()
             gl.glPushMatrix()
+        #left = cacher axe y (bleu)
+        elif event.key == pg.K_LEFT:
+            gl.glPopMatrix()
+            gl.glPushMatrix()
+            #Centrer sur un axe (pas vue en diagonale)
+            gl.glRotatef(-30, 0, 0, 1)
+            gl.glRotatef(-20, 1, 0, 0)
+
         #right = cacher axe x (rouge)
         elif event.key == pg.K_RIGHT:
             gl.glPopMatrix()
             gl.glPushMatrix()
+            #Centrer sur un axe (pas vue en diagonale)
+            gl.glRotatef(-30, 0, 0, 1)
+            gl.glRotatef(-20, 1, 0, 0)
+
             gl.glRotatef(-90, 0, 0, 1)
 
 
@@ -619,11 +639,11 @@ def _mouse_event(event):
 
         # Wheel Up = Zoom
         elif event.button == 4:
-            gl.glScalef(1.5, 1.5, 1.5)
+            gl.glScalef(1.6, 1.6, 1.6)
 
         # Wheel Down = Dezoom
         elif event.button == 5:
-            gl.glScalef(0.6, 0.6, 0.6)
+            gl.glScalef(0.625, 0.625, 0.625)
 
     elif event.type == pg.MOUSEBUTTONUP:
         if event.button == 1:

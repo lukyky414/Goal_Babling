@@ -20,6 +20,48 @@ import my_robot
 import my_nearest_neighbor
 
 
+###########################
+# Perturbation de posture #
+###########################
+# poppy = my_robot.Robot()
+
+# my_display._background_color = (255, 255, 255)
+# my_display._cloud_point_color = (0, 0, 0)
+# my_display._sphere_color = (0, 0, 0, 0.1)
+
+# posture = (0, 0, 0, 0, 0, 0)
+# ep = poppy.get_end_point(posture)
+
+# end_points = [ep]
+# i = 0
+# for i in range(500):
+#     print(i, end="\r")
+#     p = poppy.randomize_posture(posture, 0.05)
+#     ep = poppy.get_end_point(p)
+
+#     end_points.append(ep)
+# print()
+
+# my_display.draw_points_cloud(end_points, robot=poppy)
+
+###############################
+# Exemple Poppy Motor Babling #
+###############################
+# poppy = my_robot.Robot()
+# posture = poppy.get_random_angles()
+# representation = poppy.get_posture_pos(posture)
+
+# my_display._background_color = (255, 255, 255)
+# my_display._section_color = (0, .3, 0, 1)
+# my_display._joint_color = (0, .3, 0, 1)
+# my_display._draw_fps_bool = False
+
+# my_display.display_robot(representation)
+
+
+####################################
+# Test Modèle Inverse sur le Robot #
+####################################
 # poppy = my_robot.Robot()
 # socket_simu = ZmqPublisher("6666", host="localhost", bound=False, debug=True)
 # socket_simu.start()
@@ -114,15 +156,23 @@ import my_nearest_neighbor
 #######################################################
 # Comparer la sphere robot et la liste des end_points #
 #######################################################
-# a = sys.argv[1]
 # poppy = my_robot.Robot()
 
-# f = open(a, "r")
-# ep_str = json.load(fp=f)
-# end_points = my_json_encoder.decode(ep_str)
-# f.close()
+# my_display._background_color = (255, 255, 255)
+# my_display._cloud_point_color = (0, 0, 0)
+# my_display._sphere_color = (0, 0, 0, 0.1)
 
-# my_display.draw_points_cloud(end_points, sphere=poppy.size, rota=True)
+# end_points = []
+# i = 0
+# for i in range(8000):
+#     print(i, end="\r")
+#     p = poppy.get_random_angles()
+#     ep = poppy.get_end_point(p)
+
+#     end_points.append(ep)
+# print()
+
+# my_display.draw_points_cloud(end_points, sphere=poppy.size)
 
 ############################
 # Generation but aleatoire #
@@ -150,10 +200,10 @@ import my_nearest_neighbor
 #     # if z < 0.1:
 #     pos.append((x*mag, y*mag, z*mag))
 
-# # my_display._background_color = (255, 255, 255)
-# # my_display._section_color = (0, .3, 0, 1)
-# # my_display._joint_color = (0, .3, 0, 1)
-# # my_display._cloud_point_color = (0, 0, 0)
+# my_display._background_color = (255, 255, 255)
+# my_display._section_color = (0, .3, 0, 1)
+# my_display._joint_color = (0, .3, 0, 1)
+# my_display._cloud_point_color = (0, 0, 0)
 # # my_display.draw_points_cloud(pos, robot=poppy)
 # my_display.draw_points_cloud(pos)
 
@@ -167,44 +217,44 @@ import my_nearest_neighbor
 #############################################
 # Suivre direction d'algo FrontierGenerator #
 #############################################
-my_discretisation._MIN = -1
-my_discretisation._MAX = 1
-class false_grid(my_discretisation.Discretisation):
-    def __init__(self):
-        super().__init__(10, True)
-        self.display = False
+# my_discretisation._MIN = -1
+# my_discretisation._MAX = 1
+# class false_grid(my_discretisation.Discretisation):
+#     def __init__(self):
+#         super().__init__(10, True)
+#         self.display = False
 
-    def get_cell(self, pos):
-        if self.display:
-            return super().get_cell(pos)
+#     def get_cell(self, pos):
+#         if self.display:
+#             return super().get_cell(pos)
 
-        for i in range(3):
-            if pos[i] < 0 or pos[i] >= self.nb_divs :
-                return 0
+#         for i in range(3):
+#             if pos[i] < 0 or pos[i] >= self.nb_divs :
+#                 return 0
 
-        if super().get_cell(pos)==0:
-            self.visited.append(pos)
-            self.add_to_pos(pos)
+#         if super().get_cell(pos)==0:
+#             self.visited.append(pos)
+#             self.add_to_pos(pos)
 
-            return 1
+#             return 1
 
-ep = my_end_point.EndPoint(
-    [],
-    (
-        (0, 0, 0, 0.003),
-        (0, 0, 0, 0.003),
-        (0, 0, 0, 0.003),
-        (0, 0, 0, 0)
-    )
-)
+# ep = my_end_point.EndPoint(
+#     [],
+#     (
+#         (0, 0, 0, 0.003),
+#         (0, 0, 0, 0.003),
+#         (0, 0, 0, 0.003),
+#         (0, 0, 0, 0)
+#     )
+# )
 
-grid = false_grid()
-gg = my_goal_generation.FrontierGenerator(1, grid)
-gg.init([ep])
-d = gg.newGoal()
+# grid = false_grid()
+# gg = my_goal_generation.FrontierGenerator(1, grid)
+# gg.init([ep])
+# d = gg.newGoal()
 
-grid.display = True
-my_display.draw_discretization(grid, 0.2, d)
+# grid.display = True
+# my_display.draw_discretization(grid, 0.2, d)
 
 
 ###############################
