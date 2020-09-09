@@ -1,5 +1,7 @@
 \documentclass[french]{beamer}
 
+%Erreur encoding?
+\usepackage[T1]{fontenc}
 % Animations
 \usepackage{xmpmulti}
 %Arbre pour goal babling
@@ -15,6 +17,7 @@
 \graphicspath{{./graphics/}}
 % Merge cellule verticalement tableau
 \usepackage{multirow}
+\usepackage{babel}
 
 % Enlève les boutons de navigation des frames
 \beamertemplatenavigationsymbolsempty
@@ -81,12 +84,6 @@
         \end{tabular}
     \end{center}
 
-    %Logo loria
-    % \begin{tikzpicture}[remember picture,overlay]
-    %     \node[xshift=0.5\textwidth,yshift=-76mm,anchor=north west] at (current page.north west){%
-    %         \includegraphics[width=100pt]{logo_loria_complet.jpg}
-    %     };
-    % \end{tikzpicture}
 \end{frame}
 
 %-----------------------------------
@@ -114,17 +111,23 @@
 %###################################
 \section{Introduction}
 
-%###
-\subsection{Contexte}
-
 % Contexte
 \begin{frame}
     \frametitle{Contexte}
 
-    \center
-    \includegraphics[width=.7\textwidth]{contexte.png}
+    \begin{tikzpicture}[overlay]
+        \node at (7,-2.5) {\includegraphics[width=.7\textwidth]{contexte.png}};
+    \end{tikzpicture}
 
-    % On donne une cible à un robot dans le monde réel, on ne connait pas naturellement quel commande à lui envoyer pour atteindre cette cible.
+    But: Monde réel
+    
+    Robot: Commande
+
+    \phantom{}
+
+    Fonction: Monde Réel $\rightarrow$ Commande ?
+
+    \vfill
 
 \end{frame}
 
@@ -133,6 +136,8 @@
 % Comment calculer, cinématique inverse
 \begin{frame}
     \frametitle{Cinématique Inverse}
+
+    \large Exemple avec un bras robotique :
 
     \includegraphics[width=\textwidth]{Modelisation_Diagram_w_espaces_w_function.png}
 
@@ -144,9 +149,9 @@
 
 %Présenter l'etat des choses
 \begin{frame}
-    \frametitle{}
+    \frametitle{Cinématique Inverse}
 
-    \begin{tabular}{m{0.60\textwidth} m{0.35\textwidth}}
+    \begin{tabular}{m{0.60\textwidth} m{0.4\textwidth}}
         \tikzstyle{every node}=[draw=black,thick,anchor=west]
         \tikzstyle{selected}=[draw=red,fill=red!30]
         \tikzstyle{optional}=[dashed,fill=gray!50]
@@ -155,30 +160,37 @@
             two children at (0.5,-0.7) and (0.5,-1.4)},
             edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
                 \node {Cinématique Inverse}
-                child { node { Solution Analytique } }
-                child { node { Optimisation } }
-                child { node {Babling}
-                    child { node {Motor Babling} }
-                    child { node [selected] {Goal Babling} }
+                child { node { Avec modèle } 
+                    child { node { Solution Analytique } }
+                    child { node { Optimisation } }
+                    child { node { ... } }
                 }
                 child [missing] {}
                 child [missing] {}
-                child { node { ... } };
+                child [missing] {}
+                child { node { Sans modèle } 
+                    child { node [selected] { Goal Babling} }
+                    child { node { ... } }
+                };
         \end{tikzpicture}
 
         &
 
         \footnotesize
 
-        Oudeyer et Kaplan (2007)
+        \phantom{}
+
+        \vspace{3mm}
+
+        Oudeyer et Kaplan (2007) \cite{OudeyerEtKaplan}
         
         \vspace{2mm}
 
-        Baranes et Oudeyer (2010)
+        Baranes et Oudeyer (2010) \cite{GoalBabling}
 
-        Rolf et al. (2011)
+        Rolf et al. (2011) \cite{rolfetautre}
 
-        Jamone et al. (2011)
+        Jamone et al. (2011) \cite{jamone}
 
         % The idea of goal babbling was proposed by Oudeyer and Kaplan (2007) (p. 8). Computation implementations were then proposed by Baranes and Oudeyer (2010); Rolf et al. (2011) and Jamone et al. (2011). 
 
@@ -191,8 +203,7 @@
     % Je dois couvrir l'espace autant que les autres
 \end{frame}
 
-%###
-\subsection{Babling}
+%-----------------------------------
 
 % Mon travail -> Babling & Ergo
 \begin{frame}
@@ -200,13 +211,14 @@
     
     \center
     \includegraphics[width=0.5\textwidth]{Poppy_Ergo_Jr.png}
+    
 \end{frame}
 
 %-----------------------------------
 
 % Babling: inspiration du processus développementale
 \begin{frame}
-    \frametitle{Babling}
+    \frametitle{Goal Babling}
 
     \center
     \begin{tabular}[]{m{0.4\textwidth} m{0.5\textwidth}}
@@ -229,37 +241,50 @@
 %###################################
 \section{Travail Réalisé}
 
-%###
-\subsection{Principe}
-
 % Expliquer la fonction f: X -> Q
 \begin{frame}
     \frametitle{Cinématique Inverse}
 
     \center
     \begin{tabular}{m{0.4\textwidth} m{0.5\textwidth}}
+        Fonction: 
+        
+        Monde réel $\rightarrow$ Commande
+
+        \vspace{3mm}
+
         \center
         \Large
         F: 
         \large
         X $\rightarrow$ Q \nonumber
 
-        % Todo : représenter interpolation
+        \vspace{20mm}
+
+        \phantom{}
 
         &
 
+        \phantom{}
+
+        \vspace{1mm}
+
         \center
+        Expérience du robot
+
+        \vspace{3mm}
+
         Catalogue
 
         \vspace{2mm}
 
         \begin{tabular}{||c | c ||}
             \hline
-            Commande (Q) & Observation (X) \\
+            Observation (X) & Commande (Q) \\
             \hline
-            $\theta_{a1}, \theta_{b1}, ...$ & x, y, z\\
-            $\theta_{a2}, \theta_{b2}, ...$ & x, y, z\\
-            $\theta_{a3}, \theta_{b3}, ...$ & x, y, z\\
+            x1, y1, z1 & $\theta_{a1}, \theta_{b1}, ...$\\
+            x2, y2, z2 & $\theta_{a2}, \theta_{b2}, ...$\\
+            x3, y3, z3 & $\theta_{a3}, \theta_{b3}, ...$\\
             ... & ...\\
             \hline
         \end{tabular}
@@ -282,16 +307,9 @@
         edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
             \node {Cinématique Inverse}
             child { node { Sans modèle }
-                child { node [selected] {Babling}
-                    child { node {Motor Babling} }
-                    child { node {Goal Babling} }
-                }
-                child [missing] {}
-                child [missing] {}
+                child { node [selected] {Goal Babling} }
                 child { node { ... } }
             }
-            child [missing] {}
-            child [missing] {}
             child [missing] {}
             child [missing] {}
             child { node [optional] { Avec Modèle }
@@ -300,32 +318,6 @@
                 child { node [optional] { ... } }
             };
     \end{tikzpicture}
-
-\end{frame}
-
-%###
-\subsection{Algorithmes}
-
-% Motor Babling
-\begin{frame}
-    \frametitle{Motor Babling}
-
-    \begin{tabular}{m{.45\textwidth} m{.3\textwidth}}
-        
-        % \center
-        Posture Aléatoire
-
-        \includegraphics[width=.30\textwidth]{poppy_motor_babling/frame-2.png}
-
-        &
-
-        \center
-        Distribution des observations
-
-        \includegraphics[width=.35\textwidth]{motor_babling_distribution.png}
-
-
-    \end{tabular}
 
 \end{frame}
 
@@ -347,7 +339,8 @@
 
         &
 
-        \phantom{}
+        \center
+        \underline{Suivre un but}
         
         \vspace{15mm}
 
@@ -355,15 +348,46 @@
 
         \begin{tabular}{||c | c ||}
             \hline
-            Commande (Q) & Observation (X) \\
+            Observation (X) & Commande (Q) \\
             \hline
-            $\theta_{a1}, \theta_{b1}, ...$ & x, y, z\\
-            $\theta_{a2}, \theta_{b2}, ...$ & x, y, z\\
-            $\theta_{a3}, \theta_{b3}, ...$ & x, y, z\\
+            x1, y1, z1 & $\theta_{a1}, \theta_{b1}, ...$\\
+            x2, y2, z2 & $\theta_{a2}, \theta_{b2}, ...$\\
+            x3, y3, z3 & $\theta_{a3}, \theta_{b3}, ...$\\
             ... & ...\\
             \hline
         \end{tabular}
         
+    \end{tabular}
+
+\end{frame}
+
+%-----------------------------------
+
+% Motor Babling
+\begin{frame}
+    \frametitle{Motor Babling}
+
+    \begin{tabular}{m{.35\textwidth} m{.55\textwidth}}
+        
+        % \center
+        Commande Aléatoire
+
+        \includegraphics[width=.30\textwidth]{poppy_motor_babling/frame-2.png}
+
+        &
+
+        \Large
+        \underline{Initialisation du catalogue}
+
+        \vspace{10mm}
+
+        \normalsize
+        \center
+        Distribution des observations
+
+        \includegraphics[width=.35\textwidth]{motor_babling_distribution.png}
+
+
     \end{tabular}
 
 \end{frame}
@@ -420,10 +444,6 @@
 %###################################
 \section{Expérimentation}
 
-
-%###
-\subsection{Processus}
-
 % Experience - lancer - mesurer
 \begin{frame}
     \frametitle{Expérience}
@@ -457,6 +477,8 @@
 
 \end{frame}
 
+%-----------------------------------
+
 \begin{frame}
     \frametitle{Couverture: Volume et Remplissage}
     
@@ -479,10 +501,13 @@
 
 \end{frame}
 
+%-----------------------------------
+
 \begin{frame}
-    \frametitle{Précision: Erreur}
+    \frametitle{Précision: Erreur sur une liste de test}
     
-    \huge$\sum\limits_{g \in goals}$ d(\Large G( \large F( \normalsize g \large ) \Large ), g \huge)
+    \huge$\sum\limits_{g \in goals} \frac{ d( g, G(  F(  g  )  ) )}
+    {nb\_goals}$
     
     \vfill
     \center \normalsize
@@ -497,8 +522,7 @@
     \end{tabular}
 \end{frame}
 
-%###
-\subsection{Résultats}
+%-----------------------------------
 
 % Resultats Motor Babling
 \begin{frame}
@@ -536,7 +560,7 @@
         \\
         $p \nearrow$ = Variance Couverture \color{green}$\searrow$
         &
-        $p \nearrow$ = Variance Précision \color{green}$\searrow$
+        $p \nearrow$ = Variance Précision \color{orange}$\nearrow$
     \end{tabular}
 \end{frame}
 
@@ -606,22 +630,37 @@
 \begin{frame}
 
     \begin{itemize}
-        \item Cinématique Inverse pour Poppy
-        \item babling
+        \item Cinématique Inverse pour Poppy Ergo Jr
+        \item Babling
         \begin{itemize}
             \item Motor Babling
             \item Agnostic Goal Generator
             \item Frontier
         \end{itemize}
         \item Résultats
+        \begin{itemize}
+            \item Contraintes ignorées
+            \item Incompatibilité Poppy Ergo Jr
+            \item Meilleur que Motor Babling: aléatoire total
+        \end{itemize}
     \end{itemize}
 \end{frame}
+
+%-----------------------------------
 
 \begin{frame}
     \center
     \Huge Merci de votre attention
     
     Avez-vous des questions ?
+\end{frame}
+
+%-----------------------------------
+
+\begin{frame}
+    \footnotesize
+    \bibliographystyle{unsrt}
+    \bibliography{sample}
 \end{frame}
 
 \end{document}

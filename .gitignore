@@ -17,13 +17,28 @@ files
 program/stop.py
 
 #fichier temporaires pour latex
-rapport/*
-!rapport/rapport.tex
-!rapport/sample.bib
-!rapport/graphics/
+rapport/rapport.aux
+rapport/rapport.bbl
+rapport/rapport.blg
+rapport/rapport.fdb_latexmk
+rapport/rapport.fls
+rapport/rapport.log
+rapport/rapport.out
+rapport/rapport.synctex.gz
+rapport/rapport.toc
+
+
 
 #fichier temporaires pour latex
-soutenance/*
-!soutenance/soutenance.tex
-!soutenance/sample.bib
-!soutenance/graphics/
+soutenance/soutenance.aux
+soutenance/soutenance.bbl
+soutenance/soutenance.blg
+soutenance/soutenance.fdb_latexmk
+soutenance/soutenance.fls
+soutenance/soutenance.log
+soutenance/soutenance.out
+soutenance/soutenance.synctex.gz
+soutenance/soutenance.toc
+soutenance/soutenance.dvi
+soutenance/soutenance.nav
+soutenance/soutenance.snm
